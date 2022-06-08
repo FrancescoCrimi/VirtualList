@@ -37,7 +37,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Margin="3" Text="Name" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBox Grid.Column="1" Margin="3" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <Button Grid.Column="2" Margin="3" Content="Search" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button Grid.Column="2" Margin="3" Content="Search" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding ButtonCommand, Mode=OneWay}"/>
                     </Grid>
                 </Border>
 

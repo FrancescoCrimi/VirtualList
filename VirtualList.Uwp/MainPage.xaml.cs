@@ -11,5 +11,10 @@ namespace CiccioSoft.VirtualList.Uwp
             var mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
             DataContext = mainViewModel;
         }
+
+        private void Button_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
+        }
     }
 }

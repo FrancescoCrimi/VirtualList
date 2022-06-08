@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using NLog.Extensions.Logging;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -63,6 +64,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 {
                     loggingBuilder
                         .AddConfiguration(configuration.GetSection("Logging"))
+                        .AddNLog()
                         .AddDebug();
                         //.AddEventLog();
                 })

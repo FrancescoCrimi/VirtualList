@@ -4,16 +4,19 @@ using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    internal class FakeList : IList<Model>, IList, IItemsRangeInfo
+    internal class FakeList : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged
     {
         private readonly ILogger logger;
         private readonly int count;
         private readonly List<Model> fakes;
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         public FakeList()
         {
@@ -22,7 +25,33 @@ namespace CiccioSoft.VirtualList.Uwp
             fakes = new FakeModelRepository(count).GetModels();
         }
 
-        public object this[int index]
+        #region Public Method
+
+        public void OnNotifyCollectionReset()
+        {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            logger.LogWarning("Evento Collection Reset");
+        }
+
+        #endregion
+
+
+        #region Implemented Method Interface
+
+        public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
+        {
+            var aa = trackedItems.ToArray();
+            var ccc = trackedItems[0];
+            logger.LogWarning("RangeChange {0} - {1}", visibleRange.FirstIndex, visibleRange.LastIndex);
+        }
+
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => throw new NotImplementedException();
+        }
+
+        public Model this[int index]
         {
             get
             {
@@ -44,115 +73,50 @@ namespace CiccioSoft.VirtualList.Uwp
             private set => throw new NotImplementedException();
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            logger.LogWarning("Enumerator");
-            return ((IList)fakes).GetEnumerator();
-        }
+        public IEnumerator GetEnumerator() => ((IList)fakes).GetEnumerator();
 
-        public int IndexOf(object value)
-        {
-            logger.LogWarning("IndexOf");
-            return -1;
-        }
+        IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakes.GetEnumerator();
+
+        public int IndexOf(object value) => -1;
+
+        int IList<Model>.IndexOf(Model item) => -1;
 
         public bool IsReadOnly => true;
 
         public bool IsFixedSize => false;
 
+        #endregion
 
-        #region Not Implemented
+
+        #region Not Implemented Method Interface
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
 
         object ICollection.SyncRoot => throw new NotImplementedException();
 
-        Model IList<Model>.this[int index]
-        {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
-        }
+        void ICollection<Model>.Add(Model item) => throw new NotImplementedException();
 
-        void ICollection<Model>.Add(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        int IList.Add(object value) => throw new NotImplementedException();
 
-        int IList.Add(object value)
-        {
-            throw new NotImplementedException();
-        }
+        bool ICollection<Model>.Contains(Model item) => throw new NotImplementedException();
 
-        bool ICollection<Model>.Contains(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        bool IList.Contains(object value) => throw new NotImplementedException();
 
-        bool IList.Contains(object value)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<Model>.CopyTo(Model[] array, int arrayIndex) => throw new NotImplementedException();
 
-        void ICollection<Model>.CopyTo(Model[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
 
-        void ICollection.CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
+        void IList<Model>.Insert(int index, Model item) => throw new NotImplementedException();
 
-        void IList<Model>.Insert(int index, Model item)
-        {
-            throw new NotImplementedException();
-        }
+        void IList.Insert(int index, object value) => throw new NotImplementedException();
 
-        void IList.Insert(int index, object value)
-        {
-            throw new NotImplementedException();
-        }
+        bool ICollection<Model>.Remove(Model item) => throw new NotImplementedException();
 
-        bool ICollection<Model>.Remove(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        void IList.Remove(object value) => throw new NotImplementedException();
 
-        void IList.Remove(object value)
-        {
-            throw new NotImplementedException();
-        }
+        public void RemoveAt(int index) => throw new NotImplementedException();
 
-        void IList<Model>.RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IList.RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        int IList<Model>.IndexOf(Model item)
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator<Model> IEnumerable<Model>.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
-        {
-            var aa = trackedItems.ToArray();  
-            var ccc = trackedItems[0];
-        }
+        public void Clear() => throw new NotImplementedException();
 
         public void Dispose()
         {

@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.System.Threading;
 using Windows.UI.Core;
-using Windows.UI.Xaml;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
@@ -41,7 +40,7 @@ namespace CiccioSoft.VirtualList.Uwp
         }
     }
 
-    public abstract class UwpVirtualList<T> : IList, INotifyCollectionChanged where T : class
+    public abstract class UwpVirtualList<T> : IList, IList<T>, INotifyCollectionChanged where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -85,7 +84,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 indexStack.TryPop(out int idx);
                 indexStack.Clear();
                 FetchItem(idx);
-                logger.LogWarning("Pippo: {0}", idx);
+                //logger.LogWarning("TimerHandler: {0}", idx);
             }
         }
 
@@ -94,7 +93,8 @@ namespace CiccioSoft.VirtualList.Uwp
             //// Aggiungo ritardo solo per test
             //if (cancellationToken.IsCancellationRequested)
             //    cancellationToken.ThrowIfCancellationRequested();
-            //await Task.Delay(1000, cancellationToken);
+            await Task.Delay(2000, cancellationToken);
+            logger.LogWarning("FetchRange: {0} - {1}", index, index + take);
 
             // recupero i dati
             if (cancellationToken.IsCancellationRequested)
@@ -102,6 +102,8 @@ namespace CiccioSoft.VirtualList.Uwp
             List<T> models = await GetRangeAsync(index, take, cancellationToken);
 
             // Aggiorno lista interna
+            if (cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
             items.Clear();
             for (int i = 0; i < models.Count; i++)
             {
@@ -109,6 +111,8 @@ namespace CiccioSoft.VirtualList.Uwp
             }
 
             // invoco CollectionChanged Replace per singolo item
+            if (cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
             foreach (var item in items)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -133,25 +137,29 @@ namespace CiccioSoft.VirtualList.Uwp
                 index = count - range * 2;
             else
                 index = index - range;
-
             if (cancellationTokenSource.Token.CanBeCanceled)
                 cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
             cancellationTokenSource = new CancellationTokenSource();
-            logger.LogWarning("Create thread FetchRange index: {0}", index);
 
             try
             {
-                Task.Run(async () =>
+                Task task = Task.Run(async () =>
                     //await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     await FetchRange(index, cancellationTokenSource.Token)
                     //    .AsAsyncAction()
                     //)
                     );
+                logger.LogWarning("Create Task; Id:{0} - Index:{1}", task.Id, index);
+                task.Wait();
             }
             catch (OperationCanceledException ex)
             {
                 logger.LogError(ex.Message);
+            }
+            catch  (AggregateException agex)
+            {
+                logger.LogError(agex.InnerException.Message + " Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
             }
 
         }
@@ -165,20 +173,24 @@ namespace CiccioSoft.VirtualList.Uwp
 
         object IList.this[int index]
         {
+            get => this[index];
+            set => throw new NotImplementedException();
+        }
+
+        public T this[int index]
+        {
             get
             {
                 //logger.LogWarning("Index: {0}", index);
                 if (items.ContainsKey(index))
-                {
                     return items[index];
-                }
                 else
                 {
-                    //FetchItem(index);
                     indexStack.Push(index);
                     return CreateDummyEntity();
                 }
             }
+
             set => throw new NotImplementedException();
         }
 
@@ -193,7 +205,7 @@ namespace CiccioSoft.VirtualList.Uwp
             private set => throw new NotImplementedException();
         }
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly => true;
 
         public bool IsFixedSize => false;
 
@@ -201,11 +213,13 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             return ((IList)fakelist).GetEnumerator();
         }
-
-        int IList.IndexOf(object value)
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return -1;
+            return fakelist.GetEnumerator();
         }
+
+        int IList<T>.IndexOf(T item) => -1;
+        int IList.IndexOf(object value) => -1;
 
         #endregion
 
@@ -218,7 +232,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         int IList.Add(object value) => throw new NotImplementedException();
 
-        void IList.Clear() => throw new NotImplementedException();
+        public void Clear() => throw new NotImplementedException();
 
         bool IList.Contains(object value) => throw new NotImplementedException();
 
@@ -228,7 +242,18 @@ namespace CiccioSoft.VirtualList.Uwp
 
         void IList.Remove(object value) => throw new NotImplementedException();
 
-        void IList.RemoveAt(int index) => throw new NotImplementedException();
+        public void RemoveAt(int index) => throw new NotImplementedException();
+
+
+        void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
+
+        void ICollection<T>.Add(T item) => throw new NotImplementedException();
+
+        bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
+
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
+
+        bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
         #endregion
     }
