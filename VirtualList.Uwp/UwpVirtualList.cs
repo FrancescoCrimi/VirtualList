@@ -150,16 +150,16 @@ namespace CiccioSoft.VirtualList.Uwp
                     //    .AsAsyncAction()
                     //)
                     );
-                logger.LogWarning("Create Task; Id:{0} - Index:{1}", task.Id, index);
+                logger.LogWarning("Create Task Id:{0} - Index:{1}", task.Id, index);
                 task.Wait();
             }
             catch (OperationCanceledException ex)
             {
-                logger.LogError(ex.Message);
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)ex.InnerException).Task.Id);
             }
             catch  (AggregateException agex)
             {
-                logger.LogError(agex.InnerException.Message + " Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
             }
 
         }
