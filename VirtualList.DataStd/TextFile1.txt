@@ -1,0 +1,16 @@
+﻿
+
+Add-Migration InitialCreate -Context MyDbContext -OutputDir Data\InitialCreate -Project VirtualList.DataStd
+
+Update-Database -Context MyDbContext -Project VirtualList.DataStd
+
+Drop-Database -Context MyDbContext -Project VirtualList.DataStd
+
+Remove-Migration -Force -Context MyDbContext -Project VirtualList.DataStd
+
+Script-Migration -Context MyDbContext -Project VirtualList.DataStd
+
+dotnet ef migrations add InitialCreate --context MyDbContext --output-dir Data/InitialCreate --project VirtualList.DataStd
+dotnet ef database update --context MyDbContext --project VirtualList.DataStd
+
+dotnet ef migrations remove
