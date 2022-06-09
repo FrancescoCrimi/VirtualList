@@ -15,11 +15,12 @@ namespace CiccioSoft.VirtualList.Uwp
 {
     public class ModelVirtualCollection : VirtualCollection<Model>
     {
-        private readonly IModelRepository modelRepository;
+        private readonly IModelRepository repo;
 
         public ModelVirtualCollection() : base()
         {
-            this.modelRepository = Ioc.Default.GetRequiredService<IModelRepository>();
+            //repo = Ioc.Default.GetRequiredService<IModelRepository>();
+            repo = new FakeModelRepository(10000);
             count = GetCount();
         }
 
@@ -30,12 +31,12 @@ namespace CiccioSoft.VirtualList.Uwp
 
         protected override int GetCount()
         {
-            return modelRepository.Count();
+            return repo.Count();
         }
 
         protected override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
         {
-            return modelRepository.GetRangeModelsAsync(skip, take, cancellationToken);
+            return repo.GetRangeModelsAsync(skip, take, cancellationToken);
         }
     }
 

@@ -18,11 +18,11 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         private readonly IModelRepository repo;
 
-        public ModelVirtualRangeCollection()
-            : base()
+        public ModelVirtualRangeCollection() : base()
         {
-            count = 10000;
-            repo = new FakeModelRepository(count);
+            //repo = Ioc.Default.GetRequiredService<IModelRepository>();
+            repo = new FakeModelRepository(10000);
+            count = GetCount();
         }
 
         protected override Model CreateDummyEntity()
@@ -32,7 +32,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         protected override int GetCount()
         {
-            return count;
+            return repo.Count();
         }
 
         protected override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public VirtualRangeCollection()
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("UwpVirtualCollection");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualRangeCollection");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
             items = new ConcurrentDictionary<int, T>();
