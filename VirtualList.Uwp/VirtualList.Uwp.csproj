@@ -121,7 +121,7 @@
     </Compile>
     <Compile Include="FakeList.cs" />
     <Compile Include="ModelIncrementalSource.cs" />
-    <Compile Include="NewUwpVirtualList.cs" />
+    <Compile Include="UwpVirtualCollection.cs" />
     <Compile Include="UwpVirtualList.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

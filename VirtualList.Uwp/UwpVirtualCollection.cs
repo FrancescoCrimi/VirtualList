@@ -14,13 +14,13 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class NewModelVirtualList : NewUwpVirtualList<Model>
+    public class ModelVirtualCollection : UwpVirtualCollection<Model>
     {
 
         //private readonly int count;
         private readonly FakeModelRepository repo;
 
-        public NewModelVirtualList()
+        public ModelVirtualCollection()
         {
             //count = 10000;
             repo = new FakeModelRepository(count);
@@ -42,7 +42,7 @@ namespace CiccioSoft.VirtualList.Uwp
         }
     }
 
-    public abstract class NewUwpVirtualList<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
+    public abstract class UwpVirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -51,7 +51,7 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly List<T> fakelist;
         protected int count;
 
-        public NewUwpVirtualList()
+        public UwpVirtualCollection()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("NewUwpVirtualList");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
@@ -74,9 +74,9 @@ namespace CiccioSoft.VirtualList.Uwp
 
         private async Task FetchRange(int skip, int take, CancellationToken cancellationToken)
         {
-            //if (cancellationToken.IsCancellationRequested)
-            //    cancellationToken.ThrowIfCancellationRequested();
-            ////await Task.Delay(10, cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
+            await Task.Delay(200, cancellationToken);
             //Thread.Sleep(10);
 
             if (cancellationToken.IsCancellationRequested)
@@ -119,13 +119,14 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public async void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            var asdf = trackedItems.ToArray()[0];
+
             try
             {
-                if (cancellationTokenSource.Token.CanBeCanceled)
-                    cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
-                cancellationTokenSource = new CancellationTokenSource();
-                var asdf = trackedItems.ToArray()[0];
                 //await Task.Run(async() =>
                 await FetchRange(asdf.FirstIndex, (int)asdf.Length, cancellationTokenSource.Token);
                 //, cancellationTokenSource.Token);
@@ -134,9 +135,13 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 logger.LogError(ex.Message);
             }
+            catch(AggregateException agex)
+            {
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
+            }
         }
 
-        public object this[int index]
+        public T this[int index]
         {
             get
             {
@@ -147,13 +152,13 @@ namespace CiccioSoft.VirtualList.Uwp
                 else
                     return CreateDummyEntity();
             }
-
             set => throw new NotImplementedException();
         }
 
-        public int IndexOf(object value)
+        object IList.this[int index]
         {
-            return -1;
+            get => this[index];
+            set => throw new NotImplementedException();
         }
 
         public int Count
@@ -164,14 +169,24 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            return ((IList)fakelist).GetEnumerator();
-        }
+        public int IndexOf(T item) => -1;
 
-        public bool IsReadOnly => false;
+        int IList.IndexOf(object value) => -1;
+
+        public IEnumerator<T> GetEnumerator() => fakelist.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
+        public bool IsReadOnly => true;
 
         bool IList.IsFixedSize => false;
+
+        public void Dispose()
+        {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+        }
 
         #endregion
 
@@ -181,8 +196,6 @@ namespace CiccioSoft.VirtualList.Uwp
         bool ICollection.IsSynchronized => throw new NotImplementedException();
 
         object ICollection.SyncRoot => throw new NotImplementedException();
-
-        T IList<T>.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         int IList.Add(object value) => throw new NotImplementedException();
 
@@ -198,11 +211,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public void RemoveAt(int index) => throw new NotImplementedException();
 
-        int IList<T>.IndexOf(T item)
-        {
-            throw new NotImplementedException();
-        }
-
         void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
 
         void ICollection<T>.Add(T item) => throw new NotImplementedException();
@@ -213,16 +221,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
         bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => throw new NotImplementedException();
-
         #endregion
-
-
-        public void Dispose()
-        {
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-        }
     }
 }

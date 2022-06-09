@@ -88,13 +88,44 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
+        private void FetchItem(int index)
+        {
+            if (index < range)
+                index = 0;
+            else if (index > count - range)
+                index = count - take;
+            else
+                index -= range;
+
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                Task task = Task.Run(async () =>
+                    await FetchRange(index, cancellationTokenSource.Token));
+                logger.LogWarning("Create Task Id:{0} - Index:{1}", task.Id, index);
+                task.Wait();
+            }
+            catch (OperationCanceledException ex)
+            {
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)ex.InnerException).Task.Id);
+            }
+            catch (AggregateException agex)
+            {
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
+            }
+        }
+
         private async Task FetchRange(int index, CancellationToken cancellationToken)
         {
             //// Aggiungo ritardo solo per test
             //if (cancellationToken.IsCancellationRequested)
             //    cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(2000, cancellationToken);
-            logger.LogWarning("FetchRange: {0} - {1}", index, index + take);
+            //await Task.Delay(2000, cancellationToken);
+            //logger.LogWarning("FetchRange: {0} - {1}", index, index + take);
 
             // recupero i dati
             if (cancellationToken.IsCancellationRequested)
@@ -127,41 +158,6 @@ namespace CiccioSoft.VirtualList.Uwp
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     CollectionChanged?.Invoke(this, eventarg));
             }
-        }
-
-        private void FetchItem(int index)
-        {
-            if (index < range)
-                index = 0;
-            else if (index > count - range)
-                index = count - range * 2;
-            else
-                index = index - range;
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = new CancellationTokenSource();
-
-            try
-            {
-                Task task = Task.Run(async () =>
-                    //await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    await FetchRange(index, cancellationTokenSource.Token)
-                    //    .AsAsyncAction()
-                    //)
-                    );
-                logger.LogWarning("Create Task Id:{0} - Index:{1}", task.Id, index);
-                task.Wait();
-            }
-            catch (OperationCanceledException ex)
-            {
-                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)ex.InnerException).Task.Id);
-            }
-            catch  (AggregateException agex)
-            {
-                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
-            }
-
         }
 
         #endregion
