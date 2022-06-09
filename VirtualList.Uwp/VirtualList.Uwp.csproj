@@ -119,10 +119,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FakeList.cs" />
+    <Compile Include="FakeCollection.cs" />
     <Compile Include="ModelIncrementalSource.cs" />
-    <Compile Include="UwpVirtualCollection.cs" />
-    <Compile Include="UwpVirtualList.cs" />
+    <Compile Include="VirtualRangeCollection.cs" />
+    <Compile Include="VirtualCollection.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

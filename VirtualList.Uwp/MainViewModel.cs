@@ -12,15 +12,15 @@ namespace CiccioSoft.VirtualList.Uwp
     public class MainViewModel : ObservableRecipient
     {
 
-        private readonly FakeList fakeList;
+        private readonly FakeCollection fakeList;
 
         public MainViewModel(IServiceProvider serviceProvider)
         {
-            //Items = serviceProvider.GetRequiredService<ModelVirtualList>();
-            //fakeList = new FakeList();
+            //Items = new ModelVirtualCollection();
+            Items = new ModelVirtualRangeCollection();
+            //fakeList = new FakeCollection();
             //Items = fakeList;
             //Items = new IncrementalLoadingCollection<ModelIncrementalSource, Model>();
-            Items = new ModelVirtualCollection();
         }
 
         public IList<Model> Items { get; set; }

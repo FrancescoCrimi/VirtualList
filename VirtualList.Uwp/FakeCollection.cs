@@ -10,7 +10,7 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    internal class FakeList : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged
+    internal class FakeCollection : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged
     {
         private readonly ILogger logger;
         private readonly int count;
@@ -18,7 +18,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public FakeList()
+        public FakeCollection()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("FakeList");
             count = 10000;

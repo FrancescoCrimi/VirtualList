@@ -14,15 +14,14 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualCollection : UwpVirtualCollection<Model>
+    public class ModelVirtualRangeCollection : VirtualRangeCollection<Model>
     {
+        private readonly IModelRepository repo;
 
-        //private readonly int count;
-        private readonly FakeModelRepository repo;
-
-        public ModelVirtualCollection()
+        public ModelVirtualRangeCollection()
+            : base()
         {
-            //count = 10000;
+            count = 10000;
             repo = new FakeModelRepository(count);
         }
 
@@ -42,7 +41,10 @@ namespace CiccioSoft.VirtualList.Uwp
         }
     }
 
-    public abstract class UwpVirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
+    /// <summary>
+    /// Collezione Virtuale che usa l'interfaccia IItemsRangeInfo
+    /// </summary>
+    public abstract class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -51,14 +53,13 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly List<T> fakelist;
         protected int count;
 
-        public UwpVirtualCollection()
+        public VirtualRangeCollection()
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("NewUwpVirtualList");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("UwpVirtualCollection");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
-            count = 10000;
         }
 
         #region abstract method
@@ -72,12 +73,32 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region private method
 
+        private async Task FetchRangeHandle(int skip, int take)
+        {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                await FetchRange(skip, take, cancellationTokenSource.Token);
+            }
+            catch (TaskCanceledException ex)
+            {
+                logger.LogError(ex.Message);
+            }
+            catch (AggregateException agex)
+            {
+                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
+            }
+        }
+
         private async Task FetchRange(int skip, int take, CancellationToken cancellationToken)
         {
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(200, cancellationToken);
-            //Thread.Sleep(10);
+            //if (cancellationToken.IsCancellationRequested)
+            //    cancellationToken.ThrowIfCancellationRequested();
+            //await Task.Delay(200, cancellationToken);
 
             if (cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -117,28 +138,12 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public async void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
+        public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = new CancellationTokenSource();
             var asdf = trackedItems.ToArray()[0];
-
-            try
-            {
-                //await Task.Run(async() =>
-                await FetchRange(asdf.FirstIndex, (int)asdf.Length, cancellationTokenSource.Token);
-                //, cancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException ex)
-            {
-                logger.LogError(ex.Message);
-            }
-            catch(AggregateException agex)
-            {
-                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
-            }
+            int skip = asdf.FirstIndex;
+            int take = (int)asdf.Length;
+            Task.Run(async () => await FetchRangeHandle(skip, take));
         }
 
         public T this[int index]

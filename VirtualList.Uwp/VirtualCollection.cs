@@ -13,14 +13,13 @@ using Windows.UI.Core;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualList : UwpVirtualList<Model>
+    public class ModelVirtualCollection : VirtualCollection<Model>
     {
         private readonly IModelRepository modelRepository;
 
-        public ModelVirtualList(IModelRepository modelRepository)
-            : base()
+        public ModelVirtualCollection() : base()
         {
-            this.modelRepository = modelRepository;
+            this.modelRepository = Ioc.Default.GetRequiredService<IModelRepository>();
             count = GetCount();
         }
 
@@ -40,7 +39,18 @@ namespace CiccioSoft.VirtualList.Uwp
         }
     }
 
-    public abstract class UwpVirtualList<T> : IList, IList<T>, INotifyCollectionChanged where T : class
+    /// <summary>
+    /// Collezione Virtuale
+    /// per funzionare correttamente impostare la Proprietà CacheLength dell' ItemStackPanel a 0.0
+    ///     <ListView.ItemsPanel>
+    ///       <ItemsPanelTemplate>
+    ///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
+    ///       </ItemsPanelTemplate>
+    ///     </ListView.ItemsPanel>
+    /// Per usare la classe subclassa questa classe implementando i metodi astratti
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -53,7 +63,7 @@ namespace CiccioSoft.VirtualList.Uwp
         private ConcurrentStack<int> indexStack;
         private readonly ThreadPoolTimer timer = null;
 
-        public UwpVirtualList(int range = 20)
+        public VirtualCollection(int range = 20)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("UwpVirtualList");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;

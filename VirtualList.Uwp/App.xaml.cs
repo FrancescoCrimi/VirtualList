@@ -73,7 +73,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 .AddData(configuration)
 
                 // Aggiungi servizi
-                .AddTransient<ModelVirtualList>()
+                .AddTransient<ModelVirtualCollection>()
                 .AddTransient<MainViewModel>()
 
                 // Build ServiceProvider

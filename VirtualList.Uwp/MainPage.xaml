@@ -65,11 +65,11 @@
                             </DataTemplate>
                         </ListView.HeaderTemplate>
 
-                        <ListView.ItemsPanel>
+                        <!--<ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>
                             </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
+                        </ListView.ItemsPanel>-->
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
