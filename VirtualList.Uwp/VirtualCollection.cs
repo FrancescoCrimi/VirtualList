@@ -55,26 +55,26 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
-        private readonly int range;
-        private readonly int take;
+        private readonly ConcurrentStack<int> indexStack;
+        private readonly ThreadPoolTimer timer = null;
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
-        protected int count;
         private CancellationTokenSource cancellationTokenSource;
-        private ConcurrentStack<int> indexStack;
-        private readonly ThreadPoolTimer timer = null;
+        private readonly int range;
+        private readonly int take;
+        protected int count;
 
         public VirtualCollection(int range = 20)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("UwpVirtualList");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
-            this.range = range;
-            take = range * 2;
+            indexStack = new ConcurrentStack<int>();
+            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(500));
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
             cancellationTokenSource = new CancellationTokenSource();
-            indexStack = new ConcurrentStack<int>();
-            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(500));
+            this.range = range;
+            take = range * 2;
         }
 
         #region abstract method

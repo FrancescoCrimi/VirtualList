@@ -84,7 +84,7 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 await FetchRange(skip, take, cancellationTokenSource.Token);
             }
-            catch (TaskCanceledException ex)
+            catch (OperationCanceledException ex)
             {
                 logger.LogError(ex.Message);
             }
