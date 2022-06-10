@@ -19,8 +19,8 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public ModelVirtualCollection() : base()
         {
-            //repo = Ioc.Default.GetRequiredService<IModelRepository>();
-            repo = new FakeModelRepository(10000);
+            repo = Ioc.Default.GetRequiredService<IModelRepository>();
+            //repo = new FakeModelRepository(100000);
             count = GetCount();
         }
 
@@ -94,12 +94,11 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 indexStack.TryPop(out int idx);
                 indexStack.Clear();
-                FetchItem(idx);
-                //logger.LogWarning("TimerHandler: {0}", idx);
+                Task.Run(async () => await FetchItem(idx));
             }
         }
 
-        private void FetchItem(int index)
+        private async Task FetchItem(int index)
         {
             if (index < range)
                 index = 0;
@@ -115,18 +114,11 @@ namespace CiccioSoft.VirtualList.Uwp
 
             try
             {
-                Task task = Task.Run(async () =>
-                    await FetchRange(index, cancellationTokenSource.Token));
-                logger.LogWarning("Create Task Id:{0} - Index:{1}", task.Id, index);
-                task.Wait();
+                await FetchRange(index, cancellationTokenSource.Token);
             }
-            catch (OperationCanceledException ex)
+            catch (TaskCanceledException ex)
             {
-                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)ex.InnerException).Task.Id);
-            }
-            catch (AggregateException agex)
-            {
-                logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
+                logger.LogError("Cancel Task Id:{0}", ex.Task.Id);
             }
         }
 
@@ -135,8 +127,7 @@ namespace CiccioSoft.VirtualList.Uwp
             //// Aggiungo ritardo solo per test
             //if (cancellationToken.IsCancellationRequested)
             //    cancellationToken.ThrowIfCancellationRequested();
-            //await Task.Delay(2000, cancellationToken);
-            //logger.LogWarning("FetchRange: {0} - {1}", index, index + take);
+            //await Task.Delay(1000, cancellationToken);
 
             // recupero i dati
             if (cancellationToken.IsCancellationRequested)
@@ -197,7 +188,6 @@ namespace CiccioSoft.VirtualList.Uwp
                     return CreateDummyEntity();
                 }
             }
-
             set => throw new NotImplementedException();
         }
 
