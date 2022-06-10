@@ -134,7 +134,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region Interface Implemented
+        #region interface member implemented
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -196,7 +196,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region Interface Not Implemented
+        #region interface member not implemented
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
 

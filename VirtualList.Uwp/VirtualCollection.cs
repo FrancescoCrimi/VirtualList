@@ -86,7 +86,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region private region
+        #region private method
 
         private void TimerHandler(ThreadPoolTimer timer)
         {
@@ -165,7 +165,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region Interface Member Implemented 
+        #region interface member implemented 
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -221,7 +221,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region Interface Member Not Implemented
+        #region interface member not implemented
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
 

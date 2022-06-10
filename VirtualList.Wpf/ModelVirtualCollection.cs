@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Wpf
 {
-    public class ModelVirtualList : WpfVirtualList<Model>
+    public class ModelVirtualCollection : VirtualCollection<Model>
     {
         private readonly IServiceProvider serviceProvider;
 
-        public ModelVirtualList(ILoggerFactory loggerFactory,
-                                IServiceProvider serviceProvider)
-            : base(loggerFactory)
+        public ModelVirtualCollection(IServiceProvider serviceProvider)
+            : base()
         {
             this.serviceProvider = serviceProvider;
         }

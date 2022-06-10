@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Windows.Threading;
 
 namespace CiccioSoft.VirtualList.Wpf
 {
-    public abstract class WpfVirtualList<T> : IList<T>, IList, INotifyCollectionChanged where T : class
+    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged where T : class
     {
         private readonly ILogger logger;
         private readonly Dispatcher dispatcher;
@@ -22,9 +23,9 @@ namespace CiccioSoft.VirtualList.Wpf
         private int skip_to_fetch;
         private CancellationTokenSource cancellationTokenSource;
 
-        public WpfVirtualList(ILoggerFactory loggerFactory, int range = 20)
+        public VirtualCollection(int range = 20)
         {
-            logger = loggerFactory.CreateLogger("WpfVirtualList");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollectiont");
             dispatcher = App.Current.Dispatcher;
             this.range = range;
             take = range * 2;
@@ -37,9 +38,16 @@ namespace CiccioSoft.VirtualList.Wpf
             cancellationTokenSource = new CancellationTokenSource();
         }
 
+        #region abstract method
+
         protected abstract T CreateDummyEntity();
         protected abstract int GetCount();
         protected abstract Task<List<T>> GetRangeAsync(int intskip, int size, CancellationToken cancellationToken);
+
+        #endregion
+
+
+        #region private method
 
         private async Task FetchRange(int skip, CancellationToken cancellationToken)
         {
@@ -93,7 +101,9 @@ namespace CiccioSoft.VirtualList.Wpf
                             skip = count - take;
                         else
                             skip = index - range;
+
                         skip_to_fetch = skip;
+
                         cancellationTokenSource.Cancel();
                         cancellationTokenSource.Dispose();
                         cancellationTokenSource = new CancellationTokenSource();
@@ -105,11 +115,12 @@ namespace CiccioSoft.VirtualList.Wpf
             }
         }
 
+        #endregion
+
+
+        #region interface member Implemented
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
-
-
-        #region IList Implemented
 
         public T this[int index]
         {
@@ -128,7 +139,6 @@ namespace CiccioSoft.VirtualList.Wpf
                 //logger.LogWarning("Index: {index} Id: {Id}", index, (obj as Model)!.Id);
                 return obj;
             }
-
             set => throw new NotImplementedException();
         }
 
@@ -138,11 +148,10 @@ namespace CiccioSoft.VirtualList.Wpf
             {
                 return count;
             }
-
             private set => throw new NotImplementedException();
         }
 
-        public bool IsReadOnly => false;
+        public bool IsReadOnly => true;
 
         public bool IsFixedSize => false;
 
@@ -172,31 +181,17 @@ namespace CiccioSoft.VirtualList.Wpf
         #endregion
 
 
-        #region Not Implemented
+        #region interface member not implemented
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
 
         object ICollection.SyncRoot => throw new NotImplementedException();
 
-        void ICollection<T>.Add(T item)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<T>.Add(T item) => throw new NotImplementedException();
 
-        int IList.Add(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        int IList.Add(object? value) => throw new NotImplementedException();
 
-        void ICollection<T>.Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IList.Clear()
-        {
-            throw new NotImplementedException();
-        }
+        public void Clear() => throw new NotImplementedException();
 
         bool ICollection<T>.Contains(T item)
         {
@@ -208,45 +203,19 @@ namespace CiccioSoft.VirtualList.Wpf
             throw new NotImplementedException();
         }
 
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
 
-        void ICollection.CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
+        void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
 
-        void IList<T>.Insert(int index, T item)
-        {
-            throw new NotImplementedException();
-        }
+        void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
 
-        void IList.Insert(int index, object? value)
-        {
-            throw new NotImplementedException();
-        }
+        void IList.Insert(int index, object? value) => throw new NotImplementedException();
 
-        bool ICollection<T>.Remove(T item)
-        {
-            throw new NotImplementedException();
-        }
+        bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
-        void IList.Remove(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        void IList.Remove(object? value) => throw new NotImplementedException();
 
-        void IList<T>.RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IList.RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public void RemoveAt(int index) => throw new NotImplementedException();
 
         #endregion
     }
