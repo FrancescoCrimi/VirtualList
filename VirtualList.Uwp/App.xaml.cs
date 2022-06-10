@@ -15,7 +15,7 @@ namespace CiccioSoft.VirtualList.Uwp
         public App()
         {
             this.InitializeComponent();
-            CreateServiceProvider();
+            ConfigureServiceProvider();
             //using (var db = Ioc.Default.GetService<MyDbContext>())
             //{
             //    db.Database.Migrate();
@@ -43,7 +43,7 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
-        private void CreateServiceProvider()
+        private void ConfigureServiceProvider()
         {
             // Crea IConfiguration
             ConfigurationBuilder builder = new ConfigurationBuilder();
@@ -53,7 +53,7 @@ namespace CiccioSoft.VirtualList.Uwp
             builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
             IConfiguration configuration = builder.Build();
 
-            // Crea ServiceCollection
+            // Configura il ServiceProvider di Ioc.Default
             Ioc.Default.ConfigureServices(new ServiceCollection()
 
                 // Aggiungi Configurazione

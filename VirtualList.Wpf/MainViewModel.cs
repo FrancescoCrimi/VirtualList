@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace CiccioSoft.VirtualList.Wpf
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ObservableRecipient
     {
         private readonly ILogger<MainViewModel> logger;
 
@@ -26,18 +27,5 @@ namespace CiccioSoft.VirtualList.Wpf
         public ModelVirtualList? Items { get; set; }
         public ModelVirtualList? Items2 { get; set; }
         public DataGridCollectionView? Items3 { get; set; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected bool SetProperty<T>(ref T field, T newValue, [CallerMemberName] string? propertyName = null)
-        {
-            if (!(object.Equals(field, newValue)))
-            {
-                field = (newValue);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                return true;
-            }
-
-            return false;
-        }
     }
 }

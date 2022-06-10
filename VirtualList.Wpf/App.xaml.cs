@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Windows;
 
@@ -14,17 +15,15 @@ namespace CiccioSoft.VirtualList.Wpf
         {
             base.OnStartup(e);
 
-            await CreateHostBuilder(e.Args).StartAsync();
+            //await CreateHostBuilder(e.Args).StartAsync();
 
-            //await Application.Current.Dispatcher.InvokeAsync(() =>
-            //    CreateServiceProvider().GetRequiredService<MainWindow>().Show());
+            ConfigureServiceProvider();
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+                Ioc.Default.GetRequiredService<MainView>().Show());
         }
 
-        private IServiceProvider CreateServiceProvider()
+        private void ConfigureServiceProvider()
         {
-            // Crea ServiceCollection
-            IServiceCollection serviceCollection = new ServiceCollection();
-
             // Crea Configurazione
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.AddEnvironmentVariables(prefix: "DOTNET_");
@@ -33,7 +32,8 @@ namespace CiccioSoft.VirtualList.Wpf
             builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);     
             IConfiguration configuration = builder.Build();
 
-            return serviceCollection
+            // Configura il ServiceProvider di Ioc.Default
+            Ioc.Default.ConfigureServices(new ServiceCollection()
 
                 // Aggiungi Configurazione
                 .AddSingleton(configuration)
@@ -55,7 +55,7 @@ namespace CiccioSoft.VirtualList.Wpf
                 .AddTransient<MainView>()
 
                 // Build ServiceProvider
-                .BuildServiceProvider();
+                .BuildServiceProvider());
         }
 
         private IHostBuilder CreateHostBuilder(string[] args)
