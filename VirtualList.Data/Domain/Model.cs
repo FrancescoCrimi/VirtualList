@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.Data.Domain
 {
     public class Model
     {

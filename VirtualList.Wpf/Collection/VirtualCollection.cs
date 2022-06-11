@@ -2,40 +2,53 @@
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace CiccioSoft.VirtualList.Wpf
+namespace CiccioSoft.VirtualList.Wpf.Collection
 {
     public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged where T : class
     {
         private readonly ILogger logger;
         private readonly Dispatcher dispatcher;
+        private CancellationTokenSource cancellationTokenSource;
+        private Timer timer;
+        ConcurrentStack<int> indexStack;
+        private readonly IDictionary<int, T> ditems;
+        private readonly T dummyModel;
         private readonly int range;
         private readonly int take;
-        private readonly T dummyModel;
-        private readonly List<T> items;
         private int count;
-        private int skip_fetched;
         private int skip_to_fetch;
-        private CancellationTokenSource cancellationTokenSource;
 
         public VirtualCollection(int range = 20)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollectiont");
-            dispatcher = App.Current.Dispatcher;
+            dispatcher = System.Windows.Application.Current.Dispatcher;
+            cancellationTokenSource = new CancellationTokenSource();
+            timer = new Timer(TimerCalback, null, 50, 100);
+            indexStack = new ConcurrentStack<int>();
+            ditems = new ConcurrentDictionary<int, T>();
+            dummyModel = CreateDummyEntity();
             this.range = range;
             take = range * 2;
-            dummyModel = CreateDummyEntity();
-            items = new List<T>();
-            for (int i = 0; i < take; i++)
+        }
+
+        private void TimerCalback(object? state)
+        {
+            if (indexStack.Count > 0)
             {
-                items.Add(dummyModel);
+                var dt = DateTime.Now;
+                logger.LogWarning("time timer: {0} {1}", dt.ToLongTimeString(), dt.Millisecond.ToString());
+                indexStack.TryPop(out int idx);
+                indexStack.Clear();
+                Task.Run(async () => await FetchItem(idx));
             }
-            cancellationTokenSource = new CancellationTokenSource();
         }
 
         #region abstract method
@@ -52,66 +65,67 @@ namespace CiccioSoft.VirtualList.Wpf
         private async Task FetchRange(int skip, CancellationToken cancellationToken)
         {
             //// Aggiungo ritardo solo per test
-            //await Task.Delay(500, cancellationToken);
+            //if (!cancellationToken.IsCancellationRequested)
+            //    cancellationToken.ThrowIfCancellationRequested();
+            //await Task.Delay(50, cancellationToken);
 
             // recupero i dati
+            if (!cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
             List<T> models = await GetRangeAsync(skip, take, cancellationToken);
 
             logger.LogWarning("FetchData: {0} - {1}", skip, take + skip - 1);
 
             if (!cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
+            ditems.Clear();
+            for (int i = 0; i < models.Count; i++)
             {
-                for (int i = 0; i < models.Count; i++)
-                {
-                    items[i] = models[i];
-                }
+                ditems.Add(skip + i, models[i]);
             }
-            else return;
 
             if (!cancellationToken.IsCancellationRequested)
-            {
-                skip_fetched = skip;
-                dispatcher.Invoke(() =>
-                    CollectionChanged?.Invoke(
-                        this,
-                        new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset))
-                    );
-            }
+                cancellationToken.ThrowIfCancellationRequested();
+
+            dispatcher.Invoke(() =>
+                CollectionChanged?.Invoke(
+                    this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset))
+                );
         }
 
-        private T FetchItem(int index)
+        private async Task FetchItem(int index)
         {
-            // se l'indice è già fetchato
-            if (index >= skip_fetched && index < skip_fetched + take)
+            if (index != 0)
             {
-                return items[index - skip_fetched];
-            }
-            else
-            {
-                // se indice 0 non si trova tra gli item gia fetchati basta ritornare il dummy
-                if (index != 0)
+                // se l'indice non si trova all'interno della precedente richiesta
+                if (index < skip_to_fetch || index >= skip_to_fetch + take)
                 {
-                    // se l'indice non si trova all'interno della precedente richiesta
-                    if (index < skip_to_fetch || index >= skip_to_fetch + take)
+                    int skip;
+                    if (index < range)
+                        skip = 0;
+                    else if (index > count - take)
+                        skip = count - take;
+                    else
+                        skip = index - range;
+
+                    skip_to_fetch = skip;
+
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Dispose();
+                    cancellationTokenSource = new CancellationTokenSource();
+
+                    try
                     {
-                        int skip;
-                        if (index < range)
-                            skip = 0;
-                        else if (index > count - take)
-                            skip = count - take;
-                        else
-                            skip = index - range;
-
-                        skip_to_fetch = skip;
-
-                        cancellationTokenSource.Cancel();
-                        cancellationTokenSource.Dispose();
-                        cancellationTokenSource = new CancellationTokenSource();
-                        //dispatcher.Invoke(() => FetchRange(skip, cancellationTokenSource.Token));
-                        Task.Run(async () => await FetchRange(skip, cancellationTokenSource.Token));
+                        //await FetchRange(skip, cancellationTokenSource.Token);
+                        await Task.Run(async () => await FetchRange(skip, cancellationTokenSource.Token), cancellationTokenSource.Token);
                     }
+                    catch (OperationCanceledException ex)
+                    {
+                        logger.LogError("Suca: " + ex.Message);
+                    }
+
                 }
-                return dummyModel;
             }
         }
 
@@ -126,7 +140,14 @@ namespace CiccioSoft.VirtualList.Wpf
         {
             get
             {
-                return FetchItem(index);
+                if (ditems.ContainsKey(index))
+                    return ditems[index];
+                else
+                {
+                    //Task.Run(async () => await FetchItem(index));
+                    indexStack.Push(index);
+                    return dummyModel;
+                }
             }
             set => throw new NotImplementedException();
         }
@@ -169,8 +190,9 @@ namespace CiccioSoft.VirtualList.Wpf
 
         public int IndexOf(T item)
         {
-            int idx = items.IndexOf(item);
-            return idx + skip_fetched;
+            return ditems.FirstOrDefault(x => x.Value == item).Key;
+            //int idx = items.IndexOf(item);
+            //return idx + skip_fetched;
         }
 
         int IList.IndexOf(object? value)

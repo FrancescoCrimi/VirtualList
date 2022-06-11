@@ -119,10 +119,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FakeCollection.cs" />
-    <Compile Include="ModelIncrementalSource.cs" />
-    <Compile Include="VirtualRangeCollection.cs" />
-    <Compile Include="VirtualCollection.cs" />
+    <Compile Include="Collection\FakeCollection.cs" />
+    <Compile Include="Collection\ModelIncrementalSource.cs" />
+    <Compile Include="Collection\ModelVirtualCollection.cs" />
+    <Compile Include="Collection\ModelVirtualRangeCollection.cs" />
+    <Compile Include="Collection\VirtualRangeCollection.cs" />
+    <Compile Include="Collection\VirtualCollection.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -222,6 +224,11 @@
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties appsettings_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

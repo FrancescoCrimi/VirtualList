@@ -1,5 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
@@ -14,33 +13,6 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualRangeCollection : VirtualRangeCollection<Model>
-    {
-        private readonly IModelRepository repo;
-
-        public ModelVirtualRangeCollection() : base()
-        {
-            //repo = Ioc.Default.GetRequiredService<IModelRepository>();
-            repo = new FakeModelRepository(10000);
-            count = GetCount();
-        }
-
-        protected override Model CreateDummyEntity()
-        {
-            return new Model(0, "");
-        }
-
-        protected override int GetCount()
-        {
-            return repo.Count();
-        }
-
-        protected override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
-        {
-            return repo.GetRangeModelsAsync(skip, take, cancellationToken);
-        }
-    }
-
     /// <summary>
     /// Collezione Virtuale che usa l'interfaccia IItemsRangeInfo
     /// </summary>

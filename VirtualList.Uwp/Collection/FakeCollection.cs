@@ -1,4 +1,5 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.DataStd.Domain;
+using CiccioSoft.VirtualList.DataStd.Repository;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
@@ -20,9 +21,9 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public FakeCollection()
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("FakeList");
-            count = 10000;
-            fakes = new FakeModelRepository(count).GetModels();
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("FakeCollection");
+            fakes = Ioc.Default.GetRequiredService<IModelRepository>().GetAll();
+            count = fakes.Count;
         }
 
         #region Public Method

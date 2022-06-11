@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Repository;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 

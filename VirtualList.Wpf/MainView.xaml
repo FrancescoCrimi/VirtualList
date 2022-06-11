@@ -133,7 +133,7 @@
                         VirtualizingPanel.IsVirtualizing="True"
                         VirtualizingPanel.VirtualizationMode="Standard"
                         VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                        ScrollViewer.IsDeferredScrollingEnabled="True"
+                        ScrollViewer.IsDeferredScrollingEnabled="False"
                         ItemsSource="{Binding Items2}"            
                         d:ItemsSource="{d:SampleData ItemCount=10}"
                         SelectionMode="Multiple">

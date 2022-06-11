@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.DataStd.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;

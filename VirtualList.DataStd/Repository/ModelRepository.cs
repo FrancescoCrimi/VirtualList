@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CiccioSoft.VirtualList.DataStd.Database;
+using CiccioSoft.VirtualList.DataStd.Domain;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +8,9 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.DataStd.Repository
 {
-    public class ModelRepository : IModelRepository
+    internal class ModelRepository : IModelRepository
     {
         private readonly AppDbContext appDbContext;
 
@@ -18,17 +20,17 @@ namespace CiccioSoft.VirtualList.Data
         }
 
 
-        public List<Model> GetModels()
+        public List<Model> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Model>> GetModelsAsync(CancellationToken cancellationToken = default)
+        public Task<List<Model>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public List<Model> GetRangeModels(int skip, int take)
+        public List<Model> GetRange(int skip, int take)
         {
             IQueryable<Model> query = appDbContext.Models.AsQueryable();
             query = query.Skip(skip);
@@ -36,7 +38,7 @@ namespace CiccioSoft.VirtualList.Data
             return query.ToList();
         }
 
-        public Task<List<Model>> GetRangeModelsAsync(int skip, int take, CancellationToken cancellationToken = default)
+        public Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
             IQueryable<Model> query = appDbContext.Models.AsQueryable();
             query = query.Skip(skip);
@@ -45,7 +47,7 @@ namespace CiccioSoft.VirtualList.Data
         }
 
 
-        public void AddModel(Model entity)
+        public void Add(Model entity)
         {
             appDbContext.Add(entity);
         }
@@ -70,17 +72,17 @@ namespace CiccioSoft.VirtualList.Data
             return appDbContext.Models.AsQueryable().CountAsync(predicate, cancellationToken);
         }
 
-        public Model GetModelById(int id)
+        public Model GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateModel(Model model)
+        public void Update(Model model)
         {
             throw new NotImplementedException();
         }
 
-        public void DeleteModel(int id)
+        public void Delete(int id)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.DataStd.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

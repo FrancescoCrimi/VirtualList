@@ -1,4 +1,6 @@
 ﻿
+using CiccioSoft.VirtualList.DataStd.Domain;
+
 namespace WindowsFormsApp1
 {
     partial class MainView
@@ -121,7 +123,7 @@ namespace WindowsFormsApp1
             // 
             // bindingSource1
             // 
-            this.bindingSource1.DataSource = typeof(CiccioSoft.VirtualList.Data.Model);
+            this.bindingSource1.DataSource = typeof(Model);
             // 
             // flowLayoutPanel1
             // 

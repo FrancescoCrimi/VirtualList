@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.Data.Database
 {
     public abstract class AppDbContext : DbContext
     {

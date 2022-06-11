@@ -1,4 +1,5 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.DataStd.Domain;
+using CiccioSoft.VirtualList.DataStd.Repository;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace CiccioSoft.VirtualList.Uwp
                                                                  int pageSize,
                                                                  CancellationToken cancellationToken = default)
         {
-            var list = await modelRepository.GetRangeModelsAsync(pageIndex * pageSize, pageSize, cancellationToken);
+            var list = await modelRepository.GetRangeAsync(pageIndex * pageSize, pageSize, cancellationToken);
             return list.AsEnumerable();
         }
     }

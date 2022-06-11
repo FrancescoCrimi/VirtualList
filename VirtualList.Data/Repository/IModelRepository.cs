@@ -1,18 +1,19 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.Data.Repository
 {
     public interface IModelRepository : IDisposable
     {
-        List<Model> GetModels();
-        Task<List<Model>> GetModelsAsync(CancellationToken cancellationToken = default);
+        List<Model> GetAll();
+        Task<List<Model>> GetAllAsync(CancellationToken cancellationToken = default);
 
-        List<Model> GetRangeModels(int skip, int take);
-        Task<List<Model>> GetRangeModelsAsync(int skip, int take, CancellationToken cancellationToken = default);
+        List<Model> GetRange(int skip, int take);
+        Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default);
 
         int Count();
         int Count(Expression<Func<Model, bool>> predicate);
@@ -20,7 +21,7 @@ namespace CiccioSoft.VirtualList.Data
         Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
                              CancellationToken cancellationToken = default);
 
-        void Add(Model entity);
+        void Add(Model item);
 
         int SaveChanges();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -1,4 +1,6 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Repository;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace CiccioSoft.VirtualList.Wpf
+namespace CiccioSoft.VirtualList.Wpf.Collection
 {
     public class DataGridCollectionView : ListCollectionView
     {
@@ -16,8 +18,8 @@ namespace CiccioSoft.VirtualList.Wpf
         public DataGridCollectionView()
             : base(new List<Model>())
         {
-            count = 10000000;
-            fakes = new FakeModelRepository(count).GetModels();
+            fakes = Ioc.Default.GetRequiredService<IModelRepository>().GetAll();
+            count = fakes.Count;
         }
 
         public override int Count

@@ -1,11 +1,12 @@
 ﻿using System;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.Data.Infrastructure
 {
     public enum DbType
     {
         SqLite = 0,
-        MsLocalDb
+        MsLocalDb,
+        FakeDb
     }
 
     public class MyAppOptions

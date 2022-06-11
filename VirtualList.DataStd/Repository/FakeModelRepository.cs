@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.DataStd.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.Data
+namespace CiccioSoft.VirtualList.DataStd.Repository
 {
-    public class FakeModelRepository : IModelRepository
+    internal class FakeModelRepository : IModelRepository
     {
-        readonly int count;
-        readonly List<Model> models;
+        private readonly int count;
+        private readonly List<Model> models;
 
-        public FakeModelRepository(int count)
+        public FakeModelRepository()
         {
-            this.count = count;
+            this.count = 1000000;
             models = new List<Model>();
             for (uint i = 1; i <= count; i++)
             {
@@ -41,8 +41,7 @@ namespace CiccioSoft.VirtualList.Data
             return aaa;
         }
 
-
-        public void AddModel(Model model)
+        public void Add(Model model)
         {
             models.Add(model);
         }
@@ -64,32 +63,32 @@ namespace CiccioSoft.VirtualList.Data
             throw new NotImplementedException();
         }
 
-        public void DeleteModel(int id)
+        public void Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Model GetModelById(int id)
+        public Model GetById(int id)
         {
             return models[id];
         }
 
-        public List<Model> GetModels()
+        public List<Model> GetAll()
         {
             return models;
         }
 
-        public Task<List<Model>> GetModelsAsync(CancellationToken cancellationToken = default)
+        public Task<List<Model>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(models);
         }
 
-        public List<Model> GetRangeModels(int skip, int take)
+        public List<Model> GetRange(int skip, int take)
         {
             return models.Skip(skip).Take(take).ToList();
         }
 
-        public Task<List<Model>> GetRangeModelsAsync(int skip, int take, CancellationToken cancellationToken = default)
+        public Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(models.Skip(skip).Take(take).ToList());
         }
@@ -104,7 +103,7 @@ namespace CiccioSoft.VirtualList.Data
             return Task.FromResult(0);
         }
 
-        public void UpdateModel(Model model)
+        public void Update(Model model)
         {
             throw new NotImplementedException();
         }

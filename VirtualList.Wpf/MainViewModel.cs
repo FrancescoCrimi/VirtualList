@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CiccioSoft.VirtualList.Wpf.Collection;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 
 namespace CiccioSoft.VirtualList.Wpf
@@ -7,8 +8,8 @@ namespace CiccioSoft.VirtualList.Wpf
     {
         public MainViewModel(IServiceProvider serviceProvider)
         {
-            var list = new ModelVirtualCollection(serviceProvider);
-            var list2 = new ModelVirtualCollection(serviceProvider);
+            var list = new ModelVirtualCollection();
+            var list2 = new ModelVirtualCollection();
             //Items3 = new DataGridCollectionView();
             Items = list;
             Items2 = list2;

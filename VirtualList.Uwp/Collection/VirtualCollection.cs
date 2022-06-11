@@ -1,5 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
@@ -13,33 +12,6 @@ using Windows.UI.Core;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualCollection : VirtualCollection<Model>
-    {
-        private readonly IModelRepository repo;
-
-        public ModelVirtualCollection() : base()
-        {
-            repo = Ioc.Default.GetRequiredService<IModelRepository>();
-            //repo = new FakeModelRepository(100000);
-            count = GetCount();
-        }
-
-        protected override Model CreateDummyEntity()
-        {
-            return new Model(0, "null");
-        }
-
-        protected override int GetCount()
-        {
-            return repo.Count();
-        }
-
-        protected override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
-        {
-            return repo.GetRangeModelsAsync(skip, take, cancellationToken);
-        }
-    }
-
     /// <summary>
     /// Collezione Virtuale
     /// per funzionare correttamente impostare la Proprietà CacheLength dell' ItemStackPanel a 0.0
@@ -66,7 +38,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public VirtualCollection(int range = 20)
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("UwpVirtualList");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             indexStack = new ConcurrentStack<int>();
             timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(500));
