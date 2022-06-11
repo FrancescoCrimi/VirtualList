@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using NLog.Extensions.Logging;
 using System;
 using System.Windows;
 
@@ -43,8 +44,9 @@ namespace CiccioSoft.VirtualList.Wpf
                 {
                     loggingBuilder
                         .AddConfiguration(configuration.GetSection("Logging"))
-                        .AddDebug()
-                        .AddEventLog();
+                        .AddNLog()
+                        .AddDebug();
+                        //.AddEventLog();
                 })
 
                 // aggiungi data

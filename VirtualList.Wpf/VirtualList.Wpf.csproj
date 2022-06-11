@@ -13,6 +13,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
 		<PackageReference Include="NLog" Version="5.0.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -27,6 +28,12 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\VirtualList.Data\VirtualList.Data.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="NLog.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

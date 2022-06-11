@@ -13,8 +13,8 @@ namespace CiccioSoft.VirtualList.DataStd.Infrastructure
         public static IServiceCollection AddData(this IServiceCollection serviceCollection,
                                                  IConfiguration configuration)
         {
-            var option = configuration.GetSection("MyDbType");
-            DbType dbt = (DbType)Enum.Parse(typeof(DbType), option.Value);
+            var section = configuration.GetSection("MyDbType");
+            DbType dbt = (DbType)Enum.Parse(typeof(DbType), section.Value);
             switch (dbt)
             {
                 case DbType.SqLite:

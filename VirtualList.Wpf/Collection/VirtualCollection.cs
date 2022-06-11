@@ -17,9 +17,9 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
         private readonly ILogger logger;
         private readonly Dispatcher dispatcher;
         private CancellationTokenSource cancellationTokenSource;
-        private Timer timer;
-        ConcurrentStack<int> indexStack;
-        private readonly IDictionary<int, T> ditems;
+        private readonly Timer timer;
+        private readonly ConcurrentStack<int> indexStack;
+        private readonly IDictionary<int, T> items;
         private readonly T dummyModel;
         private readonly int range;
         private readonly int take;
@@ -28,27 +28,17 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         public VirtualCollection(int range = 20)
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollectiont");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
             dispatcher = System.Windows.Application.Current.Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
             timer = new Timer(TimerCalback, null, 50, 100);
             indexStack = new ConcurrentStack<int>();
-            ditems = new ConcurrentDictionary<int, T>();
+            items = new ConcurrentDictionary<int, T>();
             dummyModel = CreateDummyEntity();
             this.range = range;
             take = range * 2;
-        }
-
-        private void TimerCalback(object? state)
-        {
-            if (indexStack.Count > 0)
-            {
-                var dt = DateTime.Now;
-                logger.LogWarning("time timer: {0} {1}", dt.ToLongTimeString(), dt.Millisecond.ToString());
-                indexStack.TryPop(out int idx);
-                indexStack.Clear();
-                Task.Run(async () => await FetchItem(idx));
-            }
+            count = GetCount();
+            Task.Run(() => dispatcher.InvokeAsync(() => FetchRange(0, cancellationTokenSource.Token)));
         }
 
         #region abstract method
@@ -61,6 +51,61 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
 
         #region private method
+
+        private void TimerCalback(object? state)
+        {
+            if (!indexStack.IsEmpty)
+            {
+                while (!indexStack.IsEmpty)
+                {
+                    indexStack.TryPop(out int index);
+
+                    // trick per datagrid
+                    if (index != 0)
+                    {
+                        indexStack.Clear();
+
+                        logger.LogWarning("timer: {0} {1} index: {2}",
+                                          DateTime.Now.ToLongTimeString(),
+                                          DateTime.Now.Millisecond.ToString(),
+                                          index.ToString());
+
+                        if (index < skip_to_fetch || index >= skip_to_fetch + take)
+                        {
+                            int skip;
+                            if (index < range)
+                                skip = 0;
+                            else if (index > count - take)
+                                skip = count - take;
+                            else
+                                skip = index - range;
+                            skip_to_fetch = skip;
+                            logger.LogWarning("timer: {0} {1} skip: {2}",
+                                              DateTime.Now.ToLongTimeString(),
+                                              DateTime.Now.Millisecond.ToString(),
+                                              skip.ToString());
+                            Task.Run(async () => await FetchItem(skip));
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task FetchItem(int skip)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            try
+            {
+                //await FetchRange(skip, cancellationTokenSource.Token);
+                await Task.Run(async () => await FetchRange(skip, cancellationTokenSource.Token), cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException ex)
+            {
+                logger.LogError(ex.Message);
+            }
+        }
 
         private async Task FetchRange(int skip, CancellationToken cancellationToken)
         {
@@ -78,10 +123,10 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
             if (!cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
-            ditems.Clear();
+            items.Clear();
             for (int i = 0; i < models.Count; i++)
             {
-                ditems.Add(skip + i, models[i]);
+                items.Add(skip + i, models[i]);
             }
 
             if (!cancellationToken.IsCancellationRequested)
@@ -90,43 +135,24 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
             dispatcher.Invoke(() =>
                 CollectionChanged?.Invoke(
                     this,
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset))
-                );
-        }
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset)));
 
-        private async Task FetchItem(int index)
-        {
-            if (index != 0)
-            {
-                // se l'indice non si trova all'interno della precedente richiesta
-                if (index < skip_to_fetch || index >= skip_to_fetch + take)
-                {
-                    int skip;
-                    if (index < range)
-                        skip = 0;
-                    else if (index > count - take)
-                        skip = count - take;
-                    else
-                        skip = index - range;
+            //dispatcher.Invoke(() =>
+            //{
+            //    foreach (var item in items)
+            //    {
+            //        if (cancellationToken.IsCancellationRequested)
+            //            cancellationToken.ThrowIfCancellationRequested();
 
-                    skip_to_fetch = skip;
+            //        var eventarg = new NotifyCollectionChangedEventArgs(
+            //            NotifyCollectionChangedAction.Replace,
+            //            item.Value,
+            //            null,
+            //            item.Key);
 
-                    cancellationTokenSource.Cancel();
-                    cancellationTokenSource.Dispose();
-                    cancellationTokenSource = new CancellationTokenSource();
-
-                    try
-                    {
-                        //await FetchRange(skip, cancellationTokenSource.Token);
-                        await Task.Run(async () => await FetchRange(skip, cancellationTokenSource.Token), cancellationTokenSource.Token);
-                    }
-                    catch (OperationCanceledException ex)
-                    {
-                        logger.LogError("Suca: " + ex.Message);
-                    }
-
-                }
-            }
+            //        CollectionChanged?.Invoke(this, eventarg);
+            //    }
+            //});
         }
 
         #endregion
@@ -140,8 +166,8 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
         {
             get
             {
-                if (ditems.ContainsKey(index))
-                    return ditems[index];
+                if (items.ContainsKey(index))
+                    return items[index];
                 else
                 {
                     //Task.Run(async () => await FetchItem(index));
@@ -154,21 +180,13 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         object? IList.this[int index]
         {
-            get
-            {
-                var obj = this[index];
-                //logger.LogWarning("Index: {index} Id: {Id}", index, (obj as Model)!.Id);
-                return obj;
-            }
+            get => this[index];
             set => throw new NotImplementedException();
         }
 
         public int Count
         {
-            get
-            {
-                return count;
-            }
+            get => count;
             private set => throw new NotImplementedException();
         }
 
@@ -183,16 +201,12 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            count = GetCount();
-            Task.Run(() => dispatcher.InvokeAsync(() => FetchRange(0, cancellationTokenSource.Token)));
             return ((IList)new List<T>()).GetEnumerator();
         }
 
         public int IndexOf(T item)
         {
-            return ditems.FirstOrDefault(x => x.Value == item).Key;
-            //int idx = items.IndexOf(item);
-            //return idx + skip_fetched;
+            return items.FirstOrDefault(x => x.Value == item).Key;
         }
 
         int IList.IndexOf(object? value)

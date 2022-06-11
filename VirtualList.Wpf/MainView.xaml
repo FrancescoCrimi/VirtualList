@@ -56,7 +56,7 @@
                         VirtualizingPanel.IsVirtualizing="True"
                         VirtualizingPanel.VirtualizationMode="Standard"
                         VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                        ScrollViewer.IsDeferredScrollingEnabled="True"
+                        ScrollViewer.IsDeferredScrollingEnabled="False"
                         ItemsSource="{Binding Items}"            
                         d:ItemsSource="{d:SampleData ItemCount=5}"
                         CanUserAddRows="False"

@@ -15,8 +15,8 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
         {
             serviceCollection.Configure<MyAppOptions>(configuration.GetSection("MyAppOptions"));
 
-            var option = configuration.GetSection("MyDbType");
-            DbType dbt = Enum.Parse<DbType>(option.Value);
+            var section = configuration.GetSection("MyDbType");
+            DbType dbt = Enum.Parse<DbType>(section.Value);
 
 
             switch (dbt)
