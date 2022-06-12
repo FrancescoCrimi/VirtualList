@@ -24,21 +24,21 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
         private readonly int range;
         private readonly int take;
         private int count;
-        private int skip_to_fetch;
+        private int index_to_fetch;
 
         public VirtualCollection(int range = 20)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
             dispatcher = System.Windows.Application.Current.Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
-            timer = new Timer(TimerCalback, null, 50, 100);
+            timer = new Timer(TimerHandler, null, 50, 50);
             indexStack = new ConcurrentStack<int>();
             items = new ConcurrentDictionary<int, T>();
             dummyModel = CreateDummyEntity();
             this.range = range;
             take = range * 2;
             count = GetCount();
-            Task.Run(() => dispatcher.InvokeAsync(() => FetchRange(0, cancellationTokenSource.Token)));
+            index_to_fetch = int.MaxValue;
         }
 
         #region abstract method
@@ -52,7 +52,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         #region private method
 
-        private void TimerCalback(object? state)
+        private void TimerHandler(object? state)
         {
             if (!indexStack.IsEmpty)
             {
@@ -70,22 +70,23 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
                                           DateTime.Now.Millisecond.ToString(),
                                           index.ToString());
 
-                        if (index < skip_to_fetch || index >= skip_to_fetch + take)
+                        if (index < index_to_fetch || index >= index_to_fetch + take)
                         {
-                            int skip;
                             if (index < range)
-                                skip = 0;
-                            else if (index > count - take)
-                                skip = count - take;
+                                index = 0;
+                            else if (index > count - range)
+                                index = count - take;
                             else
-                                skip = index - range;
-                            skip_to_fetch = skip;
+                                index -= range;
+                            index_to_fetch = index;
                             logger.LogWarning("timer: {0} {1} skip: {2}",
                                               DateTime.Now.ToLongTimeString(),
                                               DateTime.Now.Millisecond.ToString(),
-                                              skip.ToString());
-                            Task.Run(async () => await FetchItem(skip));
+                                              index.ToString());
+                            Task.Run(async () => await FetchItem(index));
                         }
+                        else
+                            logger.LogWarning("Indice già fetchato");
                     }
                 }
             }
@@ -98,7 +99,6 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
             cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                //await FetchRange(skip, cancellationTokenSource.Token);
                 await Task.Run(async () => await FetchRange(skip, cancellationTokenSource.Token), cancellationTokenSource.Token);
             }
             catch (OperationCanceledException ex)
@@ -170,7 +170,6 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
                     return items[index];
                 else
                 {
-                    //Task.Run(async () => await FetchItem(index));
                     indexStack.Push(index);
                     return dummyModel;
                 }

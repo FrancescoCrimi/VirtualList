@@ -1,4 +1,5 @@
 ﻿using CiccioSoft.VirtualList.DataStd.Domain;
+using CiccioSoft.VirtualList.DataStd.Repository;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Data;
@@ -15,7 +16,7 @@ namespace WpfApp1
         public MainWindow()
         {
             InitializeComponent();
-            list = new FakeModelRepository(10000).GetAll();
+            list = new FakeModelRepository().GetAll();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

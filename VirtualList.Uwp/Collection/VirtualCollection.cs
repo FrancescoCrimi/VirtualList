@@ -35,18 +35,20 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly int range;
         private readonly int take;
         protected int count;
+        private int index_to_fetch;
 
         public VirtualCollection(int range = 20)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             indexStack = new ConcurrentStack<int>();
-            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(500));
+            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
             cancellationTokenSource = new CancellationTokenSource();
             this.range = range;
             take = range * 2;
+            index_to_fetch = int.MaxValue;
         }
 
         #region abstract method
@@ -62,28 +64,32 @@ namespace CiccioSoft.VirtualList.Uwp
 
         private void TimerHandler(ThreadPoolTimer timer)
         {
-            if (indexStack.Count > 0)
+            if (!indexStack.IsEmpty)
             {
-                indexStack.TryPop(out int idx);
+                indexStack.TryPop(out int index);
                 indexStack.Clear();
-                Task.Run(async () => await FetchItem(idx));
+                if (index < index_to_fetch || index >= index_to_fetch + take)
+                {
+                    if (index < range)
+                        index = 0;
+                    else if (index > count - range)
+                        index = count - take;
+                    else
+                        index -= range;
+                    index_to_fetch = index;
+                    Task.Run(async () => await FetchItem(index));
+                }
+                else
+                    logger.LogWarning("Indice già fetchato");
             }
         }
 
         private async Task FetchItem(int index)
         {
-            if (index < range)
-                index = 0;
-            else if (index > count - range)
-                index = count - take;
-            else
-                index -= range;
-
             if (cancellationTokenSource.Token.CanBeCanceled)
                 cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
             cancellationTokenSource = new CancellationTokenSource();
-
             try
             {
                 await FetchRange(index, cancellationTokenSource.Token);
@@ -94,17 +100,17 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
-        private async Task FetchRange(int index, CancellationToken cancellationToken)
+        private async Task FetchRange(int skip, CancellationToken cancellationToken)
         {
-            //// Aggiungo ritardo solo per test
-            //if (cancellationToken.IsCancellationRequested)
-            //    cancellationToken.ThrowIfCancellationRequested();
-            //await Task.Delay(1000, cancellationToken);
+            // Aggiungo ritardo solo per test
+            if (cancellationToken.IsCancellationRequested)
+                cancellationToken.ThrowIfCancellationRequested();
+            await Task.Delay(60, cancellationToken);
 
             // recupero i dati
             if (cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
-            List<T> models = await GetRangeAsync(index, take, cancellationToken);
+            List<T> models = await GetRangeAsync(skip, take, cancellationToken);
 
             // Aggiorno lista interna
             if (cancellationToken.IsCancellationRequested)
@@ -112,26 +118,26 @@ namespace CiccioSoft.VirtualList.Uwp
             items.Clear();
             for (int i = 0; i < models.Count; i++)
             {
-                items.Add(index + i, models[i]);
+                items.Add(skip + i, models[i]);
             }
 
             // invoco CollectionChanged Replace per singolo item
             if (cancellationToken.IsCancellationRequested)
                 cancellationToken.ThrowIfCancellationRequested();
-            foreach (var item in items)
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (cancellationToken.IsCancellationRequested)
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                var eventarg = new NotifyCollectionChangedEventArgs(
-                    NotifyCollectionChangedAction.Replace,
-                    item.Value,
-                    null,
-                    item.Key);
-
-                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    CollectionChanged?.Invoke(this, eventarg));
-            }
+                foreach (var item in items)
+                {
+                    //if (cancellationToken.IsCancellationRequested)
+                    //    cancellationToken.ThrowIfCancellationRequested();
+                    var eventarg = new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Replace,
+                        item.Value,
+                        null,
+                        item.Key);
+                    CollectionChanged?.Invoke(this, eventarg);
+                }
+            });
         }
 
         #endregion

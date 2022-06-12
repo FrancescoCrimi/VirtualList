@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.DataStd.Repository
 {
-    internal class FakeModelRepository : IModelRepository
+    public class FakeModelRepository : IModelRepository
     {
         private readonly int count;
         private readonly List<Model> models;
