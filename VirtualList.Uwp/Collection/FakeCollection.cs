@@ -46,12 +46,6 @@ namespace CiccioSoft.VirtualList.Uwp
             logger.LogWarning("RangeChange {0} - {1}", visibleRange.FirstIndex, visibleRange.LastIndex);
         }
 
-        object IList.this[int index]
-        {
-            get => this[index];
-            set => throw new NotImplementedException();
-        }
-
         public Model this[int index]
         {
             get
@@ -60,6 +54,12 @@ namespace CiccioSoft.VirtualList.Uwp
                 logger.LogWarning("Index: {0}", index);
                 return item;
             }
+            set => throw new NotImplementedException();
+        }
+
+        object IList.this[int index]
+        {
+            get => this[index];
             set => throw new NotImplementedException();
         }
 

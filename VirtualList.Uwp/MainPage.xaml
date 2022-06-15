@@ -65,6 +65,8 @@
                             </DataTemplate>
                         </ListView.HeaderTemplate>
 
+                        <!-- default CacheLength value is 4.0 -->
+                        
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>

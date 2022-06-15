@@ -14,13 +14,17 @@ namespace CiccioSoft.VirtualList.Uwp
 {
     /// <summary>
     /// Collezione Virtuale
-    /// per funzionare correttamente impostare la Proprietà CacheLength dell' ItemStackPanel a 0.0
-    ///     <ListView.ItemsPanel>
+    /// 
+    /// per funzionare correttamente impostare la Proprietà CacheLength dell'ItemStackPanel a 0.0 cosi
+    ///
+    /// <ListView.ItemsPanel>
     ///       <ItemsPanelTemplate>
     ///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
     ///       </ItemsPanelTemplate>
     ///     </ListView.ItemsPanel>
+    ///     
     /// Per usare la classe subclassa questa classe implementando i metodi astratti
+    /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged where T : class
@@ -147,12 +151,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        object IList.this[int index]
-        {
-            get => this[index];
-            set => throw new NotImplementedException();
-        }
-
         public T this[int index]
         {
             get
@@ -169,6 +167,12 @@ namespace CiccioSoft.VirtualList.Uwp
             set => throw new NotImplementedException();
         }
 
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => throw new NotImplementedException();
+        }
+
         public int Count
         {
             get
@@ -180,21 +184,17 @@ namespace CiccioSoft.VirtualList.Uwp
             private set => throw new NotImplementedException();
         }
 
+        public IEnumerator<T> GetEnumerator() => fakelist.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
+        public int IndexOf(T item) => -1;
+
+        int IList.IndexOf(object value) => -1;
+
         public bool IsReadOnly => true;
 
         public bool IsFixedSize => false;
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IList)fakelist).GetEnumerator();
-        }
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return fakelist.GetEnumerator();
-        }
-
-        int IList<T>.IndexOf(T item) => -1;
-        int IList.IndexOf(object value) => -1;
 
         #endregion
 
