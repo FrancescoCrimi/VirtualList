@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.DataStd.Domain;
-using CiccioSoft.VirtualList.DataStd.Repository;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Repository;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;

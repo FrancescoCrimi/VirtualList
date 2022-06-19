@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CiccioSoft.VirtualList.DataStd.Database
+namespace CiccioSoft.VirtualList.Data.Database
 {
     public class SqLiteDbContext : AppDbContext
     {

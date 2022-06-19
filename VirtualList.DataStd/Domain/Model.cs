@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CiccioSoft.VirtualList.DataStd.Domain
+namespace CiccioSoft.VirtualList.Data.Domain
 {
     public class Model
     {
@@ -16,8 +16,8 @@ namespace CiccioSoft.VirtualList.DataStd.Domain
 
         public override bool Equals(object obj)
         {
-            return obj is Model model &&
-                   Numero == model.Numero;
+            return obj is Model model
+                && Numero == model.Numero;
         }
 
         public override int GetHashCode()

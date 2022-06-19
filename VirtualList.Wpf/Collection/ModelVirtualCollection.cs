@@ -18,7 +18,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         protected override int GetCount()
         {
-            using IModelRepository? db = Ioc.Default.GetRequiredService<IModelRepository>();            
+            using IModelRepository? db = Ioc.Default.GetRequiredService<IModelRepository>();
             return db.Count();
         }
 

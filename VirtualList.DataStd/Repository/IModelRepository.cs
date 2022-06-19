@@ -1,11 +1,11 @@
-﻿using CiccioSoft.VirtualList.DataStd.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.DataStd.Repository
+namespace CiccioSoft.VirtualList.Data.Repository
 {
     public interface IModelRepository : IDisposable
     {

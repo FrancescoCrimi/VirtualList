@@ -1,12 +1,12 @@
-﻿using CiccioSoft.VirtualList.DataStd.Database;
-using CiccioSoft.VirtualList.DataStd.Repository;
+﻿using CiccioSoft.VirtualList.Data.Database;
+using CiccioSoft.VirtualList.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace CiccioSoft.VirtualList.DataStd.Infrastructure
+namespace CiccioSoft.VirtualList.Data.Infrastructure
 {
     public static class ServiceCollectionExtensions
     {

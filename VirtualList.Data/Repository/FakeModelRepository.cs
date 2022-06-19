@@ -11,12 +11,14 @@ namespace CiccioSoft.VirtualList.Data.Repository
 {
     internal class FakeModelRepository : IModelRepository
     {
+        private readonly Random random;
         private readonly int count;
         private readonly List<Model> models;
 
         public FakeModelRepository()
         {
-            this.count = 1000000;
+            random = new Random();
+            count = 1000000;
             models = new List<Model>();
             for (uint i = 1; i <= count; i++)
             {
@@ -27,7 +29,6 @@ namespace CiccioSoft.VirtualList.Data.Repository
         private Model GetRandomModel(uint i)
         {
             StringBuilder str_build = new StringBuilder();
-            Random random = new Random();
             char letter;
             for (int l = 0; l < 7; l++)
             {

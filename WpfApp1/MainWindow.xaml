@@ -4,15 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
-        xmlns:Data="clr-namespace:CiccioSoft.VirtualList.DataStd.Domain;assembly=VirtualList.DataStd"        
+        xmlns:Data="clr-namespace:CiccioSoft.VirtualList.Data.Domain;assembly=VirtualList.DataStd"        
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+
     <Window.Resources>
         <CollectionViewSource
             x:Key="modelViewSource"
             d:DesignSource="{d:DesignInstance {x:Type Data:Model}, CreateList=True}">
         </CollectionViewSource>
     </Window.Resources>
+
     <Grid DataContext="{StaticResource modelViewSource}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -109,12 +111,14 @@
                         x:Name="modelListView"
                         ItemsSource="{Binding}"
                         SelectionMode="Single">
+
                         <ListView.ItemContainerStyle>
                             <Style>
                                 <Setter Property="Control.HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Control.VerticalContentAlignment" Value="Stretch"/>
                             </Style>
                         </ListView.ItemContainerStyle>
+
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn x:Name="idColumn1" Header="Id" Width="80">
@@ -140,6 +144,7 @@
                                 </GridViewColumn>
                             </GridView>
                         </ListView.View>
+
                     </ListView>
                 </Border>
 

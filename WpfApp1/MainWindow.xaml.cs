@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.DataStd.Domain;
-using CiccioSoft.VirtualList.DataStd.Repository;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Repository;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Data;
@@ -17,6 +17,8 @@ namespace WpfApp1
         {
             InitializeComponent();
             list = new FakeModelRepository().GetAll();
+            //var modelRepository = Ioc.Default.GetRequiredService<IModelRepository>();
+            //list = modelRepository.GetAll();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

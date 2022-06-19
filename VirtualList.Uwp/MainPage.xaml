@@ -3,6 +3,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:CiccioSoft.VirtualList.Uwp"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
@@ -50,25 +53,30 @@
                         ItemsSource="{Binding Items}"
                         ScrollViewer.IsDeferredScrollingEnabled="False"
                         ShowsScrollingPlaceholders="False">
-                        <ListView.HeaderTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Id" TextAlignment="Center"/>
-                                    <TextBlock Text="Numero" Grid.Column="1" TextAlignment="Center"/>
-                                    <TextBlock Text="Name" Grid.Column="2" TextAlignment="Center"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.HeaderTemplate>
 
-                        <!-- default CacheLength value is 4.0 -->
-                        
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:StickyHeaderBehavior />
+                        </interactivity:Interaction.Behaviors>
+
+                        <ListView.Header>
+                            <Grid>
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}"/>
+                                </Grid.Background>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Id" TextAlignment="Center"/>
+                                <TextBlock Text="Numero" Grid.Column="1" TextAlignment="Center"/>
+                                <TextBlock Text="Name" Grid.Column="2" TextAlignment="Center"/>
+                            </Grid>
+                        </ListView.Header>
+
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
+                                <!-- default CacheLength value is 4.0 -->
                                 <ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>
                             </ItemsPanelTemplate>
                         </ListView.ItemsPanel>

@@ -63,9 +63,9 @@
                         CanUserDeleteRows="False"
                         IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" MinWidth="50"/>
-                            <DataGridTextColumn Header="Numero" Binding="{Binding Numero}" MinWidth="50"/>
-                            <DataGridTextColumn Header="Nome" Binding="{Binding Name}" MinWidth="100"/>
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="*"/>
+                            <DataGridTextColumn Header="Numero" Binding="{Binding Numero}" Width="*"/>
+                            <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>
@@ -140,7 +140,7 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Id" DisplayMemberBinding="{Binding Id}" Width="60"/>
-                                <GridViewColumn Header="Numero" DisplayMemberBinding="{Binding Numero}" Width="60"/>
+                                <GridViewColumn Header="Numero" DisplayMemberBinding="{Binding Numero}" Width="100"/>
                                 <GridViewColumn Header="Nome" DisplayMemberBinding="{Binding Name}" Width="100"/>
                             </GridView>
                         </ListView.View>

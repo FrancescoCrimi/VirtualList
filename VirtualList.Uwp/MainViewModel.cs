@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.DataStd.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
@@ -17,9 +17,9 @@ namespace CiccioSoft.VirtualList.Uwp
         public MainViewModel(IServiceProvider serviceProvider)
         {
             //Items = new ModelVirtualCollection();
-            Items = new ModelVirtualRangeCollection();
-            //fakeList = new FakeCollection();
-            //Items = fakeList;
+            //Items = new ModelVirtualRangeCollection();
+            fakeList = new FakeCollection();
+            Items = fakeList;
             //Items = new IncrementalLoadingCollection<ModelIncrementalSource, Model>();
         }
 

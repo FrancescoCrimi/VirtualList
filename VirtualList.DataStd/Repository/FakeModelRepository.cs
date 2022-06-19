@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.DataStd.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +7,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.DataStd.Repository
+namespace CiccioSoft.VirtualList.Data.Repository
 {
     public class FakeModelRepository : IModelRepository
     {
+        private readonly Random random;
         private readonly int count;
         private readonly List<Model> models;
 
         public FakeModelRepository()
         {
-            this.count = 1000000;
+            random = new Random();
+            count = 1000;
             models = new List<Model>();
             for (uint i = 1; i <= count; i++)
             {
@@ -28,7 +30,6 @@ namespace CiccioSoft.VirtualList.DataStd.Repository
         private Model GetRandomModel(uint i)
         {
             StringBuilder str_build = new StringBuilder();
-            Random random = new Random();
             char letter;
             for (int l = 0; l < 7; l++)
             {
@@ -37,7 +38,8 @@ namespace CiccioSoft.VirtualList.DataStd.Repository
                 letter = Convert.ToChar(shift + 65);
                 str_build.Append(letter);
             }
-            Model aaa = new Model(i, str_build.ToString()) { Id = i };
+            var str = str_build.ToString();
+            Model aaa = new Model(i, str) { Id = i };
             return aaa;
         }
 
