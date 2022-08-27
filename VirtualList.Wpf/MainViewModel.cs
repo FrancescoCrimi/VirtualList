@@ -1,6 +1,6 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Wpf.Collection;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 

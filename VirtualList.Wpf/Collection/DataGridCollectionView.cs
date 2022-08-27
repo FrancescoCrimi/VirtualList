@@ -1,6 +1,6 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Data.Repository;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
