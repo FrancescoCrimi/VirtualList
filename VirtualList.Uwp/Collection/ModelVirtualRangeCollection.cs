@@ -1,5 +1,6 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Data.Repository;
+using CiccioSoft.VirtualList.Uwp.Collection;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using System.Collections.Generic;
 using System.Threading;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualRangeCollection : VirtualRangeCollection<Model>
+    public class ModelVirtualRangeCollection : VirtualRangeList<Model>
     {
         public ModelVirtualRangeCollection() : base()
         {

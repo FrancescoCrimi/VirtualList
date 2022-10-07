@@ -105,6 +105,7 @@ namespace CiccioSoft.VirtualList.Uwp
                         null,
                         item.Key);
                     CollectionChanged?.Invoke(this, eventArgs);
+                    //logger.LogWarning("CollectionChanged Replace: {0}", item.Key);
                 }
             });
         }
@@ -118,14 +119,15 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            //var asdf = trackedItems.ToArray()[0];
-            //int trackedItemsFirst = asdf.FirstIndex;
-            //int trackedItemsLength = (int)asdf.Length;
-            //logger.LogWarning("TrackedItems First: {0} Length: {1}", trackedItemsFirst, trackedItemsLength);
-
             int firstVisibleRange = visibleRange.FirstIndex;
             int lastVisibleRange = visibleRange.LastIndex;
             int lengthVisibleRange = (int)visibleRange.Length;
+            logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisibleRange, lengthVisibleRange);
+
+            var asdf = trackedItems.ToArray()[0];
+            int trackedItemsFirst = asdf.FirstIndex;
+            int trackedItemsLength = (int)asdf.Length;
+            logger.LogWarning("TrackedRange First: {0} Length: {1}", trackedItemsFirst, trackedItemsLength);
 
             // implementazione Cache
             // con il valore cacheLength si intende specificare la quantità di cache prima e dopo 
@@ -135,7 +137,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
             // se visibleRangeLength è minore di 2 esci
             if (lengthVisibleRange < 2) return;
-            logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisibleRange, lengthVisibleRange);
 
             // verifico se il range visibile rientra nel range già fetchato
             if (firstVisibleRange < FirstIndex || lastVisibleRange > LastIndex)
@@ -151,7 +152,7 @@ namespace CiccioSoft.VirtualList.Uwp
                     firstToFetch = count - lengthToFetch;
                 else
                     firstToFetch = firstVisibleRange - lengthVisibleRange * cacheLength;
-                logger.LogWarning("FetchRange First: {0} Length: {1}", firstToFetch, lengthToFetch);
+                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstToFetch, lengthToFetch);
 
                 //valorizzo variabli globali firstindex e lastindex;
                 FirstIndex = firstToFetch;
@@ -166,9 +167,15 @@ namespace CiccioSoft.VirtualList.Uwp
             get
             {
                 if (items.ContainsKey(index))
+                {
+                    //logger.LogWarning("Indexer get real: {0}", index);
                     return items[index];
+                }
                 else
+                {
+                    //logger.LogWarning("Indexer get dummy: {0}", index);
                     return CreateDummyEntity();
+                }
             }
             set => throw new NotImplementedException();
         }

@@ -1,58 +1,65 @@
-﻿<Page
-    x:Class="CiccioSoft.VirtualList.Uwp.MainPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:CiccioSoft.VirtualList.Uwp"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+﻿<Page x:Class="CiccioSoft.VirtualList.Uwp.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:CiccioSoft.VirtualList.Uwp"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
+      mc:Ignorable="d"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
 
-        <Border
-            BorderThickness="1"
-            CornerRadius="5"
-            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-            Margin="3,0,3,3">
+        <Border BorderThickness="1"
+                CornerRadius="5"
+                BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                Margin="3,0,3,3">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Border
-                    BorderThickness="1"
-                    CornerRadius="5"
-                    BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" Margin="3,3,3,3">
-                    <Grid
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                <Border BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,3,3,3">
+                    <Grid VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Margin="3" Text="Name" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Margin="3" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <Button Grid.Column="2" Margin="3" Content="Search" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding ButtonCommand, Mode=OneWay}"/>
+                        <TextBlock Margin="3"
+                                   Text="Search"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center" />
+                        <Button Grid.Column="2"
+                                Margin="3"
+                                Content="Submit"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Command="{Binding ButtonCommand, Mode=OneWay}" />
                     </Grid>
                 </Border>
 
-                <Border
-                    Grid.Row="1"
-                    BorderThickness="1"
-                    CornerRadius="5"
-                    BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" Margin="3,0,3,3">
-                    <ListView
-                        ItemsSource="{Binding Items}"
-                        ScrollViewer.IsDeferredScrollingEnabled="False"
-                        ShowsScrollingPlaceholders="False">
+                <Border Grid.Row="1"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,0,3,3">
+                    <ListView ItemsSource="{Binding Items}"
+                              ScrollViewer.IsDeferredScrollingEnabled="False"
+                              ShowsScrollingPlaceholders="False">
 
                         <interactivity:Interaction.Behaviors>
                             <behaviors:StickyHeaderBehavior />
@@ -61,23 +68,30 @@
                         <ListView.Header>
                             <Grid>
                                 <Grid.Background>
-                                    <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}"/>
+                                    <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}" />
                                 </Grid.Background>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Id" TextAlignment="Center"/>
-                                <TextBlock Text="Numero" Grid.Column="1" TextAlignment="Center"/>
-                                <TextBlock Text="Name" Grid.Column="2" TextAlignment="Center"/>
+                                <TextBlock Text="Id"
+                                           TextAlignment="Center" />
+                                <TextBlock Text="Numero"
+                                           Grid.Column="1"
+                                           TextAlignment="Center" />
+                                <TextBlock Text="Name"
+                                           Grid.Column="2"
+                                           TextAlignment="Center" />
                             </Grid>
                         </ListView.Header>
 
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <!-- default CacheLength value is 4.0 -->
-                                <ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>
+                                <!--<ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>-->
+                                <ItemsStackPanel Orientation="Vertical"
+                                                 CacheLength="0.0" />
                             </ItemsPanelTemplate>
                         </ListView.ItemsPanel>
 
@@ -85,13 +99,15 @@
                             <DataTemplate>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Id}"/>
-                                    <TextBlock Text="{Binding Numero}" Grid.Column="1"/>
-                                    <TextBlock Text="{Binding Name}" Grid.Column="2"/>
+                                    <TextBlock Text="{Binding Id}" />
+                                    <TextBlock Text="{Binding Numero}"
+                                               Grid.Column="1" />
+                                    <TextBlock Text="{Binding Name}"
+                                               Grid.Column="2" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -99,20 +115,26 @@
                     </ListView>
                 </Border>
 
-                <Border
-                    Grid.Row="2"
-                    BorderThickness="1"
-                    CornerRadius="5"
-                    BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" Margin="3,0,3,3">
-                    <Grid
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                <Border Grid.Row="2"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,0,3,3">
+                    <Grid HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBox Margin="3" Text="Name" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Margin="3" Width="120" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBox Margin="3"
+                                 Text="Name"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
+                        <TextBox Grid.Column="1"
+                                 Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center" />
                     </Grid>
                 </Border>
 

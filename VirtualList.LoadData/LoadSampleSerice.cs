@@ -1,4 +1,5 @@
 ﻿using CiccioSoft.VirtualList.Data;
+using CiccioSoft.VirtualList.Data.Domain;
 using System;
 using System.Text;
 using System.Threading.Tasks;

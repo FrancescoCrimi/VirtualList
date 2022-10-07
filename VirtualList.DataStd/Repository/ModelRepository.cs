@@ -43,6 +43,8 @@ namespace CiccioSoft.VirtualList.Data.Repository
             IQueryable<Model> query = appDbContext.Models.AsQueryable();
             query = query.Skip(skip);
             query = query.Take(take);
+            //todo: fix order by
+            query = query.OrderBy(m => m.Id);
             return query.ToListAsync(cancellationToken);
         }
 

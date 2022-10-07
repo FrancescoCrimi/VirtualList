@@ -17,9 +17,9 @@ namespace CiccioSoft.VirtualList.Uwp
         public MainViewModel(IServiceProvider serviceProvider)
         {
             //Items = new ModelVirtualCollection();
-            //Items = new ModelVirtualRangeCollection();
-            fakeList = new FakeCollection();
-            Items = fakeList;
+            Items = new ModelVirtualRangeCollection();
+            //fakeList = new FakeCollection();
+            //Items = fakeList;
             //Items = new IncrementalLoadingCollection<ModelIncrementalSource, Model>();
         }
 

@@ -52,7 +52,7 @@ namespace CiccioSoft.VirtualList.Data.Repository
 
         public int Count(Expression<Func<Model, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return count;
         }
 
         public Task<int> CountAsync(CancellationToken cancellationToken = default)
