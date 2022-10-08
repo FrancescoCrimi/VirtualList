@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VirtualList.WinUi (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "VirtualList.WinUi (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

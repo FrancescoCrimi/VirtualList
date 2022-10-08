@@ -30,25 +30,36 @@
                         Margin="3,3,3,3">
                     <Grid VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Margin="3"
-                                   Text="Search"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center" />
-                        <TextBox Grid.Column="1"
-                                 Margin="3"
-                                 Width="120"
-                                 VerticalAlignment="Center"
-                                 HorizontalAlignment="Center" />
-                        <Button Grid.Column="2"
-                                Margin="3"
-                                Content="Submit"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Command="{Binding ButtonCommand, Mode=OneWay}" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                            <TextBlock Margin="3"
+                                       Text="Search"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" />
+                            <TextBox Margin="3"
+                                     Width="120"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                            <Button Margin="3"
+                                    Content="Submit"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding ButtonCommand, Mode=OneWay}" />
+                            <Button Margin="3"
+                                    Content="Clear"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                        </StackPanel>
+
                     </Grid>
                 </Border>
 
@@ -120,21 +131,37 @@
                         CornerRadius="5"
                         BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                         Margin="3,0,3,3">
-                    <Grid HorizontalAlignment="Center"
-                          VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBox Margin="3"
-                                 Text="Name"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1"
-                                 Margin="3"
-                                 Width="120"
-                                 VerticalAlignment="Center"
-                                 HorizontalAlignment="Center" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                            <TextBlock Margin="3"
+                                       Text="Count"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBox Margin="3"
+                                     Width="120"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     IsReadOnly="True" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center">
+                            <TextBlock Margin="3"
+                                       Text="Selected"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBox Margin="3"
+                                     Width="120"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     IsReadOnly="True" />
+                        </StackPanel>
                     </Grid>
                 </Border>
 
