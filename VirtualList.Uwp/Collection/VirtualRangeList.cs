@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,7 +15,7 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp.Collection
 {
-    public abstract class VirtualRangeList<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
+    public abstract class VirtualRangeList<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
     {
         private readonly ILogger logger;
         private CancellationTokenSource cancellationTokenSource = null;
@@ -22,7 +23,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
         protected int count;
-        //private readonly int cacheLength;
         private int FirstIndex;
         private int LastIndex;
 
@@ -33,7 +33,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
-            //cacheLength = 1;
             FirstIndex = 0;
             LastIndex = 0;
         }
@@ -48,9 +47,20 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         #endregion
 
 
+        #region protected method
+
+        protected void Suca()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        #endregion
+
+
         #region private method
 
-        private async Task FetchRange(Range range, CancellationToken token)
+        private async Task FetchRange(int firstTracked, int lengthTracked, CancellationToken token)
         {
             try
             {
@@ -60,8 +70,8 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
-                logger.LogWarning("FetchRange First: {0} Length: {1}", range.FirstTracked, range.LengthTracked);
-                var list = await GetRangeAsync(range.FirstTracked, range.LengthTracked, token);
+                logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
+                var list = await GetRangeAsync(firstTracked, lengthTracked, token);
 
 
                 if (token.IsCancellationRequested)
@@ -69,29 +79,32 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                 items.Clear();
                 for (int i = 0; i < list.Count; i++)
                 {
-                    items.Add(range.FirstTracked + i, list[i]);
+                    items.Add(firstTracked + i, list[i]);
                 }
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
 
-                for (int i = 0; i < range.LengthTracked; i++)
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    if (token.IsCancellationRequested)
+                    for (int i = 0; i < lengthTracked; i++)
                     {
-                        token.ThrowIfCancellationRequested();
-                        //return;
-                    }
+                        //if (token.IsCancellationRequested)
+                        //{
+                        //    token.ThrowIfCancellationRequested();
+                        //    //return;
+                        //}
 
-                    int idx = range.FirstTracked + i;
-                    var eventArgs = new NotifyCollectionChangedEventArgs(
-                        NotifyCollectionChangedAction.Replace,
-                        items[idx],
-                        null,
-                        idx);
-                    await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => CollectionChanged?.Invoke(this, eventArgs));
-                    //logger.LogWarning("CollectionChanged Replace: {0}", idx);
-                }
+                        int idx = firstTracked + i;
+                        var eventArgs = new NotifyCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Replace,
+                            items[idx],
+                            null,
+                            idx);
+                        CollectionChanged?.Invoke(this, eventArgs);
+                        //logger.LogWarning("CollectionChanged Replace: {0}", idx);
+                    }
+                });
             }
             catch (OperationCanceledException ex)
             {
@@ -109,60 +122,51 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         #region interface member implemented
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            Range range = new Range();
-            range.FirstVisible = visibleRange.FirstIndex;
-            range.LastVisible = visibleRange.LastIndex;
-            range.LengthVisible = (int)visibleRange.Length;
-            logger.LogWarning("VisibleRange First: {0} Length: {1}", range.FirstVisible, range.LengthVisible);
+            int firstVisible = visibleRange.FirstIndex;
+            int lastVisible = visibleRange.LastIndex;
+            int lengthVisible = (int)visibleRange.Length;
+            logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisible, lengthVisible);
 
             // se visibleRangeLength è minore di 2 esci
-            if (range.LengthVisible < 2) return;
+            if (lengthVisible < 2) return;
 
             // verifico se il range visibile rientra nel range già fetchato
-            if (range.FirstVisible < FirstIndex || range.LastVisible > LastIndex)
+            if (firstVisible < FirstIndex || lastVisible > LastIndex)
             {
-                // il range si trova all'inizio
-                if (range.FirstVisible < range.LengthVisible * 1)
-                {
-                    // workaround x bug ListView visible/tracked +1 al alla prima richiesta 
-                    range.LengthVisible++;
-                    range.LastVisible++;                    
+                // trovo la lunghezza totale ri righe da estrarre
+                int lengthTracked = lengthVisible * 3;
 
-                    range.FirstTracked = 0;
-                    range.LengthTracked = range.LengthVisible * 3;
-                    range.LastTracked = range.LengthTracked - 1;
-                    FirstIndex = range.FirstTracked;
-                    LastIndex = range.LastTracked;
-                }
+                // prima riga da estrarre
+                int firstTracked;
+
+                // il range si trova all'inizio
+                if (firstVisible < lengthVisible * 1)
+                    firstTracked = 0;
+
                 // il range si trova alla fine
-                else if (range.FirstVisible >= count - range.LengthVisible * 2)
-                {
-                    range.FirstTracked = count - range.LengthVisible * 3;
-                    range.LengthTracked = range.LengthVisible * 3;
-                    range.LastTracked = count - 1;
-                    FirstIndex = range.FirstTracked;
-                    LastIndex = range.LastTracked;
-                }
+                else if (firstVisible >= count - lengthVisible * 2)
+                    firstTracked = count - lengthTracked;
+
                 // il range si trova nel mezzo
                 else
-                {
-                    range.FirstTracked = range.FirstVisible - range.LengthVisible * 1;
-                    range.LengthTracked = range.LengthVisible * 3;
-                    range.LastTracked = range.FirstTracked + range.LengthVisible * 3 - 1;
-                    FirstIndex = range.FirstTracked;
-                    LastIndex = range.LastTracked;
-                }
+                    firstTracked = firstVisible - lengthVisible * 1;
+
+                //valorizzo variabli globali firstindex e lastindex;
+                FirstIndex = firstTracked;
+                LastIndex = firstTracked + lengthTracked - 1;
+                //logger.LogWarning("Global Variable FirstIndex: {0} LastIndex: {1}", FirstIndex, LastIndex);
 
                 if (cancellationTokenSource.Token.CanBeCanceled)
                     cancellationTokenSource.Cancel();
                 cancellationTokenSource.Dispose();
                 cancellationTokenSource = new CancellationTokenSource();
 
-                Task.Run(async () => await FetchRange(range, cancellationTokenSource.Token));
-                //logger.LogWarning("FetchRange First: {0} Length: {1}", range.FirstTracked, range.LengthTracked);
+                Task.Run(async () => await FetchRange(firstTracked, lengthTracked, cancellationTokenSource.Token));
+                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
             }
         }
 

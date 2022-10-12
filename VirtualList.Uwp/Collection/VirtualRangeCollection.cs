@@ -52,16 +52,44 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region private method
 
-        private async Task FetchRangeHandle(int skip, int take)
+        private async Task FetchRange(int skip, int take, CancellationToken token)
         {
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = new CancellationTokenSource();
-
             try
             {
-                await FetchRange(skip, take, cancellationTokenSource.Token);
+                //if (token.IsCancellationRequested)
+                //    token.ThrowIfCancellationRequested();
+                //await Task.Delay(10, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                var list = await GetRangeAsync(skip, take, token);
+
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                items.Clear();
+
+                for (int i = 0; i < list.Count; i++)
+                {
+                    items.Add(skip + i, list[i]);
+                }
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    foreach (var item in items)
+                    {
+                        var eventArgs = new NotifyCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Replace,
+                            item.Value,
+                            null,
+                            item.Key);
+                        CollectionChanged?.Invoke(this, eventArgs);
+                        //logger.LogWarning("CollectionChanged Replace: {0}", item.Key);
+                    }
+                });
             }
             catch (OperationCanceledException ex)
             {
@@ -71,43 +99,6 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
             }
-        }
-
-        private async Task FetchRange(int skip, int take, CancellationToken cancellationToken)
-        {
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(10, cancellationToken);
-
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            var list = await GetRangeAsync(skip, take, cancellationToken);
-
-
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            items.Clear();
-            for (int i = 0; i < list.Count; i++)
-            {
-                items.Add(skip + i, list[i]);
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                foreach (var item in items)
-                {
-                    var eventArgs = new NotifyCollectionChangedEventArgs(
-                        NotifyCollectionChangedAction.Replace,
-                        item.Value,
-                        null,
-                        item.Key);
-                    CollectionChanged?.Invoke(this, eventArgs);
-                    //logger.LogWarning("CollectionChanged Replace: {0}", item.Key);
-                }
-            });
         }
 
         #endregion
@@ -122,12 +113,7 @@ namespace CiccioSoft.VirtualList.Uwp
             int firstVisibleRange = visibleRange.FirstIndex;
             int lastVisibleRange = visibleRange.LastIndex;
             int lengthVisibleRange = (int)visibleRange.Length;
-            logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisibleRange, lengthVisibleRange);
-
-            var asdf = trackedItems.ToArray()[0];
-            int trackedItemsFirst = asdf.FirstIndex;
-            int trackedItemsLength = (int)asdf.Length;
-            logger.LogWarning("TrackedRange First: {0} Length: {1}", trackedItemsFirst, trackedItemsLength);
+            //logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisibleRange, lengthVisibleRange);
 
             // implementazione Cache
             // con il valore cacheLength si intende specificare la quantità di cache prima e dopo 
@@ -143,22 +129,32 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 // trovo la lunghezza totale ri righe da estrarre ovvero lengthToFetch
                 int lengthToFetch = lengthVisibleRange + (lengthVisibleRange * cacheLength) * 2;
-
-                // verifico se mi trovo all'inizio o alla fine della collezione e trovo firstToFetch
                 int firstToFetch;
+
+                // se mi trovo all'inizio della collezione e trovo firstToFetch
                 if (firstVisibleRange < lengthVisibleRange * cacheLength)
                     firstToFetch = 0;
+
+                // se mi trovo alla fine della collezione e trovo firstToFetch
                 else if (firstVisibleRange > count - (lengthVisibleRange + lengthVisibleRange * cacheLength))
                     firstToFetch = count - lengthToFetch;
+
+                // se mi trovo nel mezzo della collezione e trovo firstToFetch
                 else
                     firstToFetch = firstVisibleRange - lengthVisibleRange * cacheLength;
-                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstToFetch, lengthToFetch);
+
+                logger.LogWarning("FetchRange First: {0} Length: {1}", firstToFetch, lengthToFetch);
 
                 //valorizzo variabli globali firstindex e lastindex;
                 FirstIndex = firstToFetch;
                 LastIndex = firstToFetch + lengthToFetch - 1;
 
-                Task.Run(async () => await FetchRangeHandle(firstToFetch, lengthToFetch));
+                if (cancellationTokenSource.Token.CanBeCanceled)
+                    cancellationTokenSource.Cancel();
+                cancellationTokenSource.Dispose();
+                cancellationTokenSource = new CancellationTokenSource();
+
+                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, cancellationTokenSource.Token));
             }
         }
 

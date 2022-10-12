@@ -13,14 +13,13 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
         public static IServiceCollection AddData(this IServiceCollection serviceCollection,
                                                  IConfiguration configuration)
         {
-            serviceCollection.Configure<MyAppOptions>(configuration.GetSection("MyAppOptions"));
-
+            //serviceCollection.Configure<MyAppOptions>(configuration.GetSection("MyAppOptions"));
             var section = configuration.GetSection("MyDbType");
             DbType dbt = Enum.Parse<DbType>(section.Value);
 
-
             switch (dbt)
             {
+                // Use SqLite
                 case DbType.SqLite:
                     serviceCollection.AddDbContext<SqLiteDbContext>(options =>
                     {
@@ -35,17 +34,16 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
 
                     serviceCollection
                         .AddTransient<IModelRepository, ModelRepository>();
-
                     break;
 
+                // MS LocalDB
                 case DbType.MsLocalDb:
-
                     serviceCollection.AddDbContext<SqlServerDbContext>(options =>
                     {
                         options
                             //.UseLazyLoadingProxies()
                             .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                            .UseSqlServer(configuration.GetConnectionString("MsLocalDbConnection"));
                     }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
                     serviceCollection.AddTransient<AppDbContext>((serviceProvider)
@@ -53,14 +51,29 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
 
                     serviceCollection
                         .AddTransient<IModelRepository, ModelRepository>();
-
                     break;
 
-                case DbType.FakeDb:
+                // MS SqlServer
+                case DbType.SqlServer:
+                    serviceCollection.AddDbContext<SqlServerDbContext>(options =>
+                    {
+                        options
+                            //.UseLazyLoadingProxies()
+                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                            .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
+                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
+
+                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
+                        => serviceProvider.GetRequiredService<SqlServerDbContext>());
 
                     serviceCollection
-                        .AddSingleton<IModelRepository, FakeModelRepository>();
+                        .AddTransient<IModelRepository, ModelRepository>();
+                    break;
 
+                // Fake Repo
+                case DbType.FakeDb:
+                    serviceCollection
+                        .AddSingleton<IModelRepository, FakeModelRepository>();
                     break;
             }
 

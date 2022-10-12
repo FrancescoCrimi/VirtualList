@@ -19,7 +19,8 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
         protected override int GetCount()
         {
             using IModelRepository? db = Ioc.Default.GetRequiredService<IModelRepository>();
-            return db.Count();
+            var count = db.Count();
+            return count;
         }
 
         protected override async Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)

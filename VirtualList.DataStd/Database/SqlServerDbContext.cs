@@ -4,12 +4,9 @@ namespace CiccioSoft.VirtualList.Data.Database
 {
     public class SqlServerDbContext : AppDbContext
     {
-        public SqlServerDbContext() { }
-        public SqlServerDbContext(DbContextOptions options) : base(options) { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public SqlServerDbContext(DbContextOptions options)
+            : base(options)
         {
-            base.OnConfiguring(optionsBuilder);
         }
     }
 }

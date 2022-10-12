@@ -43,7 +43,8 @@
                             <TextBox Margin="3"
                                      Width="120"
                                      VerticalAlignment="Center"
-                                     HorizontalAlignment="Center" />
+                                     HorizontalAlignment="Center"
+                                     Text="{Binding SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="1"
@@ -53,11 +54,12 @@
                                     Content="Submit"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Command="{Binding ButtonCommand, Mode=OneWay}" />
+                                    Command="{Binding SubmitCommand, Mode=OneWay}" />
                             <Button Margin="3"
                                     Content="Clear"
                                     HorizontalAlignment="Center"
-                                    VerticalAlignment="Center" />
+                                    VerticalAlignment="Center"
+                                    Command="{Binding ClearCommand, Mode=OneWay}" />
                         </StackPanel>
 
                     </Grid>
@@ -147,7 +149,8 @@
                                      Width="120"
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Center"
-                                     IsReadOnly="True" />
+                                     IsReadOnly="True"
+                                     Text="{Binding Items.Count, Mode=OneWay}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"

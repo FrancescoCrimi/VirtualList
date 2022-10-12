@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data;
+﻿using CiccioSoft.VirtualList.Data.Database;
 using CiccioSoft.VirtualList.Data.Domain;
 using System;
 using System.Text;
@@ -8,9 +8,9 @@ namespace CiccioSoft.VirtualList.LoadData
 {
     public class LoadSampleSerice
     {
-        private readonly MyDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public LoadSampleSerice(MyDbContext dbContext)
+        public LoadSampleSerice(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

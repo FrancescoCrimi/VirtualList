@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Data.Repository
 {
-    internal class FakeModelRepository : IModelRepository
+    public class FakeModelRepository : IModelRepository
     {
         private readonly Random random;
         private readonly int count;

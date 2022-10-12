@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualList.Uwp", "VirtualL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualList.LoadData", "VirtualList.LoadData\VirtualList.LoadData.csproj", "{70B9E241-92C5-4F92-8964-D96C560FEC88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualList.WinUi", "VirtualList.WinUi\VirtualList.WinUi.csproj", "{9848901D-39F8-4CD0-9541-14F0243BC2EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualList.WinUi", "VirtualList.WinUi\VirtualList.WinUi.csproj", "{9848901D-39F8-4CD0-9541-14F0243BC2EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

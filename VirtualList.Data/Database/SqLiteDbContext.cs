@@ -5,8 +5,9 @@ namespace CiccioSoft.VirtualList.Data.Database
 {
     public class SqLiteDbContext : AppDbContext
     {
-        public SqLiteDbContext() { }
-
-        public SqLiteDbContext([NotNull] DbContextOptions options) : base(options) { }
+        public SqLiteDbContext([NotNull] DbContextOptions options)
+            : base(options)
+        {
+        }
     }
 }
