@@ -22,7 +22,6 @@ namespace CiccioSoft.VirtualList.LoadData
             try
             {
                 var serviceProvider = CreateServiceProvider();
-                //var loadSample = serviceProvider.GetService<LoadSampleSerice>();
                 var dbContext = serviceProvider.GetService<AppDbContext>();
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -66,9 +65,6 @@ namespace CiccioSoft.VirtualList.LoadData
 
                 // aggiungi data
                 .AddData(configuration)
-
-                .AddTransient<LoadSampleSerice>()
-
                 .BuildServiceProvider();
         }
     }

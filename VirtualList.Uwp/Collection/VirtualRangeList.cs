@@ -18,21 +18,23 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
     public abstract class VirtualRangeList<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
     {
         private readonly ILogger logger;
-        private CancellationTokenSource cancellationTokenSource = null;
         private readonly CoreDispatcher dispatcher;
+        private CancellationTokenSource cancellationTokenSource = null;
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
-        protected int count;
+        private readonly T dummyObject;
+        private int count = 0;
         private int FirstIndex;
         private int LastIndex;
 
         public VirtualRangeList()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualRangeCollection");
-            cancellationTokenSource = new CancellationTokenSource();
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
+            cancellationTokenSource = new CancellationTokenSource();
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
+            dummyObject = CreateDummyEntity();
             FirstIndex = 0;
             LastIndex = 0;
         }
@@ -41,18 +43,22 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         #region abstract method
 
         protected abstract T CreateDummyEntity();
-        protected abstract int GetCount();
+        protected abstract Task<int> GetCountAsync();
         protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
 
         #endregion
 
 
-        #region protected method
+        #region public method
 
-        protected void Suca()
+        public async Task LoadAsync()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                count = await GetCountAsync();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            });
         }
 
         #endregion
@@ -64,15 +70,14 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         {
             try
             {
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-                await Task.Delay(10, token);
+                //if (token.IsCancellationRequested)
+                //    token.ThrowIfCancellationRequested();
+                //await Task.Delay(10, token);
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
                 logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
                 var list = await GetRangeAsync(firstTracked, lengthTracked, token);
-
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
@@ -84,25 +89,17 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
-
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    for (int i = 0; i < lengthTracked; i++)
+                    foreach (var item in items)
                     {
-                        //if (token.IsCancellationRequested)
-                        //{
-                        //    token.ThrowIfCancellationRequested();
-                        //    //return;
-                        //}
-
-                        int idx = firstTracked + i;
                         var eventArgs = new NotifyCollectionChangedEventArgs(
                             NotifyCollectionChangedAction.Replace,
-                            items[idx],
+                            item.Value,
                             null,
-                            idx);
+                            item.Key);
                         CollectionChanged?.Invoke(this, eventArgs);
-                        //logger.LogWarning("CollectionChanged Replace: {0}", idx);
+                        //logger.LogWarning("CollectionChanged Replace: {0}", item.Key);
                     }
                 });
             }
@@ -137,7 +134,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             // verifico se il range visibile rientra nel range già fetchato
             if (firstVisible < FirstIndex || lastVisible > LastIndex)
             {
-                // trovo la lunghezza totale ri righe da estrarre
+                // trovo la lunghezza totale di righe da estrarre
                 int lengthTracked = lengthVisible * 3;
 
                 // prima riga da estrarre
@@ -158,7 +155,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                 //valorizzo variabli globali firstindex e lastindex;
                 FirstIndex = firstTracked;
                 LastIndex = firstTracked + lengthTracked - 1;
-                //logger.LogWarning("Global Variable FirstIndex: {0} LastIndex: {1}", FirstIndex, LastIndex);
 
                 if (cancellationTokenSource.Token.CanBeCanceled)
                     cancellationTokenSource.Cancel();
@@ -182,7 +178,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                 else
                 {
                     //logger.LogWarning("Indexer get dummy: {0}", index);
-                    return CreateDummyEntity();
+                    return dummyObject;
                 }
             }
             set => throw new NotImplementedException();

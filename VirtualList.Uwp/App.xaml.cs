@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using NLog.Extensions.Logging;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -49,8 +48,6 @@ namespace CiccioSoft.VirtualList.Uwp
             ConfigurationBuilder builder = new ConfigurationBuilder();
             builder.AddEnvironmentVariables(prefix: "DOTNET_");
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            string environment = builder.Build().GetValue<string>("ENVIRONMENT");
-            builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
             IConfiguration configuration = builder.Build();
 
             // Configura il ServiceProvider di Ioc.Default
@@ -64,9 +61,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 {
                     loggingBuilder
                         .AddConfiguration(configuration.GetSection("Logging"))
-                        .AddNLog()
                         .AddDebug();
-                        //.AddEventLog();
                 })
 
                 // aggiungi data

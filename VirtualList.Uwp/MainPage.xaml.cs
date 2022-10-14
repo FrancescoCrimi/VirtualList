@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Windows.UI.Xaml.Controls;
-using Microsoft.Toolkit.Uwp;
 
 namespace CiccioSoft.VirtualList.Uwp
 {

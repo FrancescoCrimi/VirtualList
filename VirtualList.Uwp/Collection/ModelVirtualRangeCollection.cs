@@ -13,24 +13,22 @@ namespace CiccioSoft.VirtualList.Uwp
 {
     public class ModelVirtualRangeCollection : VirtualRangeList<Model>
     {
-        private string strSearch = string.Empty;
-
         public ModelVirtualRangeCollection() : base()
         {
-            count = GetCount();
         }
+
+        #region Protected Method
 
         protected override Model CreateDummyEntity()
         {
-            return new Model(0, "");
+            return new Model(0, "null");
         }
-
-        protected override int GetCount()
+         
+        protected override async Task<int> GetCountAsync()
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                //var rtn = repo.Count(m => m.Name.Contains(strSearch));
-                var rtn = repo.Count();
+                var rtn = await repo.CountAsync();
                 return rtn;
             }
         }
@@ -43,11 +41,6 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
-        public void Load(String searchSting)
-        {
-            strSearch = searchSting;
-            count = GetCount();
-            //Suca();
-        }
+        #endregion
     }
 }

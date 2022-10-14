@@ -10,20 +10,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Data;
+using System.ComponentModel;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    /// <summary>
-    /// Collezione Virtuale che usa l'interfaccia IItemsRangeInfo
-    /// </summary>
-    public abstract class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, IItemsRangeInfo where T : class
+    public abstract class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
         private CancellationTokenSource cancellationTokenSource = null;
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
-        protected int count;
+        private readonly T dummyObject;
+        private int count = 0;
         private readonly int cacheLength;
         private int FirstIndex;
         private int LastIndex;
@@ -35,16 +34,32 @@ namespace CiccioSoft.VirtualList.Uwp
             cancellationTokenSource = new CancellationTokenSource();
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
+            dummyObject = CreateDummyEntity();
             cacheLength = 1;
             FirstIndex = 0;
             LastIndex = 0;
+            Task.Run(async () => await LoadAsync());
         }
+
+        #region Public Method
+
+        public async Task LoadAsync()
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                count = await GetCountAsync();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            });
+        }
+
+        #endregion
 
 
         #region abstract method
 
         protected abstract T CreateDummyEntity();
-        protected abstract int GetCount();
+        protected abstract Task<int> GetCountAsync();
         protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
 
         #endregion
@@ -62,13 +77,12 @@ namespace CiccioSoft.VirtualList.Uwp
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
+                logger.LogWarning("FetchRange First: {0} Length: {1}", skip, take);
                 var list = await GetRangeAsync(skip, take, token);
-
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
                 items.Clear();
-
                 for (int i = 0; i < list.Count; i++)
                 {
                     items.Add(skip + i, list[i]);
@@ -76,7 +90,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
-
                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     foreach (var item in items)
@@ -107,43 +120,38 @@ namespace CiccioSoft.VirtualList.Uwp
         #region interface member implemented
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            int firstVisibleRange = visibleRange.FirstIndex;
-            int lastVisibleRange = visibleRange.LastIndex;
-            int lengthVisibleRange = (int)visibleRange.Length;
-            //logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisibleRange, lengthVisibleRange);
-
-            // implementazione Cache
-            // con il valore cacheLength si intende specificare la quantità di cache prima e dopo 
-            // il range visibile prendendo come base la lunghezza del range.
-            // per esempio con una length = 10 e cacheLength = 1 si avra un totale di 30 con il range
-            // visibleRange al centro ovvero "length + (lengh * cacheLength) * 2
+            int firstVisible = visibleRange.FirstIndex;
+            int lastVisible = visibleRange.LastIndex;
+            int lengthVisible = (int)visibleRange.Length;
+            logger.LogWarning("VisibleRange First: {0} Length: {1}", firstVisible, lengthVisible);
 
             // se visibleRangeLength è minore di 2 esci
-            if (lengthVisibleRange < 2) return;
+            if (lengthVisible < 2) return;
 
             // verifico se il range visibile rientra nel range già fetchato
-            if (firstVisibleRange < FirstIndex || lastVisibleRange > LastIndex)
+            if (firstVisible < FirstIndex || lastVisible > LastIndex)
             {
-                // trovo la lunghezza totale ri righe da estrarre ovvero lengthToFetch
-                int lengthToFetch = lengthVisibleRange + (lengthVisibleRange * cacheLength) * 2;
+                // trovo la lunghezza totale di righe da estrarre
+                int lengthToFetch = lengthVisible + (lengthVisible * cacheLength) * 2;
+
+                // prima riga da estrarre
                 int firstToFetch;
 
                 // se mi trovo all'inizio della collezione e trovo firstToFetch
-                if (firstVisibleRange < lengthVisibleRange * cacheLength)
+                if (firstVisible < lengthVisible * cacheLength)
                     firstToFetch = 0;
 
                 // se mi trovo alla fine della collezione e trovo firstToFetch
-                else if (firstVisibleRange > count - (lengthVisibleRange + lengthVisibleRange * cacheLength))
+                else if (firstVisible > count - (lengthVisible + lengthVisible * cacheLength))
                     firstToFetch = count - lengthToFetch;
 
                 // se mi trovo nel mezzo della collezione e trovo firstToFetch
                 else
-                    firstToFetch = firstVisibleRange - lengthVisibleRange * cacheLength;
-
-                logger.LogWarning("FetchRange First: {0} Length: {1}", firstToFetch, lengthToFetch);
+                    firstToFetch = firstVisible - lengthVisible * cacheLength;
 
                 //valorizzo variabli globali firstindex e lastindex;
                 FirstIndex = firstToFetch;
@@ -155,6 +163,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 cancellationTokenSource = new CancellationTokenSource();
 
                 Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, cancellationTokenSource.Token));
+                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
             }
         }
 
@@ -170,7 +179,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 else
                 {
                     //logger.LogWarning("Indexer get dummy: {0}", index);
-                    return CreateDummyEntity();
+                    return dummyObject;
                 }
             }
             set => throw new NotImplementedException();

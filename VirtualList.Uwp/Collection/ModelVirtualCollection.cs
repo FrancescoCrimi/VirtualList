@@ -25,10 +25,10 @@ namespace CiccioSoft.VirtualList.Uwp
                 return repo.Count();
         }
 
-        protected override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+        protected override async Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
-                return repo.GetRangeAsync(skip, take, cancellationToken);
+                return await repo.GetRangeAsync(skip, take, cancellationToken);
         }
     }
 }
