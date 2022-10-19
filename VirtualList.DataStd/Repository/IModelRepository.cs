@@ -14,7 +14,12 @@ namespace CiccioSoft.VirtualList.Data.Repository
 
         List<Model> GetRange(int skip, int take);
         Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default);
+        Task<List<Model>> GetRangeAsync(int skip,
+                                         int take,
+                                         Expression<Func<Model, bool>> predicate,
+                                         CancellationToken cancellationToken = default);
 
+        
         int Count();
         int Count(Expression<Func<Model, bool>> predicate);
         Task<int> CountAsync(CancellationToken cancellationToken = default);

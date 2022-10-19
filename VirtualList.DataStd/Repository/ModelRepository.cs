@@ -48,6 +48,17 @@ namespace CiccioSoft.VirtualList.Data.Repository
             return query.ToListAsync(cancellationToken);
         }
 
+        public Task<List<Model>> GetRangeAsync(int skip, int take, Expression<Func<Model, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            IQueryable<Model> query = appDbContext.Models.AsQueryable();
+            query = query.Where(predicate);
+            query = query.Skip(skip);
+            query = query.Take(take);
+            //todo: fix order by
+            query = query.OrderBy(m => m.Id);
+            return query.ToListAsync(cancellationToken);
+        }
+
 
         public void Add(Model entity)
         {

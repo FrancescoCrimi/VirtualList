@@ -113,5 +113,10 @@ namespace CiccioSoft.VirtualList.Data.Repository
         public void Dispose()
         {
         }
+
+        public Task<List<Model>> GetRangeAsync(int skip, int take, Expression<Func<Model, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

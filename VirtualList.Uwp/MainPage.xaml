@@ -27,41 +27,23 @@
                         CornerRadius="5"
                         BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                         Margin="3,3,3,3">
-                    <Grid VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <TextBlock Margin="3"
-                                       Text="Search"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center" />
-                            <TextBox Margin="3"
-                                     Width="120"
-                                     VerticalAlignment="Center"
-                                     HorizontalAlignment="Center"
-                                     Text="{Binding SearchString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <Button Margin="3"
-                                    Content="Submit"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Command="{Binding SubmitCommand, Mode=OneWay}" />
-                            <Button Margin="3"
-                                    Content="Clear"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Command="{Binding ClearCommand, Mode=OneWay}" />
-                        </StackPanel>
-
-                    </Grid>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <TextBlock Margin="3"
+                                   Text="Search"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                        <TextBox Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 Text="{Binding SearchString, Mode=TwoWay}" />
+                        <Button Margin="3"
+                                Content="Reload"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Command="{Binding ReloadCommand, Mode=OneWay}" />
+                    </StackPanel>
                 </Border>
 
                 <Border Grid.Row="1"
@@ -132,39 +114,19 @@
                         CornerRadius="5"
                         BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                         Margin="3,0,3,3">
-                    <Grid VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <TextBlock Margin="3"
-                                       Text="Count"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                            <TextBox Margin="3"
-                                     Width="120"
-                                     VerticalAlignment="Center"
-                                     HorizontalAlignment="Center"
-                                     IsReadOnly="True"
-                                     Text="{Binding Items.Count, Mode=OneWay}" />
-                        </StackPanel>
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                            <TextBlock Margin="3"
-                                       Text="Selected"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                            <TextBox Margin="3"
-                                     Width="120"
-                                     VerticalAlignment="Center"
-                                     HorizontalAlignment="Center"
-                                     IsReadOnly="True" />
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+                        <TextBlock Margin="3"
+                                   Text="Count"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        <TextBox Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 IsReadOnly="True"
+                                 Text="{Binding Items.Count, Mode=OneWay}" />
+                    </StackPanel>
                 </Border>
 
             </Grid>

@@ -11,11 +11,15 @@ using System.Windows.Input;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualRangeCollection : VirtualRangeList<Model>
+    public class ModelVirtualRangeCollection : VirtualRangeCollection<Model>
     {
-        public ModelVirtualRangeCollection() : base()
+        private string searchString = string.Empty;
+
+        public ModelVirtualRangeCollection()
+            : base()
         {
         }
+
 
         #region Protected Method
 
@@ -23,12 +27,12 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             return new Model(0, "null");
         }
-         
+
         protected override async Task<int> GetCountAsync()
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                var rtn = await repo.CountAsync();
+                var rtn = await repo.CountAsync(m => m.Name.Contains(searchString.ToUpper()));
                 return rtn;
             }
         }
@@ -37,10 +41,17 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                return await repo.GetRangeAsync(skip, take, cancellationToken);
+                return await repo.GetRangeAsync(skip, take, m => m.Name.Contains(searchString.ToUpper()), cancellationToken);
             }
         }
 
         #endregion
+
+        internal async Task Reload(string searchString)
+        {
+            this.searchString = searchString;
+            await Task.CompletedTask;
+            //await ReloadAsync();
+        }
     }
 }

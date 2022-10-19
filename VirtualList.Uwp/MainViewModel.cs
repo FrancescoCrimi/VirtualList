@@ -1,10 +1,8 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
-using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
-using System.Windows.Input;
 using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Uwp
@@ -15,13 +13,14 @@ namespace CiccioSoft.VirtualList.Uwp
         //private readonly FakeCollection fakeList;
         //private readonly ModelVirtualRangeCollection items;
         private readonly ModelVirtualRangeCollection items;
-        private ICommand submitCommand;
-        private IAsyncRelayCommand clearCommand;
+        private IAsyncRelayCommand reloadCommand;
 
         public MainViewModel(IServiceProvider serviceProvider)
         {
+            SearchString = string.Empty;
             //items = new ModelVirtualCollection();
             items = new ModelVirtualRangeCollection();
+            Task.Run(async () => await items.LoadAsync());
             //fakeList = new FakeCollection();
             //Items = fakeList;
         }
@@ -30,17 +29,8 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public string SearchString { get; set; }
 
-
-        public IAsyncRelayCommand ClearCommand => clearCommand ?? 
-            (clearCommand = new AsyncRelayCommand(async () => await items.LoadAsync()));
-
-        public ICommand SubmitCommand => submitCommand ?? (submitCommand = new RelayCommand(OnSubmitCommand));
-
- 
-
-        private void OnSubmitCommand()
-        {
-            //items.Load(SearchString);
-        }
+        public IAsyncRelayCommand ReloadCommand => reloadCommand ??
+            (reloadCommand = new AsyncRelayCommand(async () =>
+                await items.Reload(SearchString)));
     }
 }

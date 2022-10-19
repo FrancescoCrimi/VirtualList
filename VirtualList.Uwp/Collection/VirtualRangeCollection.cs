@@ -26,6 +26,8 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly int cacheLength;
         private int FirstIndex;
         private int LastIndex;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
 
         public VirtualRangeCollection()
         {
@@ -38,7 +40,6 @@ namespace CiccioSoft.VirtualList.Uwp
             cacheLength = 1;
             FirstIndex = 0;
             LastIndex = 0;
-            Task.Run(async () => await LoadAsync());
         }
 
         #region Public Method
@@ -48,7 +49,8 @@ namespace CiccioSoft.VirtualList.Uwp
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 count = await GetCountAsync();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             });
         }
@@ -71,9 +73,9 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             try
             {
-                //if (token.IsCancellationRequested)
-                //    token.ThrowIfCancellationRequested();
-                //await Task.Delay(10, token);
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                await Task.Delay(10, token);
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
@@ -112,6 +114,15 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)agex.InnerException).Task.Id);
             }
+        }
+
+        private CancellationToken NewToken()
+        {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            return cancellationTokenSource.Token;
         }
 
         #endregion
@@ -157,13 +168,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 FirstIndex = firstToFetch;
                 LastIndex = firstToFetch + lengthToFetch - 1;
 
-                if (cancellationTokenSource.Token.CanBeCanceled)
-                    cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
-                cancellationTokenSource = new CancellationTokenSource();
-
-                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, cancellationTokenSource.Token));
-                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
+                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, NewToken()));
             }
         }
 

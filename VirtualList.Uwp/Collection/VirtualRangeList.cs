@@ -26,6 +26,10 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         private int count = 0;
         private int FirstIndex;
         private int LastIndex;
+        private int Length;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
+
 
         public VirtualRangeList()
         {
@@ -37,6 +41,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             dummyObject = CreateDummyEntity();
             FirstIndex = 0;
             LastIndex = 0;
+            //Task.Run(async () => await LoadAsync());
         }
 
 
@@ -56,8 +61,25 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 count = await GetCountAsync();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Count"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            });
+        }
+
+        public async Task ReloadAsync()
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                items.Clear();
+                count = await GetCountAsync();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                int lengthToFetch = Length * 3;
+                await Task.Run(async () => await FetchRange(0, lengthToFetch, NewToken()));
+                FirstIndex = 0;
+                LastIndex = 0 + lengthToFetch - 1;
             });
         }
 
@@ -70,9 +92,9 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         {
             try
             {
-                //if (token.IsCancellationRequested)
-                //    token.ThrowIfCancellationRequested();
-                //await Task.Delay(10, token);
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                await Task.Delay(10, token);
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
@@ -103,14 +125,27 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                     }
                 });
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException ocex)
             {
-                logger.LogError(ex.Message);
+                logger.LogError(ocex.Message);
             }
             catch (AggregateException tcex)
             {
                 logger.LogError("Cancel Task Id:{0}", ((TaskCanceledException)tcex.InnerException).Task.Id);
             }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex.Message);
+            }
+        }
+
+        private CancellationToken NewToken()
+        {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            return cancellationTokenSource.Token;
         }
 
         #endregion
@@ -135,34 +170,29 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             if (firstVisible < FirstIndex || lastVisible > LastIndex)
             {
                 // trovo la lunghezza totale di righe da estrarre
-                int lengthTracked = lengthVisible * 3;
+                int lengthToFetch = lengthVisible * 3;
 
                 // prima riga da estrarre
-                int firstTracked;
+                int firstToFetch;
 
                 // il range si trova all'inizio
                 if (firstVisible < lengthVisible * 1)
-                    firstTracked = 0;
+                    firstToFetch = 0;
 
                 // il range si trova alla fine
                 else if (firstVisible >= count - lengthVisible * 2)
-                    firstTracked = count - lengthTracked;
+                    firstToFetch = count - lengthToFetch;
 
                 // il range si trova nel mezzo
                 else
-                    firstTracked = firstVisible - lengthVisible * 1;
+                    firstToFetch = firstVisible - lengthVisible * 1;
 
                 //valorizzo variabli globali firstindex e lastindex;
-                FirstIndex = firstTracked;
-                LastIndex = firstTracked + lengthTracked - 1;
+                FirstIndex = firstToFetch;
+                LastIndex = firstToFetch + lengthToFetch - 1;
+                Length = lengthVisible;
 
-                if (cancellationTokenSource.Token.CanBeCanceled)
-                    cancellationTokenSource.Cancel();
-                cancellationTokenSource.Dispose();
-                cancellationTokenSource = new CancellationTokenSource();
-
-                Task.Run(async () => await FetchRange(firstTracked, lengthTracked, cancellationTokenSource.Token));
-                //logger.LogWarning("FetchRange First: {0} Length: {1}", firstTracked, lengthTracked);
+                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, NewToken()));
             }
         }
 
@@ -198,9 +228,15 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             }
         }
 
-        public int IndexOf(T item) => -1;
+        public int IndexOf(T item)
+        {
+            return -1;
+        }
 
-        int IList.IndexOf(object value) => -1;
+        int IList.IndexOf(object value)
+        {
+            return -1;
+        }
 
         public IEnumerator<T> GetEnumerator() => fakelist.GetEnumerator();
 
