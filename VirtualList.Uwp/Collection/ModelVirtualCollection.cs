@@ -9,6 +9,8 @@ namespace CiccioSoft.VirtualList.Uwp
 {
     public class ModelVirtualCollection : VirtualCollection<Model>
     {
+        private string searchString = string.Empty;
+
         public ModelVirtualCollection() : base()
         {
             count = GetCount();
@@ -29,6 +31,13 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
                 return await repo.GetRangeAsync(skip, take, cancellationToken);
+        }
+
+        internal async Task SearchAsync(string searchString)
+        {
+            this.searchString = searchString;
+            await Task.CompletedTask;
+            //await ReloadAsync();
         }
     }
 }

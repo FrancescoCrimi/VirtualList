@@ -11,9 +11,9 @@ namespace CiccioSoft.VirtualList.Uwp
     {
 
         //private readonly FakeCollection fakeList;
-        //private readonly ModelVirtualRangeCollection items;
+        //private readonly ModelVirtualCollection items;
         private readonly ModelVirtualRangeCollection items;
-        private IAsyncRelayCommand reloadCommand;
+        private IAsyncRelayCommand searchCommand;
 
         public MainViewModel(IServiceProvider serviceProvider)
         {
@@ -29,8 +29,8 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public string SearchString { get; set; }
 
-        public IAsyncRelayCommand ReloadCommand => reloadCommand ??
-            (reloadCommand = new AsyncRelayCommand(async () =>
-                await items.Reload(SearchString)));
+        public IAsyncRelayCommand SearchCommand => searchCommand ??
+            (searchCommand = new AsyncRelayCommand(async () =>
+                await items.SearchAsync(SearchString)));
     }
 }

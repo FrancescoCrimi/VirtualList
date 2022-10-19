@@ -73,9 +73,10 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             try
             {
+                // ritardo inserito per velocizzare scrolling
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
-                await Task.Delay(10, token);
+                await Task.Delay(60, token);
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();

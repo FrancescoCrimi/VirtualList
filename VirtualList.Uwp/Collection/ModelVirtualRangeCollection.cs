@@ -21,7 +21,7 @@ namespace CiccioSoft.VirtualList.Uwp
         }
 
 
-        #region Protected Method
+        #region protected override method
 
         protected override Model CreateDummyEntity()
         {
@@ -47,7 +47,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #endregion
 
-        internal async Task Reload(string searchString)
+        internal async Task SearchAsync(string searchString)
         {
             this.searchString = searchString;
             await Task.CompletedTask;

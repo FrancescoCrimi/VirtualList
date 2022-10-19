@@ -66,6 +66,15 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region private method
 
+        private CancellationToken NewToken()
+        {
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            return cancellationTokenSource.Token;
+        }
+
         private void TimerHandler(ThreadPoolTimer timer)
         {
             if (!indexStack.IsEmpty)
@@ -74,6 +83,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 indexStack.Clear();
                 if (index < index_to_fetch || index >= index_to_fetch + take)
                 {
+                    logger.LogWarning("Indice non Fetchato: {0}", index);
                     if (index < range)
                         index = 0;
                     else if (index > count - range)
@@ -82,21 +92,18 @@ namespace CiccioSoft.VirtualList.Uwp
                         index -= range;
                     index_to_fetch = index;
                     Task.Run(async () => await FetchItem(index));
+                    logger.LogWarning("Indice da Fetchare: {0}", index);
                 }
                 else
-                    logger.LogWarning("Indice già fetchato");
+                    logger.LogWarning("Indice già Fetchato: {0}", index);
             }
         }
 
         private async Task FetchItem(int index)
         {
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                await FetchRange(index, cancellationTokenSource.Token);
+                await FetchRange(index, NewToken());
             }
             catch (TaskCanceledException ex)
             {

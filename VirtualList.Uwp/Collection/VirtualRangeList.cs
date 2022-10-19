@@ -67,7 +67,12 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             });
         }
 
-        public async Task ReloadAsync()
+        #endregion
+
+
+        #region protected method
+
+        protected async Task ReloadAsync()
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
@@ -94,7 +99,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             {
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();
-                await Task.Delay(10, token);
+                await Task.Delay(60, token);
 
                 if (token.IsCancellationRequested)
                     token.ThrowIfCancellationRequested();

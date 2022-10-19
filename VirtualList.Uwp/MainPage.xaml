@@ -39,10 +39,10 @@
                                  HorizontalAlignment="Center"
                                  Text="{Binding SearchString, Mode=TwoWay}" />
                         <Button Margin="3"
-                                Content="Reload"
+                                Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Command="{Binding ReloadCommand, Mode=OneWay}" />
+                                Command="{Binding SearchCommand, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
