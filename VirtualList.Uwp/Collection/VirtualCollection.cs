@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.System.Threading;
 using Windows.UI.Core;
+using System.ComponentModel;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
@@ -27,19 +28,22 @@ namespace CiccioSoft.VirtualList.Uwp
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged where T : class
+    public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
+        private CancellationTokenSource cancellationTokenSource;
         private readonly ConcurrentStack<int> indexStack;
         private readonly ThreadPoolTimer timer = null;
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
-        private CancellationTokenSource cancellationTokenSource;
+        private readonly T dummyObject;
         private readonly int range;
         private readonly int take;
-        protected int count;
+        protected int count = 0;
         private int index_to_fetch;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
 
         public VirtualCollection(int range = 20)
         {
@@ -49,16 +53,29 @@ namespace CiccioSoft.VirtualList.Uwp
             timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
+            dummyObject = CreateDummyEntity();
             cancellationTokenSource = new CancellationTokenSource();
             this.range = range;
             take = range * 2;
             index_to_fetch = int.MaxValue;
+            //Task.Run(async () => await LoadAsync());
+        }
+
+        public async Task LoadAsync()
+        {
+            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                count = await GetCountAsync();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            });
         }
 
         #region abstract method
 
         protected abstract T CreateDummyEntity();
-        protected abstract int GetCount();
+        protected abstract Task<int> GetCountAsync();
         protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
 
         #endregion
@@ -157,6 +174,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #region interface member implemented 
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public T this[int index]
         {
@@ -168,7 +186,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 else
                 {
                     indexStack.Push(index);
-                    return CreateDummyEntity();
+                    return dummyObject;
                 }
             }
             set => throw new NotImplementedException();

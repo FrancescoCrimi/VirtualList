@@ -28,7 +28,7 @@ namespace CiccioSoft.VirtualList.Uwp
             return new Model(0, "null");
         }
 
-        protected override async Task<int> GetCountAsync()
+        protected async override Task<int> GetCountAsync()
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
@@ -37,7 +37,7 @@ namespace CiccioSoft.VirtualList.Uwp
             }
         }
 
-        protected override async Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+        protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {

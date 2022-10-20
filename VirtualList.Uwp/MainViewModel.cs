@@ -9,20 +9,19 @@ namespace CiccioSoft.VirtualList.Uwp
 {
     public class MainViewModel : ObservableRecipient
     {
-
-        //private readonly FakeCollection fakeList;
-        //private readonly ModelVirtualCollection items;
-        private readonly ModelVirtualRangeCollection items;
+        private readonly ModelVirtualCollection items;
+        //private readonly ModelVirtualRangeCollection items;
+        //private readonly FakeCollection items;
         private IAsyncRelayCommand searchCommand;
 
         public MainViewModel(IServiceProvider serviceProvider)
         {
             SearchString = string.Empty;
-            //items = new ModelVirtualCollection();
-            items = new ModelVirtualRangeCollection();
+
+            items = new ModelVirtualCollection();
+            //items = new ModelVirtualRangeCollection();
+            //items = new FakeCollection();
             Task.Run(async () => await items.LoadAsync());
-            //fakeList = new FakeCollection();
-            //Items = fakeList;
         }
 
         public IList<Model> Items => items;

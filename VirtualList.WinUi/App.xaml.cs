@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿using CiccioSoft.VirtualList.Data.Infrastructure;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -49,6 +50,11 @@ namespace VirtualList.WinUi
                 //services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
 
                 //// Other Activation Handlers
+
+
+                // aggiungi data
+                services.AddData(context.Configuration);
+
 
                 //// Services
                 //services.AddSingleton<IActivationService, ActivationService>();

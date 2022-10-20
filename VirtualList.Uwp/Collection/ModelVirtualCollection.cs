@@ -11,9 +11,9 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         private string searchString = string.Empty;
 
-        public ModelVirtualCollection() : base()
+        public ModelVirtualCollection()
+            : base()
         {
-            count = GetCount();
         }
 
         protected override Model CreateDummyEntity()
@@ -21,16 +21,21 @@ namespace CiccioSoft.VirtualList.Uwp
             return new Model(0, "null");
         }
 
-        protected override int GetCount()
+        protected async override Task<int> GetCountAsync()
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
-                return repo.Count();
+            {
+                var aaa = await repo.CountAsync();
+                return aaa;
+            }
         }
 
-        protected override async Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+        protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
+            {
                 return await repo.GetRangeAsync(skip, take, cancellationToken);
+            }
         }
 
         internal async Task SearchAsync(string searchString)
