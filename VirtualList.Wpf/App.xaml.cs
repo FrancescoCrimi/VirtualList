@@ -27,10 +27,7 @@ namespace CiccioSoft.VirtualList.Wpf
         {
             // Crea Configurazione
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            //builder.AddEnvironmentVariables(prefix: "DOTNET_");
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            //string environment = builder.Build().GetValue<string>("ENVIRONMENT");
-            //builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);     
             IConfiguration configuration = builder.Build();
 
             // Configura il ServiceProvider di Ioc.Default

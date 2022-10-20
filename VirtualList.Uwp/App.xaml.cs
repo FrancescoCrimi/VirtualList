@@ -46,7 +46,6 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             // Crea IConfiguration
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            //builder.AddEnvironmentVariables(prefix: "DOTNET_");
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             IConfiguration configuration = builder.Build();
 
