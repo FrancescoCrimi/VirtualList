@@ -1,4 +1,7 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -11,6 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using VirtualList.WinUi.ViewModels;
+using VirtualList.WinUi.Views;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -26,13 +31,43 @@ namespace VirtualList.WinUi
     /// </summary>
     public partial class App : Application
     {
+        private Window m_window;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+            var host = Host.
+            CreateDefaultBuilder().
+            UseContentRoot(AppContext.BaseDirectory).
+            ConfigureServices((context, services) =>
+            {
+                //// Default Activation Handler
+                //services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
+
+                //// Other Activation Handlers
+
+                //// Services
+                //services.AddSingleton<IActivationService, ActivationService>();
+                //services.AddSingleton<IPageService, PageService>();
+                //services.AddSingleton<INavigationService, NavigationService>();
+
+                //// Core Services
+                //services.AddSingleton<ISampleDataService, SampleDataService>();
+                //services.AddSingleton<IFileService, FileService>();
+
+                // Views and ViewModels
+                services.AddTransient<MainViewModel>();
+                services.AddTransient<MainPage>();
+
+                // Configuration
+                
+            }).
+            Build();
+            Ioc.Default.ConfigureServices(host.Services);
         }
 
         /// <summary>
@@ -43,9 +78,8 @@ namespace VirtualList.WinUi
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = new MainWindow();
+            m_window.Content = new MainPage();
             m_window.Activate();
         }
-
-        private Window m_window;
     }
 }

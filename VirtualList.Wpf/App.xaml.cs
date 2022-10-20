@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using NLog.Extensions.Logging;
+//using NLog.Extensions.Logging;
 using System;
 using System.Windows;
 
@@ -12,7 +12,7 @@ namespace CiccioSoft.VirtualList.Wpf
 {
     public partial class App : Application
     {
-        protected override async void OnStartup(StartupEventArgs e)
+        protected async override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -27,10 +27,10 @@ namespace CiccioSoft.VirtualList.Wpf
         {
             // Crea Configurazione
             ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.AddEnvironmentVariables(prefix: "DOTNET_");
+            //builder.AddEnvironmentVariables(prefix: "DOTNET_");
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            string environment = builder.Build().GetValue<string>("ENVIRONMENT");
-            builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);     
+            //string environment = builder.Build().GetValue<string>("ENVIRONMENT");
+            //builder.AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);     
             IConfiguration configuration = builder.Build();
 
             // Configura il ServiceProvider di Ioc.Default
@@ -44,7 +44,7 @@ namespace CiccioSoft.VirtualList.Wpf
                 {
                     loggingBuilder
                         .AddConfiguration(configuration.GetSection("Logging"))
-                        .AddNLog()
+                        //.AddNLog()
                         .AddDebug();
                         //.AddEventLog();
                 })

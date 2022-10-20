@@ -9,12 +9,12 @@ namespace VirtualList.Forms
         static void Main()
         {
             // Net 6.0
-            //ApplicationConfiguration.Initialize();
+            ApplicationConfiguration.Initialize();
 
-            // Net 5.0
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            //// Net 5.0
+            //Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            //Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
 
             Application.Run(new MainView());
         }
