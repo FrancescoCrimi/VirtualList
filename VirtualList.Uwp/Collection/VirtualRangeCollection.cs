@@ -12,7 +12,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml.Data;
 using System.ComponentModel;
 
-namespace CiccioSoft.VirtualList.Uwp
+namespace CiccioSoft.VirtualList.Uwp.Collection
 {
     public abstract class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
     {
@@ -42,8 +42,6 @@ namespace CiccioSoft.VirtualList.Uwp
             LastIndex = 0;
         }
 
-        #region Public Method
-
         public async Task LoadAsync()
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
@@ -54,8 +52,6 @@ namespace CiccioSoft.VirtualList.Uwp
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             });
         }
-
-        #endregion
 
 
         #region abstract method

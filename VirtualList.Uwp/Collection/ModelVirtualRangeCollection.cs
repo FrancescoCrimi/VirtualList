@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public class ModelVirtualRangeCollection : VirtualRangeCollection<Model>
+    public class ModelVirtualRangeCollection : VirtualRangeList<Model>
     {
         private string searchString = string.Empty;
 
@@ -50,8 +50,8 @@ namespace CiccioSoft.VirtualList.Uwp
         internal async Task SearchAsync(string searchString)
         {
             this.searchString = searchString;
-            await Task.CompletedTask;
-            //await ReloadAsync();
+            //await Task.CompletedTask;
+            await ReloadAsync();
         }
     }
 }

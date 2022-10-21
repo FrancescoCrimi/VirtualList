@@ -30,7 +30,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
-
         public VirtualRangeList()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualRangeCollection");
@@ -41,20 +40,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             dummyObject = CreateDummyEntity();
             FirstIndex = 0;
             LastIndex = 0;
-            //Task.Run(async () => await LoadAsync());
         }
-
-
-        #region abstract method
-
-        protected abstract T CreateDummyEntity();
-        protected abstract Task<int> GetCountAsync();
-        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
-
-        #endregion
-
-
-        #region public method
 
         public async Task LoadAsync()
         {
@@ -67,11 +53,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             });
         }
 
-        #endregion
-
-
-        #region protected method
-
         protected async Task ReloadAsync()
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
@@ -81,12 +62,19 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                int lengthToFetch = Length * 3;
+                var lengthToFetch = Length * 3;
                 await Task.Run(async () => await FetchRange(0, lengthToFetch, NewToken()));
                 FirstIndex = 0;
                 LastIndex = 0 + lengthToFetch - 1;
             });
         }
+
+
+        #region abstract method
+
+        protected abstract T CreateDummyEntity();
+        protected abstract Task<int> GetCountAsync();
+        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
 
         #endregion
 
