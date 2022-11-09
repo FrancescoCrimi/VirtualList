@@ -17,4 +17,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\crimi\source\repos\VirtualList\VirtualList.Data\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\crimi\source\repos\VirtualList\VirtualList.Data\.editorconfig" />
+  </ItemGroup>
+
 </Project>

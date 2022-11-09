@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.DependencyInjection;
-//using NLog.Extensions.Logging;
 using System;
 using System.Windows;
+using CiccioSoft.VirtualList.Data.Database;
 
 namespace CiccioSoft.VirtualList.Wpf
 {
@@ -19,8 +19,14 @@ namespace CiccioSoft.VirtualList.Wpf
             //await CreateHostBuilder(e.Args).StartAsync();
 
             ConfigureServiceProvider();
+
             await Application.Current.Dispatcher.InvokeAsync(() =>
                 Ioc.Default.GetRequiredService<MainView>().Show());
+            //await Application.Current.Dispatcher.InvokeAsync(() =>
+            //{
+            //    Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(100000);
+            //    Application.Current.Shutdown();
+            //});
         }
 
         private void ConfigureServiceProvider()
@@ -43,7 +49,7 @@ namespace CiccioSoft.VirtualList.Wpf
                         .AddConfiguration(configuration.GetSection("Logging"))
                         //.AddNLog()
                         .AddDebug();
-                        //.AddEventLog();
+                    //.AddEventLog();
                 })
 
                 // aggiungi data

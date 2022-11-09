@@ -78,7 +78,7 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
             }
 
             serviceCollection
-                .AddTransient<LoadSampleSerice>();
+                .AddTransient<DatabaseSerice>();
 
             return serviceCollection;
         }

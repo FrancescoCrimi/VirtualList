@@ -15,6 +15,7 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
         {
             var section = configuration.GetSection("MyDbType");
             DbType dbt = (DbType)Enum.Parse(typeof(DbType), section.Value);
+
             switch (dbt)
             {
                 // Use SqLite
@@ -70,6 +71,10 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
                     serviceCollection.AddSingleton<IModelRepository, FakeModelRepository>();
                     break;
             }
+
+            serviceCollection
+                .AddTransient<DatabaseSerice>();
+
             return serviceCollection;
         }
     }

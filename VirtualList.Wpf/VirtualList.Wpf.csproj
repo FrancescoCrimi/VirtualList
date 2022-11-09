@@ -26,4 +26,12 @@
 
 	<ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
+	<ItemGroup>
+	  <EditorConfigFiles Remove="C:\Users\crimi\source\repos\VirtualList\VirtualList.Wpf\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="C:\Users\crimi\source\repos\VirtualList\VirtualList.Wpf\.editorconfig" />
+	</ItemGroup>
+
 </Project>

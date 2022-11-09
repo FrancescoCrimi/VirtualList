@@ -6,6 +6,8 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using CiccioSoft.VirtualList.Data.Database;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
@@ -13,19 +15,15 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             ConfigureServiceProvider();
-            //using (var db = Ioc.Default.GetService<MyDbContext>())
-            //{
-            //    db.Database.Migrate();
-            //}
+            //var db = Ioc.Default.GetService<DatabaseSerice>();
+            //db.LoadSample(10000);
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
-
-            if (rootFrame == null)
+            if (!(Window.Current.Content is Frame rootFrame))
             {
                 rootFrame = new Frame();
                 Window.Current.Content = rootFrame;

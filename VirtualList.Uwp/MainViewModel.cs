@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Uwp
@@ -21,12 +22,28 @@ namespace CiccioSoft.VirtualList.Uwp
             //items = new ModelVirtualCollection();
             items = new ModelVirtualRangeCollection();
             //items = new FakeCollection();
-            Task.Run(async () => await items.LoadAsync());
+            //Task.Run(async () => await items.LoadAsync());
+            items.PropertyChanged += Items_PropertyChanged;
         }
+
+        private void Items_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Count")
+            {
+                OnPropertyChanged("Count");
+            }
+        }
+
+        public async Task LoadAsync() => await items.LoadAsync();
+
+        public int Count => items.Count;
 
         public IList<Model> Items => items;
 
-        public string SearchString { get; set; }
+        public string SearchString
+        {
+            get; set;
+        }
 
         public IAsyncRelayCommand SearchCommand => searchCommand ??
             (searchCommand = new AsyncRelayCommand(async () =>

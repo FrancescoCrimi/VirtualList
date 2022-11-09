@@ -6,7 +6,6 @@
       xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
       mc:Ignorable="d"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -37,12 +36,12 @@
                                  Width="120"
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center"
-                                 Text="{Binding SearchString, Mode=TwoWay}" />
+                                 Text="{x:Bind ViewModel.SearchString, Mode=TwoWay}" />
                         <Button Margin="3"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Command="{Binding SearchCommand, Mode=OneWay}" />
+                                Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
@@ -51,7 +50,7 @@
                         CornerRadius="5"
                         BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                         Margin="3,0,3,3">
-                    <ListView ItemsSource="{Binding Items}"
+                    <ListView ItemsSource="{x:Bind ViewModel.Items}"
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ShowsScrollingPlaceholders="False">
 
@@ -125,7 +124,7 @@
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center"
                                  IsReadOnly="True"
-                                 Text="{Binding Items.Count, Mode=OneWay}" />
+                                 Text="{x:Bind ViewModel.Count, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 
