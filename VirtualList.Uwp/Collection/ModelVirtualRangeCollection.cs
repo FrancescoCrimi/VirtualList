@@ -47,11 +47,11 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #endregion
 
-        internal async Task SearchAsync(string searchString)
+
+        internal async Task LoadAsync(string searchString = "")
         {
             this.searchString = searchString;
-            //await Task.CompletedTask;
-            await ReloadAsync();
+            await InitAsync();
         }
     }
 }

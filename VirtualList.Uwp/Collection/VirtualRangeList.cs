@@ -42,30 +42,22 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             LastIndex = 0;
         }
 
-        public async Task LoadAsync()
+        protected async Task InitAsync()
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                //items.Clear();
                 count = await GetCountAsync();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            });
-        }
-
-        protected async Task ReloadAsync()
-        {
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                items.Clear();
-                count = await GetCountAsync();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-                var lengthToFetch = Length * 3;
-                await Task.Run(async () => await FetchRange(0, lengthToFetch, NewToken()));
-                FirstIndex = 0;
-                LastIndex = 0 + lengthToFetch - 1;
+                if (Length > 0)
+                {
+                    var lengthToFetch = Length * 3;
+                    FirstIndex = 0;
+                    LastIndex = 0 + lengthToFetch - 1;
+                    await Task.Run(async () => await FetchRange(0, lengthToFetch, NewToken()));
+                }
             });
         }
 

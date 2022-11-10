@@ -4,13 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CiccioSoft.VirtualList.Data.Database
 {
-    public abstract class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
-#pragma warning disable CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
-        protected AppDbContext([NotNull] DbContextOptions options) : base(options) { }
-#pragma warning restore CS8618 // Il campo non nullable deve contenere un valore non Null all'uscita dal costruttore. Provare a dichiararlo come nullable.
+        public AppDbContext([NotNull] DbContextOptions options) : base(options) { }
 
-        public DbSet<Model> Models { get; set; }
+        public DbSet<Model> Models
+        {
+            get; set;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -13,7 +13,6 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
         public static IServiceCollection AddData(this IServiceCollection serviceCollection,
                                                  IConfiguration configuration)
         {
-            //serviceCollection.Configure<MyAppOptions>(configuration.GetSection("MyAppOptions"));
             var section = configuration.GetSection("MyDbType");
             DbType dbt = Enum.Parse<DbType>(section.Value);
 
@@ -21,52 +20,53 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
             {
                 // Use SqLite
                 case DbType.SqLite:
-                    serviceCollection.AddDbContext<SqLiteDbContext>(options =>
-                    {
-                        options
-                            //.UseLazyLoadingProxies()
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlite(configuration.GetConnectionString("SqLiteConnection"));
-                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                        => serviceProvider.GetRequiredService<SqLiteDbContext>());
-
                     serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                //.UseLazyLoadingProxies()
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseSqlite(configuration.GetConnectionString("SqLiteConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
                 // MS LocalDB
                 case DbType.MsLocalDb:
-                    serviceCollection.AddDbContext<SqlServerDbContext>(options =>
-                    {
-                        options
-                            //.UseLazyLoadingProxies()
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlServer(configuration.GetConnectionString("MsLocalDbConnection"));
-                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                        => serviceProvider.GetRequiredService<SqlServerDbContext>());
-
                     serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                //.UseLazyLoadingProxies()                            
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseSqlServer(configuration.GetConnectionString("MsLocalDbConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
                 // MS SqlServer
                 case DbType.SqlServer:
-                    serviceCollection.AddDbContext<SqlServerDbContext>(options =>
-                    {
-                        options
-                            //.UseLazyLoadingProxies()
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
-                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                        => serviceProvider.GetRequiredService<SqlServerDbContext>());
-
                     serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                //.UseLazyLoadingProxies()
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
+                        .AddTransient<IModelRepository, ModelRepository>();
+                    break;
+
+                case DbType.MySql:
+                    var connectionString = configuration.GetConnectionString("MySqlConnection");
+                    var serverVersion = new MariaDbServerVersion(new Version(10, 8, 3));
+                    serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseMySql(connectionString, serverVersion);
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 

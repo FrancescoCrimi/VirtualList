@@ -47,6 +47,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public IAsyncRelayCommand SearchCommand => searchCommand ??
             (searchCommand = new AsyncRelayCommand(async () =>
-                await items.SearchAsync(SearchString)));
+                await items.LoadAsync(SearchString)));
     }
 }

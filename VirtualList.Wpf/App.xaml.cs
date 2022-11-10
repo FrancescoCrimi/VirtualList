@@ -24,7 +24,7 @@ namespace CiccioSoft.VirtualList.Wpf
                 Ioc.Default.GetRequiredService<MainView>().Show());
             //await Application.Current.Dispatcher.InvokeAsync(() =>
             //{
-            //    Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(100000);
+            //    Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(1000000);
             //    Application.Current.Shutdown();
             //});
         }

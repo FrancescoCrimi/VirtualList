@@ -7,11 +7,7 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
         SqLite = 0,
         SqlServer,
         MsLocalDb,
+        MySql,
         FakeDb
-    }
-
-    public class MyAppOptions
-    {
-        public DbType DbType { get; set; }
     }
 }

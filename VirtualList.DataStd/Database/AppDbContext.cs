@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CiccioSoft.VirtualList.Data.Database
 {
-    public abstract class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
-        protected AppDbContext(DbContextOptions options)
+        public AppDbContext(DbContextOptions options)
             : base(options) { }
 
-        public DbSet<Model> Models { get; set; }
+        public DbSet<Model> Models
+        {
+            get; set;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -20,55 +20,49 @@ namespace CiccioSoft.VirtualList.Data.Infrastructure
             {
                 // Use SqLite
                 case DbType.SqLite:
-                    serviceCollection.AddDbContext<SqLiteDbContext>(options =>
-                    {
-                        options
-                            //.UseLazyLoadingProxies()
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlite(configuration.GetConnectionString("SqLiteConnection"));
-                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                        => serviceProvider.GetRequiredService<SqLiteDbContext>());
-
-                    serviceCollection.AddTransient<IModelRepository, ModelRepository>();
+                    serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                //.UseLazyLoadingProxies()
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseSqlite(configuration.GetConnectionString("SqLiteConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
+                        .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
-                //// MS LocalDB
-                //case DbType.MsLocalDb:
-                //    serviceCollection.AddDbContext<SqlServerDbContext>(options =>
-                //    {
-                //        options
-                //            //.UseLazyLoadingProxies()
-                //            .UseSqlServer(configuration.GetConnectionString("MsLocalDbConnection"));
-                //    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                //    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                //        => serviceProvider.GetRequiredService<SqlServerDbContext>());
-
-                //    serviceCollection.AddTransient<IModelRepository, ModelRepository>();
-                //    break;
+                // MS LocalDB
+                case DbType.MsLocalDb:
+                    break;
 
                 // MS SqlServer
                 case DbType.SqlServer:
-                    serviceCollection.AddDbContext<SqlServerDbContext>(options =>
-                    {
-                        options
-                            //.UseLazyLoadingProxies()
-                            .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                            .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
-                    }, ServiceLifetime.Transient, ServiceLifetime.Transient);
-
-                    serviceCollection.AddTransient<AppDbContext>((serviceProvider)
-                        => serviceProvider.GetRequiredService<SqlServerDbContext>());
-
                     serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                //.UseLazyLoadingProxies()
+                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
+                        .AddTransient<IModelRepository, ModelRepository>();
+                    break;
+
+                // MySql
+                case DbType.MySql:
+                    serviceCollection
+                        .AddDbContext<AppDbContext>(options =>
+                        {
+                            options
+                                .UseMySql(configuration.GetConnectionString("MySqlConnection"));
+                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
                 // Fake Repo
                 case DbType.FakeDb:
-                    serviceCollection.AddSingleton<IModelRepository, FakeModelRepository>();
+                    serviceCollection
+                        .AddSingleton<IModelRepository, FakeModelRepository>();
                     break;
             }
 
