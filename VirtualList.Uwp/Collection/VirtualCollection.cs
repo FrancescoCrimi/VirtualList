@@ -69,7 +69,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
                 count = await GetCountAsync();
 
                 // recupero i dati
-                logger.LogInformation("Init: {0} Length: {1}", 0, take -1);
+                logger.LogInformation("Init: {0} - {1}", 0, take -1);
                 var models = await GetRangeAsync(0, take, NewToken());
 
                 // Aggiorno lista interna
@@ -153,7 +153,6 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             catch (TaskCanceledException tcex)
             {
                 logger.LogInformation("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take -1, tcex.Message, tcex.Task.Id);
-                //logger.LogInformation("{0} Id:{1}", tcex.Message, tcex.Task.Id);
             }
             catch (Exception ex)
             {
