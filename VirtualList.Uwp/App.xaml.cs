@@ -60,12 +60,12 @@ namespace CiccioSoft.VirtualList.Uwp
                         .AddConfiguration(configuration.GetSection("Logging"))
                         .AddDebug();
                 })
-
+                 
                 // aggiungi data
                 .AddData(configuration)
 
                 // Aggiungi servizi
-                .AddTransient<ModelVirtualCollection>()
+                //.AddTransient<ModelVirtualCollection>()
                 .AddTransient<MainViewModel>()
 
                 // Build ServiceProvider

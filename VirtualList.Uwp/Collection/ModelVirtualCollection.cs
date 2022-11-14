@@ -1,11 +1,11 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Data.Repository;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Repository;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
-namespace CiccioSoft.VirtualList.Uwp
+namespace CiccioSoft.VirtualList.Uwp.Collection
 {
     public class ModelVirtualCollection : VirtualCollection<Model>
     {
@@ -16,6 +16,9 @@ namespace CiccioSoft.VirtualList.Uwp
         {
         }
 
+
+        #region protected override method
+
         protected override Model CreateDummyEntity()
         {
             return new Model(0, "null");
@@ -25,8 +28,8 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                var aaa = await repo.CountAsync();
-                return aaa;
+                var rtn = await repo.CountAsync(m => m.Name.Contains(searchString.ToUpper()));
+                return rtn;
             }
         }
 
@@ -34,15 +37,17 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                return await repo.GetRangeAsync(skip, take, cancellationToken);
+                return await repo.GetRangeAsync(skip, take, m => m.Name.Contains(searchString.ToUpper()), cancellationToken);
             }
         }
 
-        internal async Task SearchAsync(string searchString)
+        #endregion
+
+
+        public async Task LoadAsync(string searchString = "")
         {
             this.searchString = searchString;
-            await Task.CompletedTask;
-            //await ReloadAsync();
+            await InitAsync();
         }
     }
 }

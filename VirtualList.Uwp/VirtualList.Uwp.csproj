@@ -121,11 +121,8 @@
     </Compile>
     <Compile Include="Collection\FakeCollection.cs" />
     <Compile Include="Collection\ModelVirtualCollection.cs" />
-    <Compile Include="Collection\ModelVirtualRangeCollection.cs" />
-    <Compile Include="Collection\VirtualList.cs" />
-    <Compile Include="Collection\VirtualRangeCollection.cs" />
     <Compile Include="Collection\VirtualCollection.cs" />
-    <Compile Include="Collection\VirtualRangeList.cs" />
+    <Compile Include="Collection\VirtualRangeCollection.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

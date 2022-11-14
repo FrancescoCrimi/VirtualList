@@ -9,22 +9,25 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace CiccioSoft.VirtualList.Wpf.Collection
 {
-    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged where T : class
+    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
         private readonly ILogger logger;
         private readonly Dispatcher dispatcher;
         private CancellationTokenSource cancellationTokenSource;
-        private readonly Timer timer;
         private readonly ConcurrentStack<int> indexStack;
+        private readonly Timer timer;
         private readonly IDictionary<int, T> items;
-        private readonly T dummyModel;
+        private readonly T dummyObject;
         private readonly int range;
         private readonly int take;
-        private int count;
+        private int count = 0;
         private int index_to_fetch;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
 
         public VirtualCollection(int range = 20)
         {
@@ -34,7 +37,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
             timer = new Timer(TimerHandler, null, 50, 50);
             indexStack = new ConcurrentStack<int>();
             items = new ConcurrentDictionary<int, T>();
-            dummyModel = CreateDummyEntity();
+            dummyObject = CreateDummyEntity();
             this.range = range;
             take = range * 2;
             count = GetCount();
@@ -161,6 +164,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
         #region interface member Implemented
 
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public T this[int index]
         {
@@ -171,7 +175,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
                 else
                 {
                     indexStack.Push(index);
-                    return dummyModel;
+                    return dummyObject;
                 }
             }
             set => throw new NotImplementedException();
@@ -183,15 +187,7 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
             set => throw new NotImplementedException();
         }
 
-        public int Count
-        {
-            get => count;
-            private set => throw new NotImplementedException();
-        }
-
-        public bool IsReadOnly => true;
-
-        public bool IsFixedSize => false;
+        public int Count => count;
 
         public IEnumerator<T> GetEnumerator()
         {
@@ -213,14 +209,14 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
             return IndexOf((T)value!);
         }
 
+        public bool IsReadOnly => true;
+
+        public bool IsFixedSize => false;
+
         #endregion
 
 
         #region interface member not implemented
-
-        bool ICollection.IsSynchronized => throw new NotImplementedException();
-
-        object ICollection.SyncRoot => throw new NotImplementedException();
 
         void ICollection<T>.Add(T item) => throw new NotImplementedException();
 
@@ -228,15 +224,9 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         public void Clear() => throw new NotImplementedException();
 
-        bool ICollection<T>.Contains(T item)
-        {
-            throw new NotImplementedException();
-        }
+        bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
 
-        bool IList.Contains(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        bool IList.Contains(object? value) => throw new NotImplementedException();
 
         void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
 
@@ -246,11 +236,15 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 
         void IList.Insert(int index, object? value) => throw new NotImplementedException();
 
+        bool ICollection.IsSynchronized => throw new NotImplementedException();
+
         bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
         void IList.Remove(object? value) => throw new NotImplementedException();
 
         public void RemoveAt(int index) => throw new NotImplementedException();
+
+        object ICollection.SyncRoot => throw new NotImplementedException();
 
         #endregion
     }

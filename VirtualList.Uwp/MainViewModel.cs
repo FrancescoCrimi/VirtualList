@@ -1,28 +1,25 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Uwp.Collection;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
     public class MainViewModel : ObservableRecipient
     {
-        //private readonly ModelVirtualCollection items;
-        private readonly ModelVirtualRangeCollection items;
+        private readonly ModelVirtualCollection items;
         //private readonly FakeCollection items;
         private IAsyncRelayCommand searchCommand;
 
-        public MainViewModel(IServiceProvider serviceProvider)
+        public MainViewModel()
         {
             SearchString = string.Empty;
 
-            //items = new ModelVirtualCollection();
-            items = new ModelVirtualRangeCollection();
+            items = new ModelVirtualCollection();
             //items = new FakeCollection();
-            //Task.Run(async () => await items.LoadAsync());
             items.PropertyChanged += Items_PropertyChanged;
         }
 

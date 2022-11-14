@@ -1,24 +1,25 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Windows.System.Threading;
 using Windows.UI.Core;
-using System.ComponentModel;
 
-namespace CiccioSoft.VirtualList.Uwp
+namespace CiccioSoft.VirtualList.Uwp.Collection
 {
     /// <summary>
     /// Collezione Virtuale
     /// 
     /// per funzionare correttamente impostare la Proprietà CacheLength dell'ItemStackPanel a 0.0 cosi
     ///
-    /// <ListView.ItemsPanel>
+    ///     <ListView.ItemsPanel>
     ///       <ItemsPanelTemplate>
     ///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
     ///       </ItemsPanelTemplate>
@@ -28,7 +29,7 @@ namespace CiccioSoft.VirtualList.Uwp
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : class
+    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -40,8 +41,8 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly T dummyObject;
         private readonly int range;
         private readonly int take;
-        protected int count = 0;
-        private int index_to_fetch;
+        private int count = 0;
+        private int index_to_fetch = 0;
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
@@ -57,20 +58,33 @@ namespace CiccioSoft.VirtualList.Uwp
             cancellationTokenSource = new CancellationTokenSource();
             this.range = range;
             take = range * 2;
-            index_to_fetch = int.MaxValue;
-            //Task.Run(async () => await LoadAsync());
+            //index_to_fetch = int.MaxValue;
         }
 
-        public async Task LoadAsync()
+        protected async Task InitAsync()
         {
             await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                index_to_fetch = 0;
                 count = await GetCountAsync();
+
+                // recupero i dati
+                logger.LogInformation("Init: {0} Length: {1}", 0, take -1);
+                var models = await GetRangeAsync(0, take, NewToken());
+
+                // Aggiorno lista interna
+                items.Clear();
+                for (int i = 0; i < models.Count; i++)
+                {
+                    items.Add(0 + i, models[i]);
+                }
+
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             });
         }
+
 
         #region abstract method
 
@@ -83,13 +97,68 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region private method
 
-        private CancellationToken NewToken()
+        private async Task FetchRange(int skip, CancellationToken token)
         {
-            if (cancellationTokenSource.Token.CanBeCanceled)
-                cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = new CancellationTokenSource();
-            return cancellationTokenSource.Token;
+            try
+            {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // ritardo inserito per velocizzare scrolling
+                await Task.Delay(60, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // recupero i dati
+                logger.LogInformation("FetchRange: {0} - {1}", skip, skip + take -1);
+                var models = await GetRangeAsync(skip, take, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // Aggiorno lista interna
+                items.Clear();
+                for (int i = 0; i < models.Count; i++)
+                {
+                    items.Add(skip + i, models[i]);
+                }
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // invoco CollectionChanged Replace per singolo item
+                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    try
+                    {
+                        foreach (var item in items)
+                        {
+                            if (token.IsCancellationRequested)
+                                token.ThrowIfCancellationRequested();
+                            var eventArgs = new NotifyCollectionChangedEventArgs(
+                                NotifyCollectionChangedAction.Replace,
+                                item.Value,
+                                null,
+                                item.Key);
+                            CollectionChanged?.Invoke(this, eventArgs);
+                        }
+                    }
+                    catch (OperationCanceledException ocex)
+                    {
+                        logger?.LogInformation("NotifyCollectionChanged Replace: {0} - {1} {2}", skip, skip + take - 1, ocex.Message);
+                    }
+                });
+            }
+            catch (TaskCanceledException tcex)
+            {
+                logger.LogInformation("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take -1, tcex.Message, tcex.Task.Id);
+                //logger.LogInformation("{0} Id:{1}", tcex.Message, tcex.Task.Id);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogInformation(ex.Message);
+            }
         }
 
         private void TimerHandler(ThreadPoolTimer timer)
@@ -100,7 +169,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 indexStack.Clear();
                 if (index < index_to_fetch || index >= index_to_fetch + take)
                 {
-                    logger.LogWarning("Indice non Fetchato: {0}", index);
+                    logger.LogInformation("Indice non Fetchato: {0}", index);
                     if (index < range)
                         index = 0;
                     else if (index > count - range)
@@ -108,64 +177,21 @@ namespace CiccioSoft.VirtualList.Uwp
                     else
                         index -= range;
                     index_to_fetch = index;
-                    Task.Run(async () => await FetchItem(index));
-                    logger.LogWarning("Indice da Fetchare: {0}", index);
+                    Task.Run(async () => await FetchRange(index, NewToken()));
+                    logger.LogInformation("Indice da Fetchare: {0}", index);
                 }
                 else
-                    logger.LogWarning("Indice già Fetchato: {0}", index);
+                    logger.LogInformation("Indice già Fetchato: {0}", index);
             }
         }
 
-        private async Task FetchItem(int index)
+        private CancellationToken NewToken()
         {
-            try
-            {
-                await FetchRange(index, NewToken());
-            }
-            catch (TaskCanceledException ex)
-            {
-                logger.LogError("Cancel Task Id:{0}", ex.Task.Id);
-            }
-        }
-
-        private async Task FetchRange(int skip, CancellationToken cancellationToken)
-        {
-            // Aggiungo ritardo solo per test
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(60, cancellationToken);
-
-            // recupero i dati
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            List<T> models = await GetRangeAsync(skip, take, cancellationToken);
-
-            // Aggiorno lista interna
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            items.Clear();
-            for (int i = 0; i < models.Count; i++)
-            {
-                items.Add(skip + i, models[i]);
-            }
-
-            // invoco CollectionChanged Replace per singolo item
-            if (cancellationToken.IsCancellationRequested)
-                cancellationToken.ThrowIfCancellationRequested();
-            await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                foreach (var item in items)
-                {
-                    //if (cancellationToken.IsCancellationRequested)
-                    //    cancellationToken.ThrowIfCancellationRequested();
-                    var eventarg = new NotifyCollectionChangedEventArgs(
-                        NotifyCollectionChangedAction.Replace,
-                        item.Value,
-                        null,
-                        item.Key);
-                    CollectionChanged?.Invoke(this, eventarg);
-                }
-            });
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            return cancellationTokenSource.Token;
         }
 
         #endregion
@@ -180,11 +206,14 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             get
             {
-                //logger.LogWarning("Index: {0}", index);
                 if (items.ContainsKey(index))
+                {
+                    //logger.LogInformation("Indexer get real: {0}", index);
                     return items[index];
+                }
                 else
                 {
+                    logger.LogInformation("Indexer get dummy: {0}", index);
                     indexStack.Push(index);
                     return dummyObject;
                 }
@@ -198,16 +227,7 @@ namespace CiccioSoft.VirtualList.Uwp
             set => throw new NotImplementedException();
         }
 
-        public int Count
-        {
-            get
-            {
-                //logger.LogWarning("Count: " + count.ToString());
-                return count;
-            }
-
-            private set => throw new NotImplementedException();
-        }
+        public int Count => count;
 
         public IEnumerator<T> GetEnumerator() => fakelist.GetEnumerator();
 
@@ -226,34 +246,33 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region interface member not implemented
 
-        bool ICollection.IsSynchronized => throw new NotImplementedException();
-
-        object ICollection.SyncRoot => throw new NotImplementedException();
+        void ICollection<T>.Add(T item) => throw new NotImplementedException();
 
         int IList.Add(object value) => throw new NotImplementedException();
 
         public void Clear() => throw new NotImplementedException();
 
+        bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
+
         bool IList.Contains(object value) => throw new NotImplementedException();
+
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
 
         void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
 
+        void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
+
         void IList.Insert(int index, object value) => throw new NotImplementedException();
+
+        bool ICollection.IsSynchronized => throw new NotImplementedException();
+
+        bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
         void IList.Remove(object value) => throw new NotImplementedException();
 
         public void RemoveAt(int index) => throw new NotImplementedException();
 
-
-        void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
-
-        void ICollection<T>.Add(T item) => throw new NotImplementedException();
-
-        bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
-
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
-
-        bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
+        object ICollection.SyncRoot => throw new NotImplementedException();
 
         #endregion
     }

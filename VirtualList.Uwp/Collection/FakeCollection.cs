@@ -1,37 +1,50 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Data.Repository;
-using Microsoft.Extensions.Logging;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Data.Infrastructure;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    internal class FakeCollection : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged
+    internal class FakeCollection : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged, INotifyPropertyChanged
     {
         private readonly ILogger logger;
-        private readonly int count;
-        private readonly List<Model> fakes;
+        private int count = 0;
+        private List<Model> fakes;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public FakeCollection()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("FakeCollection");
-            fakes = Ioc.Default.GetRequiredService<IModelRepository>().GetAll();
-            count = fakes.Count;
         }
+
+        private void OnNotifyCollectionReset()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            logger.LogWarning("Evento Collection Reset");
+        }
+
 
         #region Public Method
 
-        public void OnNotifyCollectionReset()
+        public Task LoadAsync(string str = "")
         {
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            logger.LogWarning("Evento Collection Reset");
+            fakes = SampleGenerator.Generate(1000000);
+            count = fakes.Count;
+            OnNotifyCollectionReset();
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -41,8 +54,6 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            var aa = trackedItems.ToArray();
-            var ccc = trackedItems[0];
             logger.LogWarning("RangeChange {0} - {1}", visibleRange.FirstIndex, visibleRange.LastIndex);
         }
 
@@ -63,24 +74,15 @@ namespace CiccioSoft.VirtualList.Uwp
             set => throw new NotImplementedException();
         }
 
-        public int Count
-        {
-            get
-            {
-                //logger.LogWarning("Count: {0}", count);
-                return count;
-            }
+        public int Count => count;
 
-            private set => throw new NotImplementedException();
-        }
+        public IEnumerator<Model> GetEnumerator() => fakes.GetEnumerator();
 
-        public IEnumerator GetEnumerator() => ((IList)fakes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakes).GetEnumerator();
 
-        IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakes.GetEnumerator();
+        public int IndexOf(Model item) => -1;
 
-        public int IndexOf(object value) => -1;
-
-        int IList<Model>.IndexOf(Model item) => -1;
+        int IList.IndexOf(object value) => -1;
 
         public bool IsReadOnly => true;
 
@@ -91,13 +93,11 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region Not Implemented Method Interface
 
-        bool ICollection.IsSynchronized => throw new NotImplementedException();
-
-        object ICollection.SyncRoot => throw new NotImplementedException();
-
         void ICollection<Model>.Add(Model item) => throw new NotImplementedException();
 
         int IList.Add(object value) => throw new NotImplementedException();
+
+        public void Clear() => throw new NotImplementedException();
 
         bool ICollection<Model>.Contains(Model item) => throw new NotImplementedException();
 
@@ -111,13 +111,15 @@ namespace CiccioSoft.VirtualList.Uwp
 
         void IList.Insert(int index, object value) => throw new NotImplementedException();
 
+        bool ICollection.IsSynchronized => throw new NotImplementedException();
+
         bool ICollection<Model>.Remove(Model item) => throw new NotImplementedException();
 
         void IList.Remove(object value) => throw new NotImplementedException();
 
         public void RemoveAt(int index) => throw new NotImplementedException();
 
-        public void Clear() => throw new NotImplementedException();
+        object ICollection.SyncRoot => throw new NotImplementedException();
 
         public void Dispose()
         {

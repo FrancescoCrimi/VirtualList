@@ -5,9 +5,9 @@ using CiccioSoft.VirtualList.Data.Domain;
 
 namespace CiccioSoft.VirtualList.Data.Infrastructure
 {
-    internal static class SampleGenerator
+    public static class SampleGenerator
     {
-        internal static List<Model> Generate(int total = 10000)
+        public static List<Model> Generate(int total = 10000)
         {
             var list = new List<Model>(total);
             for (var i = 1; i <= total; i++)
