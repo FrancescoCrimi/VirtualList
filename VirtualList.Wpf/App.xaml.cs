@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using System;
 using System.Windows;
 using CiccioSoft.VirtualList.Data.Database;
+using CiccioSoft.VirtualList.Wpf.Views;
 
 namespace CiccioSoft.VirtualList.Wpf
 {
@@ -21,7 +22,10 @@ namespace CiccioSoft.VirtualList.Wpf
             ConfigureServiceProvider();
 
             await Application.Current.Dispatcher.InvokeAsync(() =>
-                Ioc.Default.GetRequiredService<MainView>().Show());
+            {
+                //Ioc.Default.GetRequiredService<MainView>().Show();
+                new MainView().Show();
+            });
             //await Application.Current.Dispatcher.InvokeAsync(() =>
             //{
             //    Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(1000000);
@@ -56,8 +60,8 @@ namespace CiccioSoft.VirtualList.Wpf
                 .AddData(configuration)
 
                 // Aggiungi servizi
-                .AddTransient<MainViewModel>()
-                .AddTransient<MainView>()
+                //.AddTransient<MainViewModel>()
+                //.AddTransient<MainView>()
 
                 // Build ServiceProvider
                 .BuildServiceProvider());
@@ -70,9 +74,9 @@ namespace CiccioSoft.VirtualList.Wpf
                 {
                     serviceCollection
                         .AddData(hostBuilderContext.Configuration)
-                        .AddSingleton<IHostLifetime, WpfHostLifetime>()
-                        .AddTransient<MainViewModel>()
-                        .AddTransient<MainView>();
+                        .AddSingleton<IHostLifetime, WpfHostLifetime>();
+                        //.AddTransient<MainViewModel>()
+                        //.AddTransient<MainView>();
                 });
         }
     }

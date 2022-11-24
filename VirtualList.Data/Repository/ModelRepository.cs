@@ -19,16 +19,6 @@ namespace CiccioSoft.VirtualList.Data.Repository
             this.appDbContext = appDbContext;
         }
 
-        public int Count()
-        {
-            return appDbContext.Models.AsQueryable().Count();
-        }
-
-        public int Count(Expression<Func<Model, bool>> predicate)
-        {
-            return appDbContext.Models.AsQueryable().Count(predicate);
-        }
-
         public Task<int> CountAsync(CancellationToken cancellationToken = default)
         {
             return appDbContext.Models.AsQueryable().CountAsync(cancellationToken);
@@ -39,27 +29,18 @@ namespace CiccioSoft.VirtualList.Data.Repository
             return appDbContext.Models.AsQueryable().CountAsync(predicate, cancellationToken);
         }
 
-        public List<Model> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Model>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<Model> GetRange(int skip, int take)
+        public Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default)
         {
             IQueryable<Model> query = appDbContext.Models.AsQueryable();
             query = query.Skip(skip);
             query = query.Take(take);
-            return query.ToList();
+            return query.ToListAsync(cancellationToken);
         }
 
-        public Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default)
+        public Task<List<Model>> GetRangeAsync(int skip, int take, Expression<Func<Model, bool>> predicate, CancellationToken cancellationToken = default)
         {
             IQueryable<Model> query = appDbContext.Models.AsQueryable();
+            query = query.Where(predicate);
             query = query.Skip(skip);
             query = query.Take(take);
             return query.ToListAsync(cancellationToken);

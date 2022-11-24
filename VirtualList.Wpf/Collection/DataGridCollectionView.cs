@@ -13,22 +13,16 @@ namespace CiccioSoft.VirtualList.Wpf.Collection
 {
     public class DataGridCollectionView : ListCollectionView
     {
-        private readonly int count;
-        private readonly List<Model> fakes;
+        private readonly int count = 0;
+        private readonly List<Model> fakes = new();
         public DataGridCollectionView()
             : base(new List<Model>())
         {
-            fakes = Ioc.Default.GetRequiredService<IModelRepository>().GetAll();
-            count = fakes.Count;
+            //fakes = Ioc.Default.GetRequiredService<IModelRepository>().GetAll();
+            //count = fakes.Count;
         }
 
-        public override int Count
-        {
-            get
-            {
-                return count;
-            }
-        }
+        public override int Count => count;
 
         public override object GetItemAt(int index)
         {

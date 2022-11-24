@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace CiccioSoft.VirtualList.Uwp.Collection
 {
-    public class ModelVirtualCollection : VirtualCollection<Model>
+    public class ModelVirtualCollection : VirtualRangeCollection<Model>
     {
         private string searchString = string.Empty;
 
@@ -33,11 +33,11 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             }
         }
 
-        protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+        protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken token)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
-                return await repo.GetRangeAsync(skip, take, m => m.Name.Contains(searchString.ToUpper()), cancellationToken);
+                return await repo.GetRangeAsync(skip, take, m => m.Name.Contains(searchString.ToUpper()), token);
             }
         }
 
@@ -47,7 +47,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         public async Task LoadAsync(string searchString = "")
         {
             this.searchString = searchString;
-            await InitAsync();
+            await base.LoadAsync();
         }
     }
 }
