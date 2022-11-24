@@ -1,6 +1,6 @@
-﻿using CiccioSoft.VirtualList.Data.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
 
-namespace CiccioSoft.VirtualList.Data.Database
+namespace CiccioSoft.VirtualList.Sample.Uwp.Database
 {
     public class DatabaseSerice
     {

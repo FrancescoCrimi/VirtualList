@@ -1,7 +1,7 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace CiccioSoft.VirtualList.Data.Database
+namespace CiccioSoft.VirtualList.Sample.Uwp.Database
 {
     public class AppDbContext : DbContext
     {

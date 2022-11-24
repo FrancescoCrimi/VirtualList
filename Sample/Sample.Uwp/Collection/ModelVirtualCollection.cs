@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Data.Repository;
+using CiccioSoft.VirtualList.Sample.Uwp.Repository;
+using CiccioSoft.VirtualList.Uwp.Collection;
 using CommunityToolkit.Mvvm.DependencyInjection;
 
-namespace CiccioSoft.VirtualList.Uwp.Collection
+namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
     public class ModelVirtualCollection : VirtualRangeCollection<Model>
     {

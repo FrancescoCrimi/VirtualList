@@ -2,11 +2,11 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Uwp.Collection;
+using CiccioSoft.VirtualList.Sample.Uwp.Collection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace CiccioSoft.VirtualList.Uwp
+namespace CiccioSoft.VirtualList.Sample.Uwp
 {
     public class MainViewModel : ObservableRecipient
     {

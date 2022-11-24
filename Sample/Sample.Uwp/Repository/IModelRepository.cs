@@ -5,14 +5,14 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.Data.Repository
+namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
     public interface IModelRepository : IDisposable
     {
         Task<List<Model>> GetRangeAsync(int skip,
                                         int take,
                                         Expression<Func<Model, bool>> predicate,
-                                        CancellationToken cancellationToken = default);        
+                                        CancellationToken cancellationToken = default);
         Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
                              CancellationToken cancellationToken = default);
     }

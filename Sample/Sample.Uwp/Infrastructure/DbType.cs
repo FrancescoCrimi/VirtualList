@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CiccioSoft.VirtualList.Data.Infrastructure
+namespace CiccioSoft.VirtualList.Sample.Uwp.Infrastructure
 {
     public enum DbType
     {

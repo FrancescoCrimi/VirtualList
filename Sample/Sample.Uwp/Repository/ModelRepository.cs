@@ -1,5 +1,6 @@
-﻿using CiccioSoft.VirtualList.Data.Database;
-using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Sample.Uwp.Database;
+using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.Data.Repository
+namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
     internal class ModelRepository : IModelRepository
     {

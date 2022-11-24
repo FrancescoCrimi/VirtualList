@@ -5,12 +5,12 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Data.Infrastructure;
+using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Data;
 
-namespace CiccioSoft.VirtualList.Uwp.Collection
+namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
     internal class FakeCollection : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged, INotifyPropertyChanged
     {

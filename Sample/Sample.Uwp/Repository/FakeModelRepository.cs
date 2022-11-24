@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Data.Infrastructure;
+using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
 
-namespace CiccioSoft.VirtualList.Data.Repository
+namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
     public class FakeModelRepository : IModelRepository
     {
@@ -23,7 +23,7 @@ namespace CiccioSoft.VirtualList.Data.Repository
         {
             return Task.FromResult(models.Where(predicate.Compile()).Count());
         }
- 
+
         public Task<List<Model>> GetRangeAsync(int skip,
                                                int take,
                                                Expression<Func<Model, bool>> predicate,
@@ -31,7 +31,7 @@ namespace CiccioSoft.VirtualList.Data.Repository
         {
             var rst = models.Where(predicate.Compile()).Skip(skip).Take(take).ToList();
             return Task.FromResult(rst);
-        } 
+        }
 
         public void Dispose()
         {

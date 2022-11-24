@@ -1,8 +1,9 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿using CiccioSoft.VirtualList.Sample.Uwp;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
-namespace CiccioSoft.VirtualList.Uwp
+namespace CiccioSoft.VirtualList.Sample.Uwp
 {
     public sealed partial class MainPage : Page
     {
