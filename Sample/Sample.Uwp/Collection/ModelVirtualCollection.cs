@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Sample.Uwp.Repository;
-using CiccioSoft.VirtualList.Uwp.Collection;
+using CiccioSoft.VirtualList.Uwp;
 using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection

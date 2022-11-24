@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
+using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Data;

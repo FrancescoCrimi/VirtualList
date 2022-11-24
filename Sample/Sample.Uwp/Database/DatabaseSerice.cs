@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Database
 {

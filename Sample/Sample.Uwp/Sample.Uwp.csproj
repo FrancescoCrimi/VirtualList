@@ -124,8 +124,8 @@
     <Compile Include="Database\AppDbContext.cs" />
     <Compile Include="Database\DatabaseSerice.cs" />
     <Compile Include="Domain\Model.cs" />
-    <Compile Include="Infrastructure\DbType.cs" />
-    <Compile Include="Infrastructure\SampleGenerator.cs" />
+    <Compile Include="Database\DbType.cs" />
+    <Compile Include="Repository\SampleGenerator.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -226,6 +226,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using CiccioSoft.VirtualList.Data.Domain;
 
-namespace CiccioSoft.VirtualList.Sample.Uwp.Infrastructure
+namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
     public static class SampleGenerator
     {

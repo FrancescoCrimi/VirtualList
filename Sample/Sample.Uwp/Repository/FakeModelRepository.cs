@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {

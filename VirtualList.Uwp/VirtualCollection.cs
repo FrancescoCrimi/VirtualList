@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Windows.System.Threading;
 using Windows.UI.Core;
 
-namespace CiccioSoft.VirtualList.Uwp.Collection
+namespace CiccioSoft.VirtualList.Uwp
 {
     /// <summary>
     /// Collezione Virtuale
@@ -93,7 +93,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
         {
             if (!indexStack.IsEmpty)
             {
-                indexStack.TryPop(out int index);
+                indexStack.TryPop(out var index);
                 indexStack.Clear();
                 if (index < index_to_fetch || index >= index_to_fetch + take)
                 {

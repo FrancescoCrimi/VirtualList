@@ -1,6 +1,5 @@
 ﻿using System;
 using CiccioSoft.VirtualList.Sample.Uwp.Database;
-using CiccioSoft.VirtualList.Sample.Uwp.Infrastructure;
 using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -50,9 +49,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             IConfiguration configuration = builder.Build();
 
-            // Configura il ServiceProvider di Ioc.Default
-
-
             var serviceCollection = new ServiceCollection()
 
             // Aggiungi Configurazione
@@ -66,12 +62,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
                     .AddDebug();
             });
 
-            //// aggiungi data
-            //.AddData(configuration)
-
             var section = configuration.GetSection("MyDbType");
             DbType dbt = (DbType)Enum.Parse(typeof(DbType), section.Value);
-
             switch (dbt)
             {
                 // Use SqLite
@@ -123,8 +115,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             }
 
             serviceCollection
-                .AddTransient<DatabaseSerice>();
-            serviceCollection.AddTransient<MainViewModel>();
+                .AddTransient<DatabaseSerice>()            
+                .AddTransient<MainViewModel>();
 
             Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());            
         }

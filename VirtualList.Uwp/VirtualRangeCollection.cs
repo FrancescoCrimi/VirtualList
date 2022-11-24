@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Data;
 
-namespace CiccioSoft.VirtualList.Uwp.Collection
+namespace CiccioSoft.VirtualList.Uwp
 {
     /// <summary>
     /// Collezione Virtuale
@@ -174,9 +174,9 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
 
         public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            int firstVisible = visibleRange.FirstIndex;
-            int lastVisible = visibleRange.LastIndex;
-            int lengthVisible = (int)visibleRange.Length;
+            var firstVisible = visibleRange.FirstIndex;
+            var lastVisible = visibleRange.LastIndex;
+            var lengthVisible = (int)visibleRange.Length;
             logger.LogInformation("VisibleRange: {0} - {1}", firstVisible, lastVisible);
 
             // se visibleRangeLength è minore di 2 esci
@@ -186,7 +186,7 @@ namespace CiccioSoft.VirtualList.Uwp.Collection
             if (firstVisible < FirstIndex || lastVisible > LastIndex)
             {
                 // trovo la lunghezza totale di righe da estrarre
-                int lengthToFetch = lengthVisible * 3;
+                var lengthToFetch = lengthVisible * 3;
 
                 // prima riga da estrarre
                 int firstToFetch;
