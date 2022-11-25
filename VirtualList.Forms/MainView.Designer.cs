@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
 
 namespace VirtualList.Forms
 {
@@ -125,7 +125,7 @@ namespace VirtualList.Forms
             // 
             // bindingSource1
             // 
-            this.bindingSource1.DataSource = typeof(CiccioSoft.VirtualList.Data.Domain.Model);
+            this.bindingSource1.DataSource = typeof(Model);
             // 
             // flowLayoutPanel1
             // 

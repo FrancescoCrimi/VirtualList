@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
 using System;
 using System.Collections;
 using System.Collections.Generic;
