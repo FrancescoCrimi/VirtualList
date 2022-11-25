@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     public sealed class Ioc : IServiceProvider
     {

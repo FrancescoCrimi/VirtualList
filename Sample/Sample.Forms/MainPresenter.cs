@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     public class MainPresenter : PresenterBase, IDisposable
     {

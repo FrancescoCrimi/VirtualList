@@ -1,6 +1,6 @@
 ﻿using CiccioSoft.VirtualList.Sample.Domain;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     partial class MainView
     {

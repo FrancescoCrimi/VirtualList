@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>CiccioSoft.VirtualList.Sample.Forms</RootNamespace>
+    <AssemblyName>CiccioSoft.VirtualList.Sample.Forms</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\crimi\source\repos\VirtualList\VirtualList.Forms\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\crimi\source\repos\VirtualList\VirtualList.Forms\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sample.Data\Sample.Data.csproj" />
+  </ItemGroup>
+
+</Project>

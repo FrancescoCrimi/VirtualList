@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     public class BindingFakeList : IList<Model>, IBindingList
     {

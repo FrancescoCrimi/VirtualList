@@ -1,7 +1,8 @@
 using System;
 using System.Windows.Forms;
+using CiccioSoft.VirtualList.Sample.Forms;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     public partial class MainView : Form, IMainView
     {

@@ -47,7 +47,7 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CiccioSoft.VirtualList.WinUi\VirtualList.WinUi.csproj" />
+    <ProjectReference Include="..\..\VirtualList.WinUi\VirtualList.WinUi.csproj" />
     <ProjectReference Include="..\Sample.Data\Sample.Data.csproj" />
   </ItemGroup>
   <ItemGroup>

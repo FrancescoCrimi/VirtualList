@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\CiccioSoft.VirtualList.Wpf\VirtualList.Wpf.csproj" />
+	  <ProjectReference Include="..\..\VirtualList.Wpf\VirtualList.Wpf.csproj" />
 	  <ProjectReference Include="..\Sample.Data\Sample.Data.csproj" />
 	</ItemGroup>
 

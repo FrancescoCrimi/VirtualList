@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace VirtualList.Forms
+namespace CiccioSoft.VirtualList.Sample.Forms
 {
     internal static class Program
     {
