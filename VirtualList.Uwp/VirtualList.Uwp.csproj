@@ -120,6 +120,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="IVirtualCollection.cs" />
+    <Compile Include="IVirtualRangeCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualCollection.cs" />
     <Compile Include="VirtualRangeCollection.cs" />

@@ -1,253 +1,254 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.System.Threading;
-using System.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
+using Windows.System.Threading;
 
-namespace CiccioSoft.VirtualList.WinUi;
-
-/// <summary>
-/// Collezione Virtuale
-/// 
-/// per funzionare correttamente impostare la Proprietà CacheLength dell'ItemStackPanel a 0.0 cosi
-///
-///     <ListView.ItemsPanel>
-///       <ItemsPanelTemplate>
-///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
-///       </ItemsPanelTemplate>
-///     </ListView.ItemsPanel>
-///     
-/// Per usare la classe subclassa questa classe implementando i metodi astratti
-/// 
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract class VirtualCollection<T> : IList, IList<T>, INotifyCollectionChanged, INotifyPropertyChanged where T : class
+namespace CiccioSoft.VirtualList.WinUi
 {
-    private readonly ILogger logger;
-    private readonly DispatcherQueue dispatcherQueue;
-    private CancellationTokenSource cancellationTokenSource;
-    private readonly ConcurrentStack<int> indexStack;
-    private readonly ThreadPoolTimer timer = null;
-    private readonly IDictionary<int, T> items;
-    private readonly List<T> fakelist;
-    private readonly T dummyObject;
-    private readonly int range;
-    private readonly int take;
-    private int count = 0;
-    private int index_to_fetch;
-    private const string CountString = "Count";
-    private const string IndexerName = "Item[]";
-
-    public VirtualCollection(int range = 20)
+    /// <summary>
+    /// Collezione Virtuale
+    /// 
+    /// per funzionare correttamente impostare la Proprietà CacheLength dell'ItemStackPanel a 0.0 cosi
+    ///
+    ///     <ListView.ItemsPanel>
+    ///       <ItemsPanelTemplate>
+    ///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
+    ///       </ItemsPanelTemplate>
+    ///     </ListView.ItemsPanel>
+    ///     
+    /// Per usare la classe subclassa questa classe implementando i metodi astratti
+    /// 
+    /// </summary>
+    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged where T : class
     {
-        logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
-        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-        indexStack = new ConcurrentStack<int>();
-        timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
-        items = new ConcurrentDictionary<int, T>();
-        fakelist = new List<T>();
-        dummyObject = CreateDummyEntity();
-        cancellationTokenSource = new CancellationTokenSource();
-        this.range = range;
-        take = range * 2;
-        index_to_fetch = int.MaxValue;
-    }
+        private readonly ILogger logger;
+        private readonly DispatcherQueue dispatcherQueue;
+        private CancellationTokenSource cancellationTokenSource;
+        private readonly ConcurrentStack<int> indexStack;
+        private readonly ThreadPoolTimer timer = null;
+        private readonly IDictionary<int, T> items;
+        private readonly List<T> fakelist;
+        private readonly T dummyObject;
+        private readonly int range;
+        private readonly int take;
+        private int index_to_fetch = 0;
+        private int count = 0;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
 
-    public async Task LoadAsync()
-    {
-        await Task.Run(() =>
+        public VirtualCollection(int range = 20)
         {
-            dispatcherQueue.TryEnqueue(async () =>
-            {
-                count = await GetCountAsync();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            });
-        });
-    }
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
+            dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            cancellationTokenSource = new CancellationTokenSource();
+            indexStack = new ConcurrentStack<int>();
+            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
+            items = new ConcurrentDictionary<int, T>();
+            fakelist = new List<T>();
+            dummyObject = CreateDummyEntity();
+            this.range = range;
+            take = range * 2;
+            index_to_fetch = int.MaxValue;
+        }
 
-
-    #region abstract method
-
-    protected abstract T CreateDummyEntity();
-    protected abstract Task<int> GetCountAsync();
-    protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
-
-    #endregion
-
-
-    #region private method
-
-    private async Task FetchRange(int skip, CancellationToken token)
-    {
-        try
+        public async Task LoadAsync()
         {
-            // Aggiungo ritardo solo per test
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-            await Task.Delay(60, token);
-
-            // recupero i dati
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-            List<T> models = await GetRangeAsync(skip, take, token);
-
-            // Aggiorno lista interna
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-            items.Clear();
-            for (int i = 0; i < models.Count; i++)
+            await Task.Run(() =>
             {
-                items.Add(skip + i, models[i]);
-            }
-
-            // invoco CollectionChanged Replace per singolo item
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-            dispatcherQueue.TryEnqueue(() =>
-            {
-                foreach (var item in items)
+                dispatcherQueue.TryEnqueue(async () =>
                 {
-                    var eventArgs = new NotifyCollectionChangedEventArgs(
-                        NotifyCollectionChangedAction.Replace,
-                        item.Value,
-                        null,
-                        item.Key);
-                    CollectionChanged?.Invoke(this, eventArgs);
-                    //logger.LogWarning("CollectionChanged Replace: {0}", item.Key);
-                }
+                    count = await GetCountAsync();
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                });
             });
         }
-        catch (TaskCanceledException tcex)
-        {
-            logger.LogError("{0} Id:{1}", tcex.Message, tcex.Task.Id);
-        }
-        catch (Exception ex)
-        {
-            logger?.LogError(ex.Message);
-        }
-    }
 
-    private void TimerHandler(ThreadPoolTimer timer)
-    {
-        if (!indexStack.IsEmpty)
+
+        #region abstract method
+
+        protected abstract T CreateDummyEntity();
+        protected abstract Task<int> GetCountAsync();
+        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
+
+        #endregion
+
+
+        #region private method
+
+        private void TimerHandler(ThreadPoolTimer timer)
         {
-            indexStack.TryPop(out int index);
-            indexStack.Clear();
-            if (index < index_to_fetch || index >= index_to_fetch + take)
+            if (!indexStack.IsEmpty)
             {
-                logger.LogWarning("Indice non Fetchato: {0}", index);
-                if (index < range)
-                    index = 0;
-                else if (index > count - range)
-                    index = count - take;
+                indexStack.TryPop(out var index);
+                indexStack.Clear();
+                if (index < index_to_fetch || index >= index_to_fetch + take)
+                {
+                    logger.LogInformation("Indice non Fetchato: {0}", index);
+                    if (index < range)
+                        index = 0;
+                    else if (index > count - range)
+                        index = count - take;
+                    else
+                        index -= range;
+                    index_to_fetch = index;
+                    var token = NewToken();
+                    Task.Run(async () => await FetchRange(index, token), token);
+                }
                 else
-                    index -= range;
-                index_to_fetch = index;
-                Task.Run(async () => await FetchRange(index, NewToken()));
-                logger.LogWarning("Indice da Fetchare: {0}", index);
+                    logger.LogInformation("Indice già Fetchato: {0}", index);
             }
-            else
-                logger.LogWarning("Indice già Fetchato: {0}", index);
         }
-    }
 
-    private CancellationToken NewToken()
-    {
-        if (cancellationTokenSource.Token.CanBeCanceled)
-            cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose();
-        cancellationTokenSource = new CancellationTokenSource();
-        return cancellationTokenSource.Token;
-    }
-
-    #endregion
-
-
-    #region interface member implemented 
-
-    public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public T this[int index]
-    {
-        get
+        private CancellationToken NewToken()
         {
-            if (items.ContainsKey(index))
+            if (cancellationTokenSource.Token.CanBeCanceled)
+                cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = new CancellationTokenSource();
+            return cancellationTokenSource.Token;
+        }
+
+        private async Task FetchRange(int skip, CancellationToken token)
+        {
+            try
             {
-                //logger.LogWarning("Indexer get real: {0}", index);
-                return items[index];
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // ritardo inserito per velocizzare scrolling
+                await Task.Delay(50, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // recupero i dati
+                logger.LogInformation("FetchRange: {0} - {1}", skip, skip + take - 1);
+                var models = await GetRangeAsync(skip, take, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // Aggiorno lista interna
+                items.Clear();
+                for (var i = 0; i < models.Count; i++)
+                {
+                    items.Add(skip + i, models[i]);
+                }
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // invoco CollectionChanged Replace per singolo item
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                try
+                {
+                    foreach (var item in items)
+                    {
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+                        var eventArgs = new NotifyCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Replace,
+                            item.Value,
+                            null,
+                            item.Key);
+                        CollectionChanged?.Invoke(this, eventArgs);
+                        }
+                    }
+                    catch (OperationCanceledException ocex)
+                    {
+                        logger.LogInformation("NotifyCollectionChanged Replace: {0} - {1} {2}", skip, skip + take - 1, ocex.Message);
+                    }
+                });
             }
-            else
+            catch (TaskCanceledException tcex)
             {
-                //logger.LogWarning("Indexer get dummy: {0}", index);
-                indexStack.Push(index);
-                return dummyObject;
+                logger.LogInformation("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take - 1, tcex.Message, tcex.Task.Id);
+            }
+            catch (OperationCanceledException ocex)
+            {
+                logger.LogInformation(ocex.Message);
             }
         }
-        set => throw new NotImplementedException();
+
+        #endregion
+
+
+        #region interface member implemented 
+
+        public T this[int index]
+        {
+            get
+            {
+                if (items.ContainsKey(index))
+                {
+                    //logger.LogInformation("Indexer get real: {0}", index);
+                    return items[index];
+                }
+                else
+                {
+                    //logger.LogInformation("Indexer get dummy: {0}", index);
+                    indexStack.Push(index);
+                    return dummyObject;
+                }
+            }
+            set => throw new NotImplementedException();
+        }
+
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => throw new NotImplementedException();
+        }
+
+        public int Count => count;
+
+        public bool IsReadOnly => true;
+
+        public bool IsFixedSize => false;
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+        int IList<T>.IndexOf(T item) => -1;
+        int IList.IndexOf(object value) => -1;
+
+        #endregion
+
+
+        #region interface member not implemented
+
+        bool ICollection.IsSynchronized => throw new NotImplementedException();
+
+        object ICollection.SyncRoot => throw new NotImplementedException();
+
+        void ICollection<T>.Add(T item) => throw new NotImplementedException();
+        int IList.Add(object value) => throw new NotImplementedException();
+        void ICollection<T>.Clear() => throw new NotImplementedException();
+        void IList.Clear() => throw new NotImplementedException();
+        bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
+        bool IList.Contains(object value) => throw new NotImplementedException();
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
+        void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
+        void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
+        void IList.Insert(int index, object value) => throw new NotImplementedException();
+        bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
+        void IList.Remove(object value) => throw new NotImplementedException();
+        void IList<T>.RemoveAt(int index) => throw new NotImplementedException();
+        void IList.RemoveAt(int index) => throw new NotImplementedException();
+
+        #endregion
     }
-
-    object IList.this[int index]
-    {
-        get => this[index];
-        set => throw new NotImplementedException();
-    }
-
-    public int Count => count;
-
-    public IEnumerator<T> GetEnumerator() => fakelist.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
-
-    public int IndexOf(T item) => -1;
-
-    int IList.IndexOf(object value) => -1;
-
-    public bool IsReadOnly => true;
-
-    public bool IsFixedSize => false;
-
-    #endregion
-
-
-    #region interface member not implemented
-
-    void ICollection<T>.Add(T item) => throw new NotImplementedException();
-
-    int IList.Add(object value) => throw new NotImplementedException();
-
-    public void Clear() => throw new NotImplementedException();
-
-    bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
-
-    bool IList.Contains(object value) => throw new NotImplementedException();
-
-    void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
-
-    void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
-
-    void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
-
-    void IList.Insert(int index, object value) => throw new NotImplementedException();
-
-    bool ICollection.IsSynchronized => throw new NotImplementedException();
-
-    bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
-
-    void IList.Remove(object value) => throw new NotImplementedException();
-
-    public void RemoveAt(int index) => throw new NotImplementedException();
-
-    object ICollection.SyncRoot => throw new NotImplementedException();
-
-    #endregion
 }

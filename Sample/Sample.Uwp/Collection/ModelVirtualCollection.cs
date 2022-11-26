@@ -12,13 +12,11 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
     {
         private string searchString = string.Empty;
 
-        public ModelVirtualCollection()
-            : base()
+        public async override Task LoadAsync(string searchString = "")
         {
+            this.searchString = searchString;
+            await LoadAsync();
         }
-
-
-        #region protected override method
 
         protected override Model CreateDummyEntity()
         {
@@ -40,15 +38,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
             {
                 return await repo.GetRangeAsync(skip, take, m => m.Name.Contains(searchString.ToUpper()), token);
             }
-        }
-
-        #endregion
-
-
-        public async Task LoadAsync(string searchString = "")
-        {
-            this.searchString = searchString;
-            await base.LoadAsync();
         }
     }
 }

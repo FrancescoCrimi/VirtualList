@@ -25,9 +25,8 @@ namespace CiccioSoft.VirtualList.Uwp
     ///     </ListView.ItemsPanel>
     ///     
     /// Per usare la classe subclassa questa classe implementando i metodi astratti
-    /// 
     /// </summary>
-    public abstract class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
+    public abstract class VirtualRangeCollection<T> : IVirtualRangeCollection<T> where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -86,6 +85,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region abstract method
 
+        public abstract Task LoadAsync(string searchString = "");
         protected abstract T CreateDummyEntity();
         protected abstract Task<int> GetCountAsync();
         protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);

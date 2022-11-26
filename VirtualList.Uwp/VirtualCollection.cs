@@ -25,9 +25,8 @@ namespace CiccioSoft.VirtualList.Uwp
     ///     </ListView.ItemsPanel>
     ///     
     /// Per usare la classe subclassa questa classe implementando i metodi astratti
-    /// 
     /// </summary>
-    public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged where T : class
+    public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : class
     {
         private readonly ILogger logger;
         private readonly CoreDispatcher dispatcher;
@@ -37,10 +36,10 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
         private readonly T dummyObject;
-        private int count = 0;
         private readonly int range;
         private readonly int take;
         private int index_to_fetch = 0;
+        private int count = 0;
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
@@ -80,6 +79,7 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region abstract method
 
+        public abstract Task LoadAsync(string searchString = "");
         protected abstract T CreateDummyEntity();
         protected abstract Task<int> GetCountAsync();
         protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
