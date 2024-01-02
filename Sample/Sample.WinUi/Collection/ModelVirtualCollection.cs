@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Sample.Repository;
 using CiccioSoft.VirtualList.Sample.Domain;
-using CommunityToolkit.Mvvm.DependencyInjection;
+using CiccioSoft.VirtualList.Sample.Repository;
 using CiccioSoft.VirtualList.WinUi;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CiccioSoft.VirtualList.Sample.WinUi.Collection;
-internal class ModelVirtualCollection : VirtualCollection<Model>
+
+public class ModelVirtualCollection : VirtualCollection<Model>
 {
+    public ModelVirtualCollection()
+        : base(20, Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
+    { }
 
     protected override Model CreateDummyEntity()
     {

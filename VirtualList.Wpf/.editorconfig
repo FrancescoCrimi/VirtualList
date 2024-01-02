@@ -1,4 +1,0 @@
-[*.cs]
-
-# IDE0161: Converti in namespace con ambito file
-csharp_style_namespace_declarations = block_scoped

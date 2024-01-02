@@ -107,15 +107,9 @@ namespace CiccioSoft.VirtualList.Sample.Forms
 
         public event ListChangedEventHandler? ListChanged;
 
-        public void Add(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        public void Add(Model item) => throw new NotImplementedException();
 
-        public int Add(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        public int Add(object? value) => throw new NotImplementedException();
 
         public void AddIndex(PropertyDescriptor property)
         {
@@ -124,74 +118,35 @@ namespace CiccioSoft.VirtualList.Sample.Forms
 
         public object AddNew() => throw new NotImplementedException();
 
-        public void ApplySort(PropertyDescriptor property, ListSortDirection direction)
-        {
-            throw new NotImplementedException();
-        }
+        public void ApplySort(PropertyDescriptor property, ListSortDirection direction) => throw new NotImplementedException();
 
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
+        public void Clear() => throw new NotImplementedException();
 
-        public bool Contains(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Contains(Model item) => throw new NotImplementedException();
 
-        public bool Contains(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Contains(object? value) => throw new NotImplementedException();
 
-        public void CopyTo(Model[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
+        public void CopyTo(Model[] array, int arrayIndex) => throw new NotImplementedException();
 
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
+        public void CopyTo(Array array, int index) => throw new NotImplementedException();
 
-        public int Find(PropertyDescriptor property, object key)
-        {
-            throw new NotImplementedException();
-        }
+        public int Find(PropertyDescriptor property, object key) => throw new NotImplementedException();
 
-        public void Insert(int index, Model item)
-        {
-            throw new NotImplementedException();
-        }
+        public void Insert(int index, Model item) => throw new NotImplementedException();
 
-        public void Insert(int index, object? value)
-        {
-            throw new NotImplementedException();
-        }
+        public void Insert(int index, object? value) => throw new NotImplementedException();
 
-        public bool Remove(Model item)
-        {
-            throw new NotImplementedException();
-        }
+        public bool Remove(Model item) => throw new NotImplementedException();
 
-        public void Remove(object? value)
-        {
-            throw new NotImplementedException();
-        }
+        public void Remove(object? value) => throw new NotImplementedException();
 
-        public void RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
+        public void RemoveAt(int index) => throw new NotImplementedException();
 
         public void RemoveIndex(PropertyDescriptor property)
         {
             // Not supported
         }
 
-        public void RemoveSort()
-        {
-            throw new NotImplementedException();
-        }
+        public void RemoveSort() => throw new NotImplementedException();
     }
 }

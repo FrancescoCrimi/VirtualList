@@ -1,13 +1,13 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using CiccioSoft.VirtualList.Sample.Uwp.Repository;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Sample.Uwp.Repository;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
@@ -22,7 +22,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 
         public FakeCollection(int total = 1000000)
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("FakeCollection");
+            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
             fakelist = SampleGenerator.Generate(total);
             count = fakelist.Count;
         }
@@ -89,9 +89,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         #region interface member not implemented
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
-
         object ICollection.SyncRoot => throw new NotImplementedException();
-
         void ICollection<Model>.Add(Model item) => throw new NotImplementedException();
         int IList.Add(object value) => throw new NotImplementedException();
         void ICollection<Model>.Clear() => throw new NotImplementedException();

@@ -1,16 +1,17 @@
 ﻿<Page x:Class="CiccioSoft.VirtualList.Sample.Wpf.Views.DatagridView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:CiccioSoft.VirtualList.Sample.Wpf.Views"
       xmlns:viewmodels="clr-namespace:CiccioSoft.VirtualList.Sample.Wpf.ViewModels"
       d:DataContext="{d:DesignInstance Type=viewmodels:DatagridViewModel}"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800"
       Title="DatagridPage"
       Background="White"
-      Loaded="Page_Loaded">
+      Loaded="OnPageLoaded">
 
     <Grid>
         <Border BorderThickness="1"
@@ -45,12 +46,13 @@
                                  Width="120"
                                  Margin="3"
                                  Text="{Binding SearchString}" />
-                        <Button Grid.Column="2"
+                        <Button x:Name="SearchButton"
+                                Grid.Column="2"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Margin="3"
-                                Click="Button_Click" />
+                                Click="OnSearchButtonClick"/>
                     </Grid>
                 </Border>
 

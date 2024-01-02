@@ -10,14 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\crimi\source\repos\VirtualList\VirtualList.Forms\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\crimi\source\repos\VirtualList\VirtualList.Forms\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Sample.Data\Sample.Data.csproj" />
   </ItemGroup>
 

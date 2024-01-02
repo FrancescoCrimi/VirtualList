@@ -1,24 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<AssemblyName>CiccioSoft.VirtualList.Wpf</AssemblyName>
+		<RootNamespace>CiccioSoft.VirtualList.Wpf</RootNamespace>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <AssemblyName>CiccioSoft.VirtualList.Wpf</AssemblyName>
-    <RootNamespace>CiccioSoft.VirtualList.Wpf</RootNamespace>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="C:\Users\crimi\source\repos\VirtualList\CiccioSoft.VirtualList.Wpf\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="C:\Users\crimi\source\repos\VirtualList\CiccioSoft.VirtualList.Wpf\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-  </ItemGroup>
-
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
+	</ItemGroup>
 </Project>

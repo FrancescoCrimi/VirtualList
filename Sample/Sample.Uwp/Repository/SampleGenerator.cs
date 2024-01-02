@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using CiccioSoft.VirtualList.Data.Domain;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {

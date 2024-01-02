@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,8 +7,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Windows.System.Threading;
 using Windows.UI.Core;
 
@@ -28,7 +27,7 @@ namespace CiccioSoft.VirtualList.Uwp
     /// </summary>
     public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : class
     {
-        private readonly ILogger logger;
+        private readonly ILogger _logger;
         private readonly CoreDispatcher dispatcher;
         private CancellationTokenSource cancellationTokenSource;
         private readonly ConcurrentStack<int> indexStack;
@@ -43,9 +42,9 @@ namespace CiccioSoft.VirtualList.Uwp
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
-        public VirtualCollection(int range = 20)
+        public VirtualCollection(int range = 20, ILogger logger = null)
         {
-            logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger("VirtualCollection");
+            _logger = logger;
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
             indexStack = new ConcurrentStack<int>();
@@ -61,7 +60,7 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             index_to_fetch = 0;
             count = await GetCountAsync();
-            logger.LogInformation("FetchData: {0} - {1}", 0, take - 1);
+            _logger.LogDebug("FetchData: {0} - {1}", 0, take - 1);
             var models = await GetRangeAsync(0, take, NewToken());
             items.Clear();
             for (var i = 0; i < models.Count; i++)
@@ -97,7 +96,7 @@ namespace CiccioSoft.VirtualList.Uwp
                 indexStack.Clear();
                 if (index < index_to_fetch || index >= index_to_fetch + take)
                 {
-                    logger.LogInformation("Indice non Fetchato: {0}", index);
+                    _logger.LogDebug("Indice non Fetchato: {0}", index);
                     if (index < range)
                         index = 0;
                     else if (index > count - range)
@@ -109,7 +108,7 @@ namespace CiccioSoft.VirtualList.Uwp
                     Task.Run(async () => await FetchRange(index, token), token);
                 }
                 else
-                    logger.LogInformation("Indice già Fetchato: {0}", index);
+                    _logger.LogDebug("Indice già Fetchato: {0}", index);
             }
         }
 
@@ -136,7 +135,7 @@ namespace CiccioSoft.VirtualList.Uwp
                     token.ThrowIfCancellationRequested();
 
                 // recupero i dati
-                logger.LogInformation("FetchRange: {0} - {1}", skip, skip + take - 1);
+                _logger.LogDebug("FetchRange: {0} - {1}", skip, skip + take - 1);
                 var models = await GetRangeAsync(skip, take, token);
 
                 if (token.IsCancellationRequested)
@@ -171,24 +170,24 @@ namespace CiccioSoft.VirtualList.Uwp
                     }
                     catch (OperationCanceledException ocex)
                     {
-                        logger.LogInformation("NotifyCollectionChanged Replace: {0} - {1} {2}", skip, skip + take - 1, ocex.Message);
+                        _logger.LogDebug("NotifyCollectionChanged Replace: {0} - {1} {2}", skip, skip + take - 1, ocex.Message);
                     }
                 });
             }
             catch (TaskCanceledException tcex)
             {
-                logger.LogInformation("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take - 1, tcex.Message, tcex.Task.Id);
+                _logger.LogDebug("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take - 1, tcex.Message, tcex.Task.Id);
             }
             catch (OperationCanceledException ocex)
             {
-                logger.LogInformation(ocex.Message);
+                _logger.LogDebug(ocex.Message);
             }
         }
 
         #endregion
 
 
-        #region interface member Implemented 
+        #region interface member Implemented
 
         public T this[int index]
         {
@@ -196,12 +195,12 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 if (items.ContainsKey(index))
                 {
-                    //logger.LogInformation("Indexer get real: {0}", index);
+                    //logger.LogDebug("Indexer get real: {0}", index);
                     return items[index];
                 }
                 else
                 {
-                    //logger.LogInformation("Indexer get dummy: {0}", index);
+                    //logger.LogDebug("Indexer get dummy: {0}", index);
                     indexStack.Push(index);
                     return dummyObject;
                 }
@@ -235,9 +234,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #region interface member not implemented
 
         bool ICollection.IsSynchronized => throw new NotImplementedException();
-
         object ICollection.SyncRoot => throw new NotImplementedException();
-
         void ICollection<T>.Add(T item) => throw new NotImplementedException();
         int IList.Add(object value) => throw new NotImplementedException();
         void ICollection<T>.Clear() => throw new NotImplementedException();

@@ -1,5 +1,4 @@
-﻿using System;
-using CiccioSoft.VirtualList.Sample.Uwp.Database;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Database;
 using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -115,10 +115,10 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             }
 
             serviceCollection
-                .AddTransient<DatabaseSerice>()            
+                .AddTransient<DatabaseSerice>()
                 .AddTransient<MainViewModel>();
 
-            Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());            
+            Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
         }
 
     }

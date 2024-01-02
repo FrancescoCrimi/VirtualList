@@ -1,6 +1,5 @@
 ﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Sample.Uwp.Database;
-using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

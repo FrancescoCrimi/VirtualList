@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Sample.Uwp.Collection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp
 {

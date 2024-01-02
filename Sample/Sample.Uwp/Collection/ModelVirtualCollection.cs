@@ -1,16 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Data.Domain;
 using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using CiccioSoft.VirtualList.Uwp;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
     public class ModelVirtualCollection : VirtualRangeCollection<Model>
     {
         private string searchString = string.Empty;
+
+        public ModelVirtualCollection()
+            : base(Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
+        {
+        }
 
         public async override Task LoadAsync(string searchString = "")
         {

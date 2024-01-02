@@ -1,10 +1,10 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Data.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Data.Domain;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
