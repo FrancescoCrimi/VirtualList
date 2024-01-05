@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Sample.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
 using CiccioSoft.VirtualList.Sample.WinUi.Collection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
 

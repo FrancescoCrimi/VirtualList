@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Sample.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
 using CiccioSoft.VirtualList.Sample.Repository;
 using CiccioSoft.VirtualList.WinUi;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.WinUi.Collection;
 

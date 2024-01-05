@@ -1,6 +1,5 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Sample.Wpf.ViewModels;
 using System.Windows;
-using CiccioSoft.VirtualList.Sample.Wpf.ViewModels;
 
 namespace CiccioSoft.VirtualList.Sample.Wpf.Views;
 

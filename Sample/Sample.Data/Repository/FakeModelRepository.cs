@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
+using CiccioSoft.VirtualList.Sample.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Infrastructure;
 
 namespace CiccioSoft.VirtualList.Sample.Repository
 {

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using CiccioSoft.VirtualList.Sample.Domain;
 
 namespace CiccioSoft.VirtualList.Sample.Infrastructure
 {
