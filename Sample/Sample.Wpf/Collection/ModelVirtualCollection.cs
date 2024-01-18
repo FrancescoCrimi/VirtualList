@@ -20,8 +20,9 @@ public class ModelVirtualCollection : VirtualCollection<Model>
 
     #region protected override method
 
-    public async override Task LoadAsync(string searchString = "")
+    public override async Task LoadAsync(string? searchString)
     {
+        searchString ??= string.Empty;
         _searchString = searchString;
         await LoadAsync();
     }
@@ -40,8 +41,8 @@ public class ModelVirtualCollection : VirtualCollection<Model>
 
     protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
     {
-        using var db = Ioc.Default.GetRequiredService<IModelRepository>();
-        var list = await db.GetRangeAsync(skip, take, m => m.Name.Contains(_searchString.ToUpper()), cancellationToken);
+        using var repo = Ioc.Default.GetRequiredService<IModelRepository>();
+        var list = await repo.GetRangeAsync(skip, take, m => m.Name.Contains(_searchString.ToUpper()), cancellationToken);
         return list;
     }
 

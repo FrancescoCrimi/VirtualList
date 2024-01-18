@@ -22,12 +22,12 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     private readonly List<T> fakelist;
     private readonly T dummyObject;
     private int count = 0;
-    private int selectedIndex = -1;
     private readonly int _range;
     private readonly int take;
     private int index_to_fetch = 0;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
+    private int selectedIndex = -1;
 
     public VirtualCollection(int range = 20, ILogger? logger = null)
     {
@@ -80,10 +80,10 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 
     #region abstract method
 
-    public abstract Task LoadAsync(string searchString = "");
+    public abstract Task LoadAsync(string? searchString);
     protected abstract T CreateDummyEntity();
     protected abstract Task<int> GetCountAsync();
-    protected abstract Task<List<T>> GetRangeAsync(int intskip, int size, CancellationToken token);
+    protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken token);
 
     #endregion
 
@@ -190,7 +190,7 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     #endregion
 
 
-    #region interface member Implemented
+    #region interface member implemented
 
     public T this[int index]
     {
@@ -224,11 +224,15 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     public bool IsFixedSize => false;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
     int IList<T>.IndexOf(T item) => -1;
+
     int IList.IndexOf(object? value) => -1;
 
     #endregion

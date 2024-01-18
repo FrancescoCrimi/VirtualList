@@ -1,4 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Database;
+using CiccioSoft.VirtualList.Sample.Infrastructure;
 using CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
 using CiccioSoft.VirtualList.Sample.WinUi.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
@@ -33,18 +34,20 @@ public partial class App : Application
             .AddData(configuration)
 
             // Views and ViewModels
-            .AddTransient<MainViewModel>()
-            .AddTransient<MainPage>()
+            .AddTransient<ListViewViewModel>()
+            .AddTransient<ListViewPage>()
 
             .BuildServiceProvider());
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        Window m_window = new MainWindow
+        Window m_window = new MainView
         {
-            Content = new MainPage()
+            //Content = new ListViewPage()
         };
         m_window.Activate();
+
+        //Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(10000);
     }
 }

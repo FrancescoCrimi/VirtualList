@@ -25,7 +25,7 @@ namespace CiccioSoft.VirtualList.Sample.Infrastructure
                         {
                             options
                                 //.UseLazyLoadingProxies()
-                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                //.ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
                                 .UseSqlite(configuration.GetConnectionString("SqLiteConnection"));
                         }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
@@ -38,7 +38,7 @@ namespace CiccioSoft.VirtualList.Sample.Infrastructure
                         {
                             options
                                 //.UseLazyLoadingProxies()                            
-                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                //.ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
                                 .UseSqlServer(configuration.GetConnectionString("MsLocalDbConnection"));
                         }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
@@ -51,7 +51,7 @@ namespace CiccioSoft.VirtualList.Sample.Infrastructure
                         {
                             options
                                 //.UseLazyLoadingProxies()
-                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                //.ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
                                 .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
                         }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
@@ -59,12 +59,12 @@ namespace CiccioSoft.VirtualList.Sample.Infrastructure
 
                 case DbType.MySql:
                     var connectionString = configuration.GetConnectionString("MySqlConnection");
-                    var serverVersion = new MariaDbServerVersion(new Version(10, 8, 3));
+                    var serverVersion = new MariaDbServerVersion(new Version(10, 11, 5));
                     serviceCollection
                         .AddDbContext<AppDbContext>(options =>
                         {
                             options
-                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                                //.ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
                                 .UseMySql(connectionString, serverVersion);
                         }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
@@ -76,9 +76,6 @@ namespace CiccioSoft.VirtualList.Sample.Infrastructure
                         .AddSingleton<IModelRepository, FakeModelRepository>();
                     break;
             }
-
-            serviceCollection
-                .AddTransient<DatabaseSerice>();
 
             return serviceCollection;
         }

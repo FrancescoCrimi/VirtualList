@@ -1,5 +1,6 @@
 ﻿using CiccioSoft.VirtualList.Sample.Domain;
 using CiccioSoft.VirtualList.Sample.Infrastructure;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,48 +12,39 @@ namespace CiccioSoft.VirtualList.Sample.Repository
 {
     public class FakeModelRepository : IModelRepository
     {
-        private readonly int count;
         private readonly List<Model> models;
 
-        public FakeModelRepository(int total = 1000000)
+        public FakeModelRepository()
         {
-            count = total;
-            models = SampleGenerator.Generate(total);
+            models = SampleGenerator.ReadFromFile("SampleData.json");
         }
 
-        public void Add(Model item)
+        public Task<int> CountAsync(CancellationToken token = default)
         {
-            models.Add(item);
+            return Task.FromResult(models.Count);
         }
 
-        public Task<int> CountAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(count);
-        }
-
-        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate, CancellationToken cancellationToken = default)
+        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
+                                    CancellationToken token = default)
         {
             return Task.FromResult(models.Count(predicate.Compile()));
         }
 
-        public Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken = default)
+        public async Task<List<Model>> GetRangeAsync(int skip,
+                                                     int take,
+                                                     CancellationToken token = default)
         {
-            return Task.FromResult(models.Skip(skip).Take(take).ToList());
+            await Task.Delay(1000, token);
+            return await Task.FromResult(models.Skip(skip).Take(take).ToList());
         }
 
-        public Task<List<Model>> GetRangeAsync(int skip, int take, Expression<Func<Model, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<List<Model>> GetRangeAsync(int skip,
+                                                     int take,
+                                                     Expression<Func<Model, bool>> predicate,
+                                                     CancellationToken token = default)
         {
-            return Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
-        }
-
-        public int SaveChanges()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            await Task.Delay(1000, token);
+            return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 
         public void Dispose()

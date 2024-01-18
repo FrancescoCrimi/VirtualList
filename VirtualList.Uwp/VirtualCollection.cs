@@ -30,29 +30,29 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly ILogger _logger;
         private readonly CoreDispatcher dispatcher;
         private CancellationTokenSource cancellationTokenSource;
-        private readonly ConcurrentStack<int> indexStack;
-        private readonly ThreadPoolTimer timer = null;
         private readonly IDictionary<int, T> items;
         private readonly List<T> fakelist;
         private readonly T dummyObject;
-        private readonly int range;
-        private readonly int take;
-        private int index_to_fetch = 0;
         private int count = 0;
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
+        private readonly ConcurrentStack<int> indexStack;
+        private readonly ThreadPoolTimer timer;
+        private readonly int _range;
+        private readonly int take;
+        private int index_to_fetch = 0;
 
         public VirtualCollection(int range = 20, ILogger logger = null)
         {
             _logger = logger;
             dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             cancellationTokenSource = new CancellationTokenSource();
-            indexStack = new ConcurrentStack<int>();
-            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
             items = new ConcurrentDictionary<int, T>();
             fakelist = new List<T>();
             dummyObject = CreateDummyEntity();
-            this.range = range;
+            indexStack = new ConcurrentStack<int>();
+            timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
+            _range = range;
             take = range * 2;
         }
 
@@ -60,8 +60,10 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             index_to_fetch = 0;
             count = await GetCountAsync();
+            // recupero i dati
             _logger.LogDebug("FetchData: {0} - {1}", 0, take - 1);
             var models = await GetRangeAsync(0, take, NewToken());
+            // Aggiorno lista interna
             items.Clear();
             for (var i = 0; i < models.Count; i++)
             {
@@ -81,7 +83,7 @@ namespace CiccioSoft.VirtualList.Uwp
         public abstract Task LoadAsync(string searchString = "");
         protected abstract T CreateDummyEntity();
         protected abstract Task<int> GetCountAsync();
-        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
+        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken token);
 
         #endregion
 
@@ -97,12 +99,12 @@ namespace CiccioSoft.VirtualList.Uwp
                 if (index < index_to_fetch || index >= index_to_fetch + take)
                 {
                     _logger.LogDebug("Indice non Fetchato: {0}", index);
-                    if (index < range)
+                    if (index < _range)
                         index = 0;
-                    else if (index > count - range)
+                    else if (index > count - _range)
                         index = count - take;
                     else
-                        index -= range;
+                        index -= _range;
                     index_to_fetch = index;
                     var token = NewToken();
                     Task.Run(async () => await FetchRange(index, token), token);
@@ -187,7 +189,7 @@ namespace CiccioSoft.VirtualList.Uwp
         #endregion
 
 
-        #region interface member Implemented
+        #region interface member implemented
 
         public T this[int index]
         {
@@ -195,12 +197,12 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 if (items.ContainsKey(index))
                 {
-                    //logger.LogDebug("Indexer get real: {0}", index);
+                    //_logger.LogDebug("Indexer get real: {0}", index);
                     return items[index];
                 }
                 else
                 {
-                    //logger.LogDebug("Indexer get dummy: {0}", index);
+                    //_logger.LogDebug("Indexer get dummy: {0}", index);
                     indexStack.Push(index);
                     return dummyObject;
                 }
@@ -221,11 +223,15 @@ namespace CiccioSoft.VirtualList.Uwp
         public bool IsFixedSize => false;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
         int IList<T>.IndexOf(T item) => -1;
+
         int IList.IndexOf(object value) => -1;
 
         #endregion

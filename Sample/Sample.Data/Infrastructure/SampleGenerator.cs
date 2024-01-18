@@ -1,12 +1,39 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Database;
+using CiccioSoft.VirtualList.Sample.Domain;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace CiccioSoft.VirtualList.Sample.Infrastructure
 {
     public static class SampleGenerator
     {
+        public static List<Model> ReadFromFile(string path)
+        {
+            var json = File.ReadAllText(path);
+            var list = JsonConvert.DeserializeObject<List<Model>>(json) ?? [];
+            return list;
+        }
+
+        public static void WriteToFile(IList<Model> models, string path)
+        {
+            var fileContent = JsonConvert.SerializeObject(models);
+            File.WriteAllText(path, fileContent, Encoding.UTF8);
+        }
+
+        public static void WriteToDb(IList<Model> models, AppDbContext dbContext)
+        {
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            foreach (var item in models)
+            {
+                dbContext.Add(item);
+            }
+            dbContext.SaveChanges();
+        }
+
         public static List<Model> Generate(int total = 10000)
         {
             var list = new List<Model>(total);

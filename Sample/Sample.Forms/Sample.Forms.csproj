@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>CiccioSoft.VirtualList.Sample.Forms</RootNamespace>
     <AssemblyName>CiccioSoft.VirtualList.Sample.Forms</AssemblyName>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

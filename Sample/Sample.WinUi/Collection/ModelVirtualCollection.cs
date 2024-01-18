@@ -13,7 +13,8 @@ public class ModelVirtualCollection : VirtualCollection<Model>
 {
     public ModelVirtualCollection()
         : base(20, Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
-    { }
+    {
+    }
 
     protected override Model CreateDummyEntity()
     {

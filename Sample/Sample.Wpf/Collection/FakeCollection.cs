@@ -17,21 +17,30 @@ public class FakeCollection : IVirtualCollection<Model>
 {
     private readonly ILogger logger;
     private readonly Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
-    private readonly List<Model> items;
-    private readonly List<Model> fakelist = new();
+    private readonly List<Model> list;
+    private readonly List<Model> fakelist;
+    private List<Model> items;
     private int count = 0;
     private int selectedIndex = -1;
+    private string _searchString = string.Empty;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
 
-    public FakeCollection(int total = 1000)
+    public FakeCollection()
     {
         logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
-        items = SampleGenerator.Generate(total);
+        list = SampleGenerator.ReadFromFile("SampleData.json");
+        fakelist = [];
+        items = [];
     }
 
-    public async Task LoadAsync(string str = "")
+    public async Task LoadAsync(string? searchString)
     {
+        searchString ??= string.Empty;
+        _searchString = searchString;
+
+        items = list!.FindAll(x => x.Name.Contains(_searchString.ToUpper()));
+
         SelectedIndex = -1;
         count = items.Count;
         await dispatcher.InvokeAsync(() =>
@@ -63,7 +72,7 @@ public class FakeCollection : IVirtualCollection<Model>
     {
         get
         {
-            var item = items[index];
+            var item = items?[index];
             logger.LogWarning("Index: {Index}", index);
             return item;
         }
@@ -83,11 +92,15 @@ public class FakeCollection : IVirtualCollection<Model>
     public bool IsFixedSize => false;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakelist.GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
     int IList<Model>.IndexOf(Model item) => -1;
+
     int IList.IndexOf(object? value) => -1;
 
     #endregion

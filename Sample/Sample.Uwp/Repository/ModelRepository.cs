@@ -12,36 +12,36 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
     internal class ModelRepository : IModelRepository
     {
-        private readonly AppDbContext appDbContext;
+        private readonly AppDbContext _dbContext;
 
         public ModelRepository(AppDbContext appDbContext)
         {
-            this.appDbContext = appDbContext;
+            _dbContext = appDbContext;
         }
 
         public Task<List<Model>> GetRangeAsync(int skip,
                                                int take,
                                                Expression<Func<Model, bool>> predicate,
-                                               CancellationToken cancellationToken = default)
+                                               CancellationToken token = default)
         {
-            IQueryable<Model> query = appDbContext.Models.AsQueryable();
-            query = query.Where(predicate);
-            query = query.Skip(skip);
-            query = query.Take(take);
-            //todo: fix order by
-            query = query.OrderBy(m => m.Id);
-            return query.ToListAsync(cancellationToken);
+            return _dbContext.Models.AsQueryable()
+                .Where(predicate)
+                .Skip(skip)
+                .Take(take)
+                .OrderBy(m => m.Id)
+                .ToListAsync(token);
         }
 
         public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
-                                    CancellationToken cancellationToken = default)
+                                    CancellationToken token = default)
         {
-            return appDbContext.Models.AsQueryable().CountAsync(predicate, cancellationToken);
+            return _dbContext.Models.AsQueryable()
+                .CountAsync(predicate, token);
         }
 
         public void Dispose()
         {
-            appDbContext.Dispose();
+            _dbContext.Dispose();
         }
     }
 }

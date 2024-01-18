@@ -18,7 +18,7 @@ namespace CiccioSoft.VirtualList.Sample.Domain
         {
             get; set;
         }
-        public virtual string Name
+        public virtual string? Name
         {
             get; set;
         }

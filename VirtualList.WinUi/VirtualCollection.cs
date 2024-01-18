@@ -24,9 +24,8 @@ namespace CiccioSoft.VirtualList.WinUi;
 ///     </ListView.ItemsPanel>
 ///     
 /// Per usare la classe subclassa questa classe implementando i metodi astratti
-/// 
 /// </summary>
-public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged where T : class
+public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : class
 {
     private readonly ILogger? _logger;
     private readonly DispatcherQueue dispatcherQueue;
@@ -217,11 +216,15 @@ public abstract class VirtualCollection<T> : IList<T>, IList, INotifyCollectionC
     public bool IsFixedSize => false;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
     int IList<T>.IndexOf(T item) => -1;
+
     int IList.IndexOf(object? value) => -1;
 
     #endregion

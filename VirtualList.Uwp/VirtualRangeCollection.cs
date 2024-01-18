@@ -34,11 +34,11 @@ namespace CiccioSoft.VirtualList.Uwp
         private readonly List<T> fakelist;
         private readonly T dummyObject;
         private int count = 0;
+        private const string CountString = "Count";
+        private const string IndexerName = "Item[]";
         private int FirstIndex;
         private int LastIndex;
         private int Length;
-        private const string CountString = "Count";
-        private const string IndexerName = "Item[]";
 
         public VirtualRangeCollection(ILogger logger = null)
         {
@@ -87,7 +87,7 @@ namespace CiccioSoft.VirtualList.Uwp
         public abstract Task LoadAsync(string searchString = "");
         protected abstract T CreateDummyEntity();
         protected abstract Task<int> GetCountAsync();
-        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
+        protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken token);
 
         #endregion
 
@@ -217,12 +217,12 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 if (items.ContainsKey(index))
                 {
-                    //logger.LogDebug("Indexer get real: {0}", index);
+                    //_logger.LogDebug("Indexer get real: {0}", index);
                     return items[index];
                 }
                 else
                 {
-                    //logger.LogDebug("Indexer get dummy: {0}", index);
+                    //_logger.LogDebug("Indexer get dummy: {0}", index);
                     return dummyObject;
                 }
             }
@@ -242,7 +242,16 @@ namespace CiccioSoft.VirtualList.Uwp
         public bool IsFixedSize => false;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
+        int IList<T>.IndexOf(T item) => -1;
+
+        int IList.IndexOf(object value) => -1;
 
         public void Dispose()
         {
@@ -250,11 +259,6 @@ namespace CiccioSoft.VirtualList.Uwp
                 cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
         }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
-        int IList<T>.IndexOf(T item) => -1;
-        int IList.IndexOf(object value) => -1;
 
         #endregion
 

@@ -7,9 +7,14 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public interface IVirtualRangeCollection<T> : IList<T>,
-                                                  IList,
+    public interface IVirtualRangeCollection<T> : ICollection<T>,
+                                                  IEnumerable<T>,
+                                                  IEnumerable,
+                                                  IList<T>,
+                                                  IReadOnlyCollection<T>,
                                                   IReadOnlyList<T>,
+                                                  ICollection,
+                                                  IList,
                                                   INotifyCollectionChanged,
                                                   INotifyPropertyChanged,
                                                   IItemsRangeInfo where T : class

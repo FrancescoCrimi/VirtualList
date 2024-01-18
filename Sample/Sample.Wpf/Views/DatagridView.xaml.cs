@@ -21,13 +21,24 @@ public partial class DatagridView : Page
         await viewModel.LoadAsync();
     }
 
+    /// <summary>
+    /// trova lo ScrollView all'interno della ListView.
+    /// scrolla al top lo ScrollView ed effettua ricerca
+    /// </summary>
     private async void OnSearchButtonClick(object sender, RoutedEventArgs e)
     {
         var scrollViewer = GetVisualChild<ScrollViewer>(dataGrid);
         scrollViewer?.ScrollToTop();
-        await viewModel.SearchAsync();
+        await viewModel.LoadAsync();
     }
 
+    /// <summary>
+    /// Cerca a ritroso un particolare oggetto grafico all'interno
+    /// di un oggetto dato come parametro
+    /// </summary>
+    /// <typeparam name="T">Tipo da cercare</typeparam>
+    /// <param name="parent">oggetto in cui cercare</param>
+    /// <returns>oggetto trovato o null</returns>
     private T? GetVisualChild<T>(DependencyObject parent) where T : Visual
     {
         var child = default(T);

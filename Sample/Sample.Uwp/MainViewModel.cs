@@ -31,7 +31,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             }
         }
 
-        public async Task LoadAsync() => await items.LoadAsync();
+        public async Task LoadAsync()
+            => await items.LoadAsync();
 
         public int Count => items.Count;
 
@@ -42,8 +43,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             get; set;
         }
 
-        public IAsyncRelayCommand SearchCommand => searchCommand ??
-            (searchCommand = new AsyncRelayCommand(async () =>
-                await items.LoadAsync(SearchString)));
+        public IAsyncRelayCommand SearchCommand
+            => searchCommand ?? (searchCommand = new AsyncRelayCommand(async ()
+                => await items.LoadAsync(SearchString)));
     }
 }

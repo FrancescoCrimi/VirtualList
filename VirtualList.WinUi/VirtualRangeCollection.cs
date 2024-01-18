@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Data;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.UI.Xaml.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,30 +8,78 @@ using System.ComponentModel;
 
 namespace CiccioSoft.VirtualList.WinUi;
 
-public class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChanged, INotifyPropertyChanged, IItemsRangeInfo where T : class
+/// <summary>
+/// Collezione Virtuale
+/// 
+/// per funzionare correttamente impostare la Proprietà CacheLength dell'ItemStackPanel a 0.0 cosi
+///
+///     <ListView.ItemsPanel>
+///       <ItemsPanelTemplate>
+///         <ItemsStackPanel Orientation = "Vertical" CacheLength="0.0"/>
+///       </ItemsPanelTemplate>
+///     </ListView.ItemsPanel>
+///     
+/// Per usare la classe subclassa questa classe implementando i metodi astratti
+/// 
+/// </summary>
+
+public class VirtualRangeCollection<T> : IVirtualRangeCollection<T> where T : class
 {
-    T IList<T>.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    object? IList.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    private readonly ILogger? _logger;
+    private readonly List<T> fakelist;
+    private readonly int _range;
+    private int count = 0;
 
-    int ICollection<T>.Count => throw new NotImplementedException();
+    public VirtualRangeCollection(int range = 20, ILogger? logger = null)
+    {
+        _logger = logger;
+        fakelist = new List<T>();
+        _range = range;
+    }
 
-    int ICollection.Count => throw new NotImplementedException();
+    #region interface member implemented 
 
-    bool ICollection<T>.IsReadOnly => throw new NotImplementedException();
+    public T this[int index]
+    {
+        get => throw new NotImplementedException();
+        set => throw new NotImplementedException();
+    }
 
-    bool IList.IsReadOnly => throw new NotImplementedException();
+    object? IList.this[int index] 
+    {
+        get => this[index];        
+        set => throw new NotImplementedException();
+    }
 
-    bool IList.IsFixedSize => throw new NotImplementedException();
+    public int Count => count;
 
-    bool ICollection.IsSynchronized => throw new NotImplementedException();
+    public bool IsReadOnly => true;
 
-    object ICollection.SyncRoot => throw new NotImplementedException();
+    public bool IsFixedSize => false;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public void Dispose() => throw new NotImplementedException();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
+    int IList<T>.IndexOf(T item) => -1;
+
+    int IList.IndexOf(object? value) => -1;
+
     public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems) => throw new NotImplementedException();
+
+    public void Dispose() => throw new NotImplementedException();
+
+    #endregion
+
+
+    #region interface member not implemented
+
+    bool ICollection.IsSynchronized => throw new NotImplementedException();
+    object ICollection.SyncRoot => throw new NotImplementedException();
     void ICollection<T>.Add(T item) => throw new NotImplementedException();
     int IList.Add(object? value) => throw new NotImplementedException();
     void ICollection<T>.Clear() => throw new NotImplementedException();
@@ -39,14 +88,12 @@ public class VirtualRangeCollection<T> : IList<T>, IList, INotifyCollectionChang
     bool IList.Contains(object? value) => throw new NotImplementedException();
     void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
     void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
-    IEnumerator<T> IEnumerable<T>.GetEnumerator() => throw new NotImplementedException();
-    IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
-    int IList<T>.IndexOf(T item) => throw new NotImplementedException();
-    int IList.IndexOf(object? value) => throw new NotImplementedException();
     void IList<T>.Insert(int index, T item) => throw new NotImplementedException();
     void IList.Insert(int index, object? value) => throw new NotImplementedException();
     bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
     void IList.Remove(object? value) => throw new NotImplementedException();
     void IList<T>.RemoveAt(int index) => throw new NotImplementedException();
     void IList.RemoveAt(int index) => throw new NotImplementedException();
+
+    #endregion
 }

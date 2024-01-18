@@ -47,9 +47,12 @@ public partial class App : Application
             //Ioc.Default.GetRequiredService<MainView>().Show();
             new MainView().Show();
         });
-        //await Application.Current.Dispatcher.InvokeAsync(() =>
+
+        //await Application.Current.Dispatcher.InvokeAsync(async () =>
         //{
-        //    Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(1000000);
+        //    AppDbContext dbContext = Ioc.Default.GetRequiredService<AppDbContext>();
+        //    var items = await dbContext.Models.ToListAsync();
+        //    dbContext.Dispose();
         //    Application.Current.Shutdown();
         //});
     }

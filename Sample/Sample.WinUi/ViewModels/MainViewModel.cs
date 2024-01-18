@@ -1,31 +1,25 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.WinUi.Collection;
+﻿using CiccioSoft.VirtualList.Sample.WinUi.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.UI.Xaml.Controls;
 
-namespace CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
-
-internal class MainViewModel : ObservableRecipient
+namespace CiccioSoft.VirtualList.Sample.WinUi.ViewModels
 {
-    private readonly ModelVirtualCollection items;
-    private IAsyncRelayCommand? searchCommand;
-
-    public MainViewModel()
+    public partial class MainViewModel : ObservableRecipient
     {
-        items = new ModelVirtualCollection();
-        Task.Run(async () => await items.LoadAsync());
+        private readonly Frame _frame;
+
+        public MainViewModel(Frame frame)
+        {
+            _frame = frame;
+        }
+
+        [RelayCommand]
+        private void OnOpenItemsView()
+            => _frame.Navigate(typeof(ItemsViewPage));
+
+        [RelayCommand]
+        private void OnOpenListView()
+            => _frame.Navigate(typeof(ListViewPage));
     }
-
-    public IList<Model> Items => items;
-
-    public string? SearchString
-    {
-        get; set;
-    }
-
-    public IAsyncRelayCommand SearchCommand =>
-        searchCommand ??= new AsyncRelayCommand(async () =>
-            await Task.CompletedTask);
 }

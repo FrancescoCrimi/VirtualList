@@ -12,8 +12,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
         Task<List<Model>> GetRangeAsync(int skip,
                                         int take,
                                         Expression<Func<Model, bool>> predicate,
-                                        CancellationToken cancellationToken = default);
+                                        CancellationToken token = default);
         Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
-                             CancellationToken cancellationToken = default);
+                             CancellationToken token = default);
     }
 }

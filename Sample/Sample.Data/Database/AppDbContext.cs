@@ -8,7 +8,7 @@ public class AppDbContext : DbContext
 {
     public AppDbContext([NotNull] DbContextOptions options) : base(options) { }
 
-    public DbSet<Model> Models { get; set; } = null!;
+    public DbSet<Model> Models { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

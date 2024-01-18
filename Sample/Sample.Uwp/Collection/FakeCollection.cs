@@ -73,15 +73,18 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         public bool IsFixedSize => false;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void Dispose()
-        {
-        }
         IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakelist.GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+
         int IList<Model>.IndexOf(Model item) => -1;
+
         int IList.IndexOf(object value) => -1;
+
+        public void Dispose() { }
 
         #endregion
 

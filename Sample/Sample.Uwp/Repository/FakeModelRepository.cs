@@ -18,18 +18,18 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
         }
 
         public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
-                                    CancellationToken cancellationToken = default)
+                                    CancellationToken token = default)
         {
-            return Task.FromResult(models.Where(predicate.Compile()).Count());
+            return Task.FromResult(models.Count(predicate.Compile()));
         }
 
-        public Task<List<Model>> GetRangeAsync(int skip,
-                                               int take,
-                                               Expression<Func<Model, bool>> predicate,
-                                               CancellationToken cancellationToken = default)
+        public async Task<List<Model>> GetRangeAsync(int skip,
+                                                     int take,
+                                                     Expression<Func<Model, bool>> predicate,
+                                                     CancellationToken token = default)
         {
-            var rst = models.Where(predicate.Compile()).Skip(skip).Take(take).ToList();
-            return Task.FromResult(rst);
+            await Task.Delay(1000, token);
+            return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 
         public void Dispose()

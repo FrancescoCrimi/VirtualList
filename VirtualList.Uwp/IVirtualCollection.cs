@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Uwp
 {
-    public interface IVirtualCollection<T> : IList<T>,
-                                             IList,
+    public interface IVirtualCollection<T> : ICollection<T>,
+                                             IEnumerable<T>,
+                                             IEnumerable,
+                                             IList<T>,
+                                             IReadOnlyCollection<T>,
                                              IReadOnlyList<T>,
+                                             ICollection,
+                                             IList,
                                              INotifyCollectionChanged,
                                              INotifyPropertyChanged where T : class
     {
