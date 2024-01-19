@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CiccioSoft.VirtualList.Data.Domain
+namespace CiccioSoft.VirtualList.Sample.Uwp.Domain
 {
     public class Model
     {

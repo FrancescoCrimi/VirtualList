@@ -1,5 +1,4 @@
 ﻿using CiccioSoft.VirtualList.Sample.Database;
-using CiccioSoft.VirtualList.Sample.Infrastructure;
 using CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
 using CiccioSoft.VirtualList.Sample.WinUi.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;

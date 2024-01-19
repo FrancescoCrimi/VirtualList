@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CiccioSoft.VirtualList.Sample.Infrastructure;
+﻿namespace CiccioSoft.VirtualList.Sample.Database;
 
 public enum DbType
 {

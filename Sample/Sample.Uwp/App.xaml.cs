@@ -19,8 +19,17 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
         {
             InitializeComponent();
             ConfigureServiceProvider();
-            //var db = Ioc.Default.GetService<DatabaseSerice>();
-            //db.LoadSample(10000);
+            //using(var dbContext = Ioc.Default.GetRequiredService<AppDbContext>())
+            //{
+            //    dbContext.Database.EnsureDeleted();
+            //    dbContext.Database.EnsureCreated();
+            //    var list = Ioc.Default.GetRequiredService<SampleDataService>().Generate(1000000);
+            //    foreach (var item in list)
+            //    {
+            //        dbContext.Add(item);
+            //    }
+            //    dbContext.SaveChanges();
+            //}
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
@@ -115,7 +124,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             }
 
             serviceCollection
-                .AddTransient<DatabaseSerice>()
+                .AddSingleton<SampleDataService>()
                 .AddTransient<MainViewModel>();
 
             Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());

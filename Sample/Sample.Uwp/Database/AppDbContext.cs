@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Database

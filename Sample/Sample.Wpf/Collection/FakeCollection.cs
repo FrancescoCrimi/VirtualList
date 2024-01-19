@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Database;
+using CiccioSoft.VirtualList.Sample.Domain;
 using CiccioSoft.VirtualList.Wpf;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,7 +29,7 @@ public class FakeCollection : IVirtualCollection<Model>
     public FakeCollection()
     {
         logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
-        list = SampleGenerator.ReadFromFile("SampleData.json");
+        list = SampleDataService.ReadFromFile("SampleData.json");
         fakelist = [];
         items = [];
     }

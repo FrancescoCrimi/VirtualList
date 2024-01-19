@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Sample.Uwp.Repository;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Database;
+using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,10 +20,11 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
-        public FakeCollection(int total = 1000000)
+        public FakeCollection(SampleDataService sampleDataService)
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
-            fakelist = SampleGenerator.Generate(total);
+            //fakelist = sampleDataService.Generate(1000000);
+            fakelist = sampleDataService.ReadFromFile("SampleData.json");
             count = fakelist.Count;
         }
 

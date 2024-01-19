@@ -1,4 +1,4 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using CiccioSoft.VirtualList.Sample.Uwp.Repository;
 using CiccioSoft.VirtualList.Uwp;
 using CommunityToolkit.Mvvm.DependencyInjection;

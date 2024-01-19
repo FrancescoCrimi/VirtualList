@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace CiccioSoft.VirtualList.Sample.Infrastructure
+namespace CiccioSoft.VirtualList.Sample
 {
     public static class ServiceCollectionExtensions
     {

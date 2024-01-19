@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Database;
+using CiccioSoft.VirtualList.Sample.Domain;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace CiccioSoft.VirtualList.Sample.Repository
 
         public FakeModelRepository()
         {
-            models = SampleGenerator.ReadFromFile("SampleData.json");
+            models = SampleDataService.ReadFromFile("SampleData.json");
         }
 
         public Task<int> CountAsync(CancellationToken token = default)

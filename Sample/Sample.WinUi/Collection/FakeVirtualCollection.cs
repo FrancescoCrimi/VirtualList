@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Infrastructure;
+﻿using CiccioSoft.VirtualList.Sample.Database;
+using CiccioSoft.VirtualList.Sample.Domain;
 using CiccioSoft.VirtualList.WinUi;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +23,7 @@ public class FakeVirtualCollection : IVirtualCollection<Model>
     public FakeVirtualCollection(int total = 1000000)
     {
         logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeVirtualCollection>();
-        fakelist = SampleGenerator.Generate(total);
+        fakelist = SampleDataService.Generate(total);
         count = fakelist.Count;
     }
 

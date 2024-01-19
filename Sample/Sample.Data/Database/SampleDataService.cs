@@ -1,14 +1,13 @@
-﻿using CiccioSoft.VirtualList.Sample.Database;
-using CiccioSoft.VirtualList.Sample.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Domain;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace CiccioSoft.VirtualList.Sample.Infrastructure
+namespace CiccioSoft.VirtualList.Sample.Database
 {
-    public static class SampleGenerator
+    public static class SampleDataService
     {
         public static List<Model> ReadFromFile(string path)
         {

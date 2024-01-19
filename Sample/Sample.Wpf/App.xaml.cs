@@ -1,5 +1,4 @@
-﻿using CiccioSoft.VirtualList.Sample.Infrastructure;
-using CiccioSoft.VirtualList.Sample.Wpf.Views;
+﻿using CiccioSoft.VirtualList.Sample.Wpf.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
-using CiccioSoft.VirtualList.Sample.Uwp.Collection;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Collection;
+using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;

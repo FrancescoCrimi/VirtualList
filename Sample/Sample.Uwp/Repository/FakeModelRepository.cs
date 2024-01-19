@@ -1,4 +1,5 @@
-﻿using CiccioSoft.VirtualList.Data.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Database;
+using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,10 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
     {
         private readonly List<Model> models;
 
-        public FakeModelRepository(int total = 1000000)
+        public FakeModelRepository(SampleDataService databaseSerice)
         {
-            models = SampleGenerator.Generate(total);
+            //models = databaseSerice.Generate(1000000);
+            models = databaseSerice.ReadFromFile("SampleData.json");
         }
 
         public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
