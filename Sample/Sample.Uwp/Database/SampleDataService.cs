@@ -9,7 +9,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Database
 {
     public class SampleDataService
     {
-        public List<Model> Generate(int total = 10000)
+        public static List<Model> Generate(int total = 10000)
         {
             var list = new List<Model>(total);
             for (var i = 1; i <= total; i++)
@@ -30,7 +30,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Database
             return list;
         }
 
-        public List<Model> ReadFromFile(string filePath)
+        public static List<Model> ReadFromFile(string filePath)
         {
             //Windows.Storage.StorageFolder storageFolder =
             //    Windows.Storage.ApplicationData.Current.LocalFolder;

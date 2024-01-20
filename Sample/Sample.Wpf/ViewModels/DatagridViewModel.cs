@@ -7,12 +7,12 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.ViewModels;
 
 public partial class DatagridViewModel : ObservableObject
 {
-    private readonly ModelVirtualCollection items = new();
+    private readonly FakeCollection items = new();
 
     public async Task LoadAsync()
         => await items.LoadAsync(SearchString);
 
-    public ModelVirtualCollection Items => items;
+    public FakeCollection Items => items;
 
     [ObservableProperty]
     private string? _searchString;

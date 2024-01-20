@@ -13,10 +13,10 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
     {
         private readonly List<Model> models;
 
-        public FakeModelRepository(SampleDataService databaseSerice)
+        public FakeModelRepository()
         {
-            //models = databaseSerice.Generate(1000000);
-            models = databaseSerice.ReadFromFile("SampleData.json");
+            //models = SampleDataService.Generate(1000000);
+            models = SampleDataService.ReadFromFile("SampleData.json");
         }
 
         public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,

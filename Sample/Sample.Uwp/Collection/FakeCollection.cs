@@ -20,11 +20,11 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
-        public FakeCollection(SampleDataService sampleDataService)
+        public FakeCollection()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
-            //fakelist = sampleDataService.Generate(1000000);
-            fakelist = sampleDataService.ReadFromFile("SampleData.json");
+            //fakelist = SampleDataService.Generate(1000000);
+            fakelist = SampleDataService.ReadFromFile("SampleData.json");
             count = fakelist.Count;
         }
 

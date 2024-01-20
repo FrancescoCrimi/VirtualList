@@ -124,7 +124,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             }
 
             serviceCollection
-                .AddSingleton<SampleDataService>()
                 .AddTransient<MainViewModel>();
 
             Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());

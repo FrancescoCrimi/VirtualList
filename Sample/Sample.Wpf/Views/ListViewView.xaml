@@ -54,7 +54,9 @@
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Click="OnSearchButtonClick" />
+                                
+                                Command="{Binding SearchCommand}" />
+                        <!--Click="OnSearchButtonClick"-->
                     </Grid>
                 </Border>
 
@@ -71,8 +73,9 @@
                               ItemsSource="{Binding Items}"
                               d:ItemsSource="{d:SampleData ItemCount=10}"
                               SelectionMode="Single"
-                              SelectedIndex="{Binding Items.SelectedIndex}"
+                              
                               IsSynchronizedWithCurrentItem="False">
+                        <!--SelectedIndex="{Binding Items.SelectedIndex}"-->
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Id"

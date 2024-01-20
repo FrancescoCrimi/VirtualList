@@ -21,7 +21,6 @@ public class FakeCollection : IVirtualCollection<Model>
     private readonly List<Model> fakelist;
     private List<Model> items;
     private int count = 0;
-    private int selectedIndex = -1;
     private string _searchString = string.Empty;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
@@ -41,7 +40,6 @@ public class FakeCollection : IVirtualCollection<Model>
 
         items = list!.FindAll(x => x.Name.Contains(_searchString.ToUpper()));
 
-        SelectedIndex = -1;
         count = items.Count;
         await dispatcher.InvokeAsync(() =>
         {
@@ -50,19 +48,6 @@ public class FakeCollection : IVirtualCollection<Model>
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         });
         logger.LogWarning("Evento Collection Reset 2");
-    }
-
-    public int SelectedIndex
-    {
-        get => selectedIndex;
-        set
-        {
-            if (selectedIndex != value)
-            {
-                selectedIndex = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedIndex)));
-            }
-        }
     }
 
 
@@ -115,7 +100,7 @@ public class FakeCollection : IVirtualCollection<Model>
     void ICollection<Model>.Clear() => throw new NotImplementedException();
     void IList.Clear() => throw new NotImplementedException();
     bool ICollection<Model>.Contains(Model item) => throw new NotImplementedException();
-    bool IList.Contains(object? value) => throw new NotImplementedException();
+    bool IList.Contains(object? value) => false;
     void ICollection<Model>.CopyTo(Model[] array, int arrayIndex) => throw new NotImplementedException();
     void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
     void IList<Model>.Insert(int index, Model item) => throw new NotImplementedException();

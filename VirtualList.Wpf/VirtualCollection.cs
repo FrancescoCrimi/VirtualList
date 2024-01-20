@@ -27,7 +27,6 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     private int index_to_fetch = 0;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
-    private int selectedIndex = -1;
 
     public VirtualCollection(int range = 20, ILogger? logger = null)
     {
@@ -43,23 +42,8 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         take = range * 2;
     }
 
-    public int SelectedIndex
-    {
-        get => selectedIndex;
-        set
-        {
-            if (selectedIndex != value)
-            {
-                selectedIndex = value;
-                dispatcher.Invoke(() =>
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedIndex))));
-            }
-        }
-    }
-
     protected async Task LoadAsync()
     {
-        SelectedIndex = -1;
         index_to_fetch = 0;
         count = await GetCountAsync();
         _logger?.LogDebug("FetchData: {Skip} - {Take}", 0, take - 1);
@@ -171,7 +155,6 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();
 
-            SelectedIndex = -1;
             await dispatcher.InvokeAsync(() =>
                 CollectionChanged?.Invoke(
                     this,
@@ -198,12 +181,12 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         {
             if (items.ContainsKey(index))
             {
-                //_logger?.LogDebug("Indexer get real: {Index}", index);
+                _logger?.LogDebug("Indexer get real: {Index}", index);
                 return items[index];
             }
             else
             {
-                //_logger?.LogDebug("Indexer get dummy: {Index}", index);
+                _logger?.LogDebug("Indexer get dummy: {Index}", index);
                 indexStack.Push(index);
                 return dummyObject;
             }
@@ -247,7 +230,7 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     void ICollection<T>.Clear() => throw new NotImplementedException();
     void IList.Clear() => throw new NotImplementedException();
     bool ICollection<T>.Contains(T item) => throw new NotImplementedException();
-    bool IList.Contains(object? value) => throw new NotImplementedException();
+    bool IList.Contains(object? value) => false;
     void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
     void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
     void IList<T>.Insert(int index, T item) => throw new NotImplementedException();

@@ -25,12 +25,12 @@ public partial class ListViewView : Page
     /// trova lo ScrollView all'interno della ListView.
     /// scrolla al top lo ScrollView ed effettua ricerca
     /// </summary>
-    private async void OnSearchButtonClick(object sender, RoutedEventArgs e)
-    {
-        var scrollViewer = GetVisualChild<ScrollViewer>(listView);
-        scrollViewer?.ScrollToTop();
-        await viewModel.LoadAsync();
-    }
+    //private async void OnSearchButtonClick(object sender, RoutedEventArgs e)
+    //{
+    //    var scrollViewer = GetVisualChild<ScrollViewer>(listView);
+    //    scrollViewer?.ScrollToTop();
+    //    await viewModel.LoadAsync();
+    //}
 
     /// <summary>
     /// Cerca a ritroso un particolare oggetto grafico all'interno

@@ -212,12 +212,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\VirtualList.Uwp\VirtualList.Uwp.csproj">
-      <Project>{5837ebb5-e920-4dd9-9146-68545450acc8}</Project>
-      <Name>VirtualList.Uwp</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -228,7 +222,12 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\VirtualList.Uwp\VirtualList.Uwp.csproj">
+      <Project>{5837ebb5-e920-4dd9-9146-68545450acc8}</Project>
+      <Name>VirtualList.Uwp</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

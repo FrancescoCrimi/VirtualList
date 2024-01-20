@@ -52,7 +52,9 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Margin="3"
-                                Click="OnSearchButtonClick"/>
+                                
+                                Command="{Binding SearchCommand}"/>
+                        <!--Click="OnSearchButtonClick"-->
                     </Grid>
                 </Border>
 
@@ -68,11 +70,12 @@
                               VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ItemsSource="{Binding Items, Mode=OneWay}"
-                              SelectedIndex="{Binding Items.SelectedIndex}"
+                              
                               d:ItemsSource="{d:SampleData ItemCount=5}"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
                               IsReadOnly="True">
+                        <!--SelectedIndex="{Binding Items.SelectedIndex}"-->
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Id"
                                                 Binding="{Binding Id}"
