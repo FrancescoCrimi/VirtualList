@@ -34,7 +34,7 @@ namespace CiccioSoft.VirtualList.Sample.Repository
                                                      int take,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(1000, token);
+            await Task.Delay(2000, token);
             return await Task.FromResult(models.Skip(skip).Take(take).ToList());
         }
 
@@ -43,7 +43,7 @@ namespace CiccioSoft.VirtualList.Sample.Repository
                                                      Expression<Func<Model, bool>> predicate,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(1000, token);
+            await Task.Delay(2000, token);
             return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 

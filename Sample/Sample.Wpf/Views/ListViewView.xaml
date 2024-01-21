@@ -42,21 +42,26 @@
                                Content="Search"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
-                        <TextBox Grid.Column="1"
+                        <TextBox x:Name="SearchTextBox"
+                                 Grid.Column="1"
                                  Margin="3"
                                  Width="120"
                                  VerticalAlignment="Center"
-                                 HorizontalAlignment="Center"
-                                 Text="{Binding SearchString}" />
+                                 HorizontalAlignment="Center">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter"
+                                            Command="{Binding SearchCommand}"
+                                            CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                         <Button x:Name="SearchButton"
                                 Grid.Column="2"
                                 Margin="3"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                
-                                Command="{Binding SearchCommand}" />
-                        <!--Click="OnSearchButtonClick"-->
+                                Command="{Binding SearchCommand}"
+                                CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </Border>
 
@@ -73,7 +78,6 @@
                               ItemsSource="{Binding Items}"
                               d:ItemsSource="{d:SampleData ItemCount=10}"
                               SelectionMode="Single"
-                              
                               IsSynchronizedWithCurrentItem="False">
                         <!--SelectedIndex="{Binding Items.SelectedIndex}"-->
                         <ListView.View>

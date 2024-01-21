@@ -18,9 +18,9 @@ public class FakeCollection : IVirtualCollection<Model>
     private readonly ILogger logger;
     private readonly Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
     private readonly List<Model> list;
-    private readonly List<Model> fakelist;
+    //private readonly List<Model> fakelist;
     private List<Model> items;
-    private int count = 0;
+    //private int count = 0;
     private string _searchString = string.Empty;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
@@ -29,8 +29,9 @@ public class FakeCollection : IVirtualCollection<Model>
     {
         logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
         list = SampleDataService.ReadFromFile("SampleData.json");
-        fakelist = [];
-        items = [];
+        //count = list.Count;
+        //fakelist = [];
+        items = new List<Model>(list);
     }
 
     public async Task LoadAsync(string? searchString)
@@ -38,9 +39,9 @@ public class FakeCollection : IVirtualCollection<Model>
         searchString ??= string.Empty;
         _searchString = searchString;
 
-        items = list!.FindAll(x => x.Name.Contains(_searchString.ToUpper()));
+        items = list!.FindAll(x => !string.IsNullOrEmpty(x.Name) && x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
 
-        count = items.Count;
+        //count = items.Count;
         await dispatcher.InvokeAsync(() =>
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
@@ -57,7 +58,7 @@ public class FakeCollection : IVirtualCollection<Model>
     {
         get
         {
-            var item = items?[index];
+            var item = items![index];
             logger.LogWarning("Index: {Index}", index);
             return item;
         }
@@ -70,7 +71,7 @@ public class FakeCollection : IVirtualCollection<Model>
         set => throw new NotImplementedException();
     }
 
-    public int Count => count;
+    public int Count => items.Count;
 
     public bool IsReadOnly => true;
 
@@ -80,13 +81,17 @@ public class FakeCollection : IVirtualCollection<Model>
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakelist.GetEnumerator();
+    IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => items.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IList)items).GetEnumerator();
 
-    int IList<Model>.IndexOf(Model item) => -1;
+    int IList<Model>.IndexOf(Model item) => items.IndexOf(item);
 
-    int IList.IndexOf(object? value) => -1;
+    int IList.IndexOf(object? value) => ((IList)items).IndexOf(value);
+
+    bool ICollection<Model>.Contains(Model item) => items.Contains(item);
+
+    bool IList.Contains(object? value) => ((IList)items).Contains(value);
 
     #endregion
 
@@ -99,8 +104,6 @@ public class FakeCollection : IVirtualCollection<Model>
     int IList.Add(object? value) => throw new NotImplementedException();
     void ICollection<Model>.Clear() => throw new NotImplementedException();
     void IList.Clear() => throw new NotImplementedException();
-    bool ICollection<Model>.Contains(Model item) => throw new NotImplementedException();
-    bool IList.Contains(object? value) => false;
     void ICollection<Model>.CopyTo(Model[] array, int arrayIndex) => throw new NotImplementedException();
     void ICollection.CopyTo(Array array, int index) => throw new NotImplementedException();
     void IList<Model>.Insert(int index, Model item) => throw new NotImplementedException();

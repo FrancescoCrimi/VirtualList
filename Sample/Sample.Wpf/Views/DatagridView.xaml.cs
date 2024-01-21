@@ -16,9 +16,9 @@ public partial class DatagridView : Page
         DataContext = viewModel;
     }
 
-    private async void OnPageLoaded(object sender, RoutedEventArgs e)
+    private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
-        await viewModel.LoadAsync();
+        //await viewModel.LoadAsync();
     }
 
     /// <summary>

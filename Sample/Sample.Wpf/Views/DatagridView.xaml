@@ -40,21 +40,26 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Margin="3" />
-                        <TextBox Grid.Column="1"
+                        <TextBox x:Name="SearchTextBox"
+                                 Grid.Column="1"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
                                  Width="120"
-                                 Margin="3"
-                                 Text="{Binding SearchString}" />
+                                 Margin="3">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter"
+                                            Command="{Binding SearchCommand}"
+                                            CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                         <Button x:Name="SearchButton"
                                 Grid.Column="2"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Margin="3"
-                                
-                                Command="{Binding SearchCommand}"/>
-                        <!--Click="OnSearchButtonClick"-->
+                                Command="{Binding SearchCommand}"
+                                CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </Border>
 
@@ -70,7 +75,6 @@
                               VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ItemsSource="{Binding Items, Mode=OneWay}"
-                              
                               d:ItemsSource="{d:SampleData ItemCount=5}"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
