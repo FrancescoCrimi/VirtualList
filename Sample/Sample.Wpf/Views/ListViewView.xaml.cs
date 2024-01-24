@@ -12,25 +12,23 @@ public partial class ListViewView : Page
     public ListViewView()
     {
         InitializeComponent();
-        viewModel = new ListViewViewModel();
+        viewModel = new ListViewViewModel
+        {
+            ScrollToTop = ScrollToTop,
+            UnSelectIndex = UnSelectIndex
+        };
         DataContext = viewModel;
     }
 
-    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    private void ScrollToTop()
     {
-        //await viewModel.LoadAsync();
+        listView.SelectedIndex = -1;
+        var scrollViewer = GetVisualChild<ScrollViewer>(listView);
+        scrollViewer?.ScrollToTop();
     }
 
-    /// <summary>
-    /// trova lo ScrollView all'interno della ListView.
-    /// scrolla al top lo ScrollView ed effettua ricerca
-    /// </summary>
-    //private async void OnSearchButtonClick(object sender, RoutedEventArgs e)
-    //{
-    //    var scrollViewer = GetVisualChild<ScrollViewer>(listView);
-    //    scrollViewer?.ScrollToTop();
-    //    await viewModel.LoadAsync();
-    //}
+    private void UnSelectIndex()
+        => listView.SelectedIndex = -1;
 
     /// <summary>
     /// Cerca a ritroso un particolare oggetto grafico all'interno

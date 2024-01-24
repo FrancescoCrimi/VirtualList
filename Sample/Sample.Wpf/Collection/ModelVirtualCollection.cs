@@ -11,38 +11,32 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.Collection;
 
 public class ModelVirtualCollection : VirtualCollection<Model>
 {
-    private string _searchString = string.Empty;
-
     public ModelVirtualCollection()
         : base(20, Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
-    { }
+    {
+    }
 
 
     #region protected override method
-
-    public override async Task LoadAsync(string? searchString)
-    {
-        searchString ??= string.Empty;
-        _searchString = searchString;
-        await LoadAsync();
-    }
 
     protected override Model CreateDummyEntity()
     {
         return new Model(0, "null");
     }
 
-    protected async override Task<int> GetCountAsync()
+    protected async override Task<int> GetCountAsync(string? searchString)
     {
+        searchString ??= string.Empty;
         using var db = Ioc.Default.GetRequiredService<IModelRepository>();
-        var count = await db.CountAsync(m => m.Name.Contains(_searchString.ToUpper()));
+        var count = await db.CountAsync(m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString.ToUpper()));
         return count;
     }
 
-    protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+    protected async override Task<List<Model>> GetRangeAsync(string? searchString, int skip, int take, CancellationToken cancellationToken)
     {
+        searchString ??= string.Empty;
         using var repo = Ioc.Default.GetRequiredService<IModelRepository>();
-        var list = await repo.GetRangeAsync(skip, take, m => m.Name.Contains(_searchString.ToUpper()), cancellationToken);
+        var list = await repo.GetRangeAsync(skip, take, m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString.ToUpper()), cancellationToken);
         return list;
     }
 

@@ -12,25 +12,22 @@ public partial class DatagridView : Page
     public DatagridView()
     {
         InitializeComponent();
-        viewModel = new DatagridViewModel();
+        viewModel = new DatagridViewModel
+        {
+            ScrollToTop = ScrollToTop,
+            UnSelectIndex = UnSelectIndex
+        };
         DataContext = viewModel;
     }
 
-    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    private void ScrollToTop()
     {
-        //await viewModel.LoadAsync();
+        var scrollViewer = GetVisualChild<ScrollViewer>(dataGrid);
+        scrollViewer?.ScrollToTop();
     }
 
-    /// <summary>
-    /// trova lo ScrollView all'interno della ListView.
-    /// scrolla al top lo ScrollView ed effettua ricerca
-    /// </summary>
-    //private async void OnSearchButtonClick(object sender, RoutedEventArgs e)
-    //{
-    //    var scrollViewer = GetVisualChild<ScrollViewer>(dataGrid);
-    //    scrollViewer?.ScrollToTop();
-    //    await viewModel.LoadAsync();
-    //}
+    private void UnSelectIndex()
+        => dataGrid.SelectedIndex = -1;
 
     /// <summary>
     /// Cerca a ritroso un particolare oggetto grafico all'interno

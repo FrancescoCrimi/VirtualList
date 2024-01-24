@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -19,5 +20,9 @@ public interface IVirtualCollection<T> : ICollection<T>,
 {
     new T this[int index] { get; set; }
     new int Count { get; }
-    public Task LoadAsync(string? searchString);
+
+    Task LoadAsync(string? searchString);
+
+    Action? ScrollToTop { set; }
+    Action? UnSelectIndex { set; }
 }

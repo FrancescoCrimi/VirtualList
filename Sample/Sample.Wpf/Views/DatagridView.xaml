@@ -10,8 +10,7 @@
       d:DesignHeight="450"
       d:DesignWidth="800"
       Title="DatagridPage"
-      Background="White"
-      Loaded="OnPageLoaded">
+      Background="White">
 
     <Grid>
         <Border BorderThickness="1"
@@ -76,10 +75,10 @@
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ItemsSource="{Binding Items, Mode=OneWay}"
                               d:ItemsSource="{d:SampleData ItemCount=5}"
+                              SelectionMode="Single"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
                               IsReadOnly="True">
-                        <!--SelectedIndex="{Binding Items.SelectedIndex}"-->
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Id"
                                                 Binding="{Binding Id}"
