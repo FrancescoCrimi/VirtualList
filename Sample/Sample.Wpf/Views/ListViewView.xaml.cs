@@ -7,18 +7,21 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.Views;
 
 public partial class ListViewView : Page
 {
-    private readonly ListViewViewModel viewModel;
+    private readonly ListViewViewModel _viewModel;
 
     public ListViewView()
     {
         InitializeComponent();
-        viewModel = new ListViewViewModel
+        _viewModel = new ListViewViewModel
         {
             ScrollToTop = ScrollToTop,
             UnSelectIndex = UnSelectIndex
         };
-        DataContext = viewModel;
+        DataContext = _viewModel;
     }
+
+    private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        => await _viewModel.LoadAsync();
 
     private void ScrollToTop()
     {

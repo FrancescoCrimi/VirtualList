@@ -7,18 +7,21 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.Views;
 
 public partial class DatagridView : Page
 {
-    private readonly DatagridViewModel viewModel;
+    private readonly DatagridViewModel _viewModel;
 
     public DatagridView()
     {
         InitializeComponent();
-        viewModel = new DatagridViewModel
+        _viewModel = new DatagridViewModel
         {
             ScrollToTop = ScrollToTop,
             UnSelectIndex = UnSelectIndex
         };
-        DataContext = viewModel;
+        DataContext = _viewModel;
     }
+
+    private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        => await _viewModel.LoadAsync();
 
     private void ScrollToTop()
     {

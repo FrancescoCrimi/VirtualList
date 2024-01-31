@@ -15,7 +15,10 @@ public partial class ListViewViewModel : ObservableObject
     public Action? ScrollToTop { set => Items.ScrollToTop = value; }
     public Action? UnSelectIndex { set => Items.UnSelectIndex = value; }
 
+    public Task LoadAsync()
+        => Items.LoadAsync("");
+
     [RelayCommand]
-    private async Task OnSearch(string searchString)
-        => await Items.LoadAsync(searchString);
+    private Task OnSearch(string searchString)
+        => Items.LoadAsync(searchString);
 }

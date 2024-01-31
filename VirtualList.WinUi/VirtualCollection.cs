@@ -28,42 +28,45 @@ namespace CiccioSoft.VirtualList.WinUi;
 public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : class
 {
     private readonly ILogger? _logger;
-    private readonly DispatcherQueue dispatcherQueue;
-    private CancellationTokenSource cancellationTokenSource;
-    private readonly ConcurrentStack<int> indexStack;
-    private readonly ThreadPoolTimer timer;
-    private readonly IDictionary<int, T> items;
+    private readonly DispatcherQueue _dispatcher;
+    private readonly IDictionary<int, T> _items;
     private readonly List<T> fakelist;
-    private readonly T dummyObject;
+    private readonly T _dummy;
     private readonly int _range;
-    private readonly int take;
-    private int index_to_fetch = 0;
-    private int count = 0;
+    private readonly int _take;
+    private CancellationTokenSource _tokenSource;
+    private int _count = 0;
+    private int _indexToFetch = 0;
+    private string? _searchString = "";
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
+
+    private readonly ConcurrentStack<int> indexStack;
+    private readonly ThreadPoolTimer timer;
 
     public VirtualCollection(int range = 20, ILogger? logger = null)
     {
         _logger = logger;
-        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-        cancellationTokenSource = new CancellationTokenSource();
+        _dispatcher = DispatcherQueue.GetForCurrentThread();
+        _items = new ConcurrentDictionary<int, T>();
+        fakelist = new List<T>();
+        _dummy = CreateDummyEntity();
+        _range = range;
+        _take = range * 2;
+        _tokenSource = new CancellationTokenSource();
+        _indexToFetch = int.MaxValue;
+
         indexStack = new ConcurrentStack<int>();
         timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
-        items = new ConcurrentDictionary<int, T>();
-        fakelist = new List<T>();
-        dummyObject = CreateDummyEntity();
-        _range = range;
-        take = range * 2;
-        index_to_fetch = int.MaxValue;
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(string? searchString)
     {
         await Task.Run(() =>
         {
-            dispatcherQueue.TryEnqueue(async () =>
+            _dispatcher.TryEnqueue(async () =>
             {
-                count = await GetCountAsync();
+                _count = await GetCountAsync();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -89,31 +92,22 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         {
             indexStack.TryPop(out var index);
             indexStack.Clear();
-            if (index < index_to_fetch || index >= index_to_fetch + take)
+            if (index < _indexToFetch || index >= _indexToFetch + _take)
             {
                 _logger?.LogDebug("Indice non Fetchato: {Index}", index);
                 if (index < _range)
                     index = 0;
-                else if (index > count - _range)
-                    index = count - take;
+                else if (index > _count - _range)
+                    index = _count - _take;
                 else
                     index -= _range;
-                index_to_fetch = index;
+                _indexToFetch = index;
                 var token = NewToken();
                 Task.Run(async () => await FetchRange(index, token), token);
             }
             else
                 _logger?.LogDebug("Indice già Fetchato: {Index}", index);
         }
-    }
-
-    private CancellationToken NewToken()
-    {
-        if (cancellationTokenSource.Token.CanBeCanceled)
-            cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose();
-        cancellationTokenSource = new CancellationTokenSource();
-        return cancellationTokenSource.Token;
     }
 
     private async Task FetchRange(int skip, CancellationToken token)
@@ -130,28 +124,28 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
                 token.ThrowIfCancellationRequested();
 
             // recupero i dati
-            _logger?.LogDebug("FetchRange: {Skip} - {Take}", skip, skip + take - 1);
-            var models = await GetRangeAsync(skip, take, token);
+            _logger?.LogDebug("FetchRange: {Skip} - {Take}", skip, skip + _take - 1);
+            var models = await GetRangeAsync(skip, _take, token);
 
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();
 
             // Aggiorno lista interna
-            items.Clear();
+            _items.Clear();
             for (var i = 0; i < models.Count; i++)
             {
-                items.Add(skip + i, models[i]);
+                _items.Add(skip + i, models[i]);
             }
 
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();
 
             // invoco CollectionChanged Replace per singolo item
-            dispatcherQueue.TryEnqueue(() =>
+            _dispatcher.TryEnqueue(() =>
             {
                 try
                 {
-                    foreach (var item in items)
+                    foreach (var item in _items)
                     {
                         if (token.IsCancellationRequested)
                             token.ThrowIfCancellationRequested();
@@ -165,18 +159,27 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
                 }
                 catch (OperationCanceledException ocex)
                 {
-                    _logger?.LogDebug("NotifyCollectionChanged Replace: {Skip} - {Take} {Message}", skip, skip + take - 1, ocex.Message);
+                    _logger?.LogDebug("NotifyCollectionChanged Replace: {Skip} - {Take} {Message}", skip, skip + _take - 1, ocex.Message);
                 }
             });
         }
         catch (TaskCanceledException tcex)
         {
-            _logger?.LogDebug("FetchRange: {Skip} - {Take} {Message} Id:{Id}", skip, skip + take - 1, tcex.Message, tcex.Task?.Id);
+            _logger?.LogDebug("FetchRange: {Skip} - {Take} {Message} Id:{Id}", skip, skip + _take - 1, tcex.Message, tcex.Task?.Id);
         }
         catch (OperationCanceledException ocex)
         {
             _logger?.LogDebug(ocex.Message);
         }
+    }
+
+    private CancellationToken NewToken()
+    {
+        if (_tokenSource.Token.CanBeCanceled)
+            _tokenSource.Cancel();
+        _tokenSource.Dispose();
+        _tokenSource = new CancellationTokenSource();
+        return _tokenSource.Token;
     }
 
     #endregion
@@ -188,16 +191,16 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     {
         get
         {
-            if (items.ContainsKey(index))
+            if (_items.ContainsKey(index))
             {
                 //logger.LogDebug("Indexer get real: {Index}", index);
-                return items[index];
+                return _items[index];
             }
             else
             {
                 //logger.LogDebug("Indexer get dummy: {Index}", index);
                 indexStack.Push(index);
-                return dummyObject;
+                return _dummy;
             }
         }
         set => throw new NotImplementedException();
@@ -209,7 +212,7 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         set => throw new NotImplementedException();
     }
 
-    public int Count => count;
+    public int Count => _count;
 
     public bool IsReadOnly => true;
 
@@ -232,8 +235,6 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 
     #region interface member not implemented
 
-    bool ICollection.IsSynchronized => throw new NotImplementedException();
-    object ICollection.SyncRoot => throw new NotImplementedException();
     void ICollection<T>.Add(T item) => throw new NotImplementedException();
     int IList.Add(object? value) => throw new NotImplementedException();
     void ICollection<T>.Clear() => throw new NotImplementedException();
@@ -248,6 +249,8 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     void IList.Remove(object? value) => throw new NotImplementedException();
     void IList<T>.RemoveAt(int index) => throw new NotImplementedException();
     void IList.RemoveAt(int index) => throw new NotImplementedException();
+    bool ICollection.IsSynchronized => throw new NotImplementedException();
+    object ICollection.SyncRoot => throw new NotImplementedException();
 
     #endregion
 }

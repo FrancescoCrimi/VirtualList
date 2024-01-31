@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.WinUi;
 
@@ -27,14 +28,17 @@ public class VirtualRangeCollection<T> : IVirtualRangeCollection<T> where T : cl
 {
     private readonly ILogger? _logger;
     private readonly List<T> fakelist;
-    private readonly int _range;
     private int count = 0;
 
-    public VirtualRangeCollection(int range = 20, ILogger? logger = null)
+    public VirtualRangeCollection(ILogger? logger = null)
     {
         _logger = logger;
         fakelist = new List<T>();
-        _range = range;
+    }
+
+    public Task LoadAsync(string? searchString)
+    {
+        throw new NotImplementedException();
     }
 
     #region interface member implemented 
@@ -78,8 +82,6 @@ public class VirtualRangeCollection<T> : IVirtualRangeCollection<T> where T : cl
 
     #region interface member not implemented
 
-    bool ICollection.IsSynchronized => throw new NotImplementedException();
-    object ICollection.SyncRoot => throw new NotImplementedException();
     void ICollection<T>.Add(T item) => throw new NotImplementedException();
     int IList.Add(object? value) => throw new NotImplementedException();
     void ICollection<T>.Clear() => throw new NotImplementedException();
@@ -94,6 +96,8 @@ public class VirtualRangeCollection<T> : IVirtualRangeCollection<T> where T : cl
     void IList.Remove(object? value) => throw new NotImplementedException();
     void IList<T>.RemoveAt(int index) => throw new NotImplementedException();
     void IList.RemoveAt(int index) => throw new NotImplementedException();
+    bool ICollection.IsSynchronized => throw new NotImplementedException();
+    object ICollection.SyncRoot => throw new NotImplementedException();
 
     #endregion
 }

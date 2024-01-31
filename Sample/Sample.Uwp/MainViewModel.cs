@@ -1,50 +1,26 @@
 ﻿using CiccioSoft.VirtualList.Sample.Uwp.Collection;
-using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp
 {
     public class MainViewModel : ObservableRecipient
     {
-        private readonly ModelVirtualCollection items;
-        //private readonly FakeCollection items;
-        private IAsyncRelayCommand searchCommand;
+        private AsyncRelayCommand<string> searchCommand;
 
         public MainViewModel()
         {
-            SearchString = string.Empty;
-
-            items = new ModelVirtualCollection();
-            //items = new FakeCollection();
-            items.PropertyChanged += Items_PropertyChanged;
-        }
-
-        private void Items_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "Count")
-            {
-                OnPropertyChanged("Count");
-            }
+            Items = new ModelVirtualCollection();
         }
 
         public async Task LoadAsync()
-            => await items.LoadAsync();
+            => await Items.LoadAsync("");
 
-        public int Count => items.Count;
+        public ModelVirtualCollection Items { get; private set; }
 
-        public IList<Model> Items => items;
-
-        public string SearchString
-        {
-            get; set;
-        }
-
-        public IAsyncRelayCommand SearchCommand
-            => searchCommand ?? (searchCommand = new AsyncRelayCommand(async ()
-                => await items.LoadAsync(SearchString)));
+        public IAsyncRelayCommand<string> SearchCommand
+            => searchCommand ?? (searchCommand = new AsyncRelayCommand<string>(async (searchString)
+                => await Items.LoadAsync(searchString)));
     }
 }

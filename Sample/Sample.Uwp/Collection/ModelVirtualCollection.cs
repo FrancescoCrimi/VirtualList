@@ -9,19 +9,11 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
-    public class ModelVirtualCollection : VirtualCollection<Model>
+    public class ModelVirtualCollection : VirtualRangeCollection<Model>
     {
-        private string searchString = string.Empty;
-
         public ModelVirtualCollection()
-            : base(20, Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
+            : base(Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
         {
-        }
-
-        public async override Task LoadAsync(string searchString = "")
-        {
-            this.searchString = searchString;
-            await LoadAsync();
         }
 
         protected override Model CreateDummyEntity()
@@ -29,7 +21,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
             return new Model(0, "null");
         }
 
-        protected async override Task<int> GetCountAsync()
+        protected async override Task<int> GetCountAsync(string searchString)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {
@@ -38,7 +30,10 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
             }
         }
 
-        protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken token)
+        protected async override Task<List<Model>> GetRangeAsync(string searchString,
+                                                                 int skip,
+                                                                 int take,
+                                                                 CancellationToken token)
         {
             using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
             {

@@ -2,8 +2,9 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:CiccioSoft.VirtualList.Sample.Uwp"
-      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:b="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
@@ -28,20 +29,35 @@
                         Margin="3,3,3,3">
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center">
-                        <TextBlock Margin="3"
+                        <TextBlock x:Name="textBlock"
+                                   Margin="3"
                                    Text="Search"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center" />
-                        <TextBox Margin="3"
+                        <TextBox x:Name="SearchTextBox"
+                                 Margin="3"
                                  Width="120"
                                  VerticalAlignment="Center"
-                                 HorizontalAlignment="Center"
-                                 Text="{x:Bind ViewModel.SearchString, Mode=TwoWay}" />
-                        <Button Margin="3"
+                                 HorizontalAlignment="Center">
+                            <!--<TextBox.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="Enter"
+                                                     Modifiers="None">
+                                    <i:Interaction.Behaviors>
+                                        <ic:EventTriggerBehavior EventName="Invoked">
+                                            <ic:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}"
+                                                                    CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </ic:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </KeyboardAccelerator>
+                            </TextBox.KeyboardAccelerators>-->
+                        </TextBox>
+                        <Button x:Name="SearchButton"
+                                Margin="3"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}" />
+                                Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}"
+                                CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
                 </Border>
 
@@ -54,9 +70,9 @@
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ShowsScrollingPlaceholders="False">
 
-                        <interactivity:Interaction.Behaviors>
-                            <behaviors:StickyHeaderBehavior />
-                        </interactivity:Interaction.Behaviors>
+                        <i:Interaction.Behaviors>
+                            <b:StickyHeaderBehavior />
+                        </i:Interaction.Behaviors>
 
                         <ListView.Header>
                             <Grid>
@@ -82,7 +98,6 @@
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <!-- default CacheLength value is 4.0 -->
-                                <!--<ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>-->
                                 <ItemsStackPanel Orientation="Vertical"
                                                  CacheLength="0.0" />
                             </ItemsPanelTemplate>
@@ -124,7 +139,7 @@
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center"
                                  IsReadOnly="True"
-                                 Text="{x:Bind ViewModel.Count, Mode=OneWay}" />
+                                 Text="{x:Bind ViewModel.Items.Count, Mode=OneWay}" />
                     </StackPanel>
                 </Border>
 

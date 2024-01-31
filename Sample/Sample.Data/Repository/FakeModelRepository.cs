@@ -1,6 +1,5 @@
 ﻿using CiccioSoft.VirtualList.Sample.Database;
 using CiccioSoft.VirtualList.Sample.Domain;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,22 +18,24 @@ namespace CiccioSoft.VirtualList.Sample.Repository
             models = SampleDataService.ReadFromFile("SampleData.json");
         }
 
-        public Task<int> CountAsync(CancellationToken token = default)
+        public async Task<int> CountAsync(CancellationToken token = default)
         {
-            return Task.FromResult(models.Count);
+            await Task.Delay(3000, token);
+            return await Task.FromResult(models.Count);
         }
 
-        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
+        public async Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
                                     CancellationToken token = default)
         {
-            return Task.FromResult(models.Count(predicate.Compile()));
+            await Task.Delay(3000, token);
+            return await Task.FromResult(models.Count(predicate.Compile()));
         }
 
         public async Task<List<Model>> GetRangeAsync(int skip,
                                                      int take,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(2000, token);
+            await Task.Delay(3000, token);
             return await Task.FromResult(models.Skip(skip).Take(take).ToList());
         }
 
@@ -43,7 +44,7 @@ namespace CiccioSoft.VirtualList.Sample.Repository
                                                      Expression<Func<Model, bool>> predicate,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(2000, token);
+            await Task.Delay(3000, token);
             return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 

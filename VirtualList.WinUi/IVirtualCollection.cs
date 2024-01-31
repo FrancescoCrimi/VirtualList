@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.WinUi;
 
@@ -18,4 +19,6 @@ public interface IVirtualCollection<T> : ICollection<T>,
 {
     new T this[int index] { get; set; }
     new int Count { get; }
+
+    Task LoadAsync(string? searchString);
 }

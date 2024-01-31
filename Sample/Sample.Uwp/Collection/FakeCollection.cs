@@ -12,7 +12,17 @@ using Windows.UI.Xaml.Data;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
-    internal class FakeCollection : IList<Model>, IList, IItemsRangeInfo, INotifyCollectionChanged, INotifyPropertyChanged
+    public class FakeCollection : ICollection<Model>,
+                                  IEnumerable<Model>,
+                                  IEnumerable,
+                                  IList<Model>,
+                                  IReadOnlyCollection<Model>,
+                                  IReadOnlyList<Model>,
+                                  ICollection,
+                                  IList,
+                                  INotifyCollectionChanged,
+                                  INotifyPropertyChanged,
+                                  IItemsRangeInfo
     {
         private readonly ILogger logger;
         private List<Model> fakelist;
@@ -23,7 +33,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         public FakeCollection()
         {
             logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
-            //fakelist = SampleDataService.Generate(1000000);
             fakelist = SampleDataService.ReadFromFile("SampleData.json");
             count = fakelist.Count;
         }
@@ -92,8 +101,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 
         #region interface member not implemented
 
-        bool ICollection.IsSynchronized => throw new NotImplementedException();
-        object ICollection.SyncRoot => throw new NotImplementedException();
         void ICollection<Model>.Add(Model item) => throw new NotImplementedException();
         int IList.Add(object value) => throw new NotImplementedException();
         void ICollection<Model>.Clear() => throw new NotImplementedException();
@@ -108,6 +115,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
         void IList.Remove(object value) => throw new NotImplementedException();
         void IList<Model>.RemoveAt(int index) => throw new NotImplementedException();
         void IList.RemoveAt(int index) => throw new NotImplementedException();
+        bool ICollection.IsSynchronized => throw new NotImplementedException();
+        object ICollection.SyncRoot => throw new NotImplementedException();
 
         #endregion
     }

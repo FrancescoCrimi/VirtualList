@@ -15,14 +15,14 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 
         public FakeModelRepository()
         {
-            //models = SampleDataService.Generate(1000000);
             models = SampleDataService.ReadFromFile("SampleData.json");
         }
 
-        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
-                                    CancellationToken token = default)
+        public async Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
+                                          CancellationToken token = default)
         {
-            return Task.FromResult(models.Count(predicate.Compile()));
+            await Task.Delay(3000, token);
+            return await Task.FromResult(models.Count(predicate.Compile()));
         }
 
         public async Task<List<Model>> GetRangeAsync(int skip,
@@ -30,7 +30,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
                                                      Expression<Func<Model, bool>> predicate,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(1000, token);
+            await Task.Delay(3000, token);
             return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 

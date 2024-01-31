@@ -14,51 +14,42 @@ namespace CiccioSoft.VirtualList.Wpf;
 public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : class
 {
     private readonly ILogger? _logger;
-    private readonly Dispatcher dispatcher;
-    private CancellationTokenSource cancellationTokenSource;
-    private readonly IDictionary<int, T> items;
-    private readonly T dummyObject;
-    private int count = 0;
+    private readonly Dispatcher _dispatcher;
+    private readonly IDictionary<int, T> _items;
+    private readonly T _dummy;
     private readonly int _range;
-    private readonly int take;
+    private readonly int _take;
+    private CancellationTokenSource _tokenSource;
+    private int _count = 0;
     private int _indexToFetch = 0;
+    private string? _searchString;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
-    private string? _searchString;
 
     public VirtualCollection(int range = 20, ILogger? logger = null)
     {
         _logger = logger;
-        dispatcher = System.Windows.Application.Current.Dispatcher;
-        cancellationTokenSource = new CancellationTokenSource();
-        items = new ConcurrentDictionary<int, T>();
-        dummyObject = CreateDummyEntity();
+        _dispatcher = System.Windows.Application.Current.Dispatcher;
+        _items = new ConcurrentDictionary<int, T>();
+        _dummy = CreateDummyEntity();
         _range = range;
-        take = range * 2;
+        _take = range * 2;
+        _tokenSource = new CancellationTokenSource();
     }
 
     public async Task LoadAsync(string? searchString)
     {
-        //_indexToFetch = 0;
         _searchString = searchString;
-        count = await GetCountAsync(searchString);
-        items.Clear();
-
+        _count = await GetCountAsync(searchString);
         ScrollToTop?.Invoke();
-
-        try
+        _items.Clear();
+        _indexToFetch = -1;
+        await _dispatcher.InvokeAsync(() =>
         {
-            var token = NewToken();
-            await FetchRange(0, token);
-        }
-        catch (TaskCanceledException tcex)
-        {
-            _logger?.LogDebug("FetchRange: {Skip} - {Take} {Message} Id:{Id}", 0, take - 1, tcex.Message, tcex.Task?.Id);
-        }
-        catch (OperationCanceledException ocex)
-        {
-            _logger?.LogDebug(ocex.Message);
-        }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        });
     }
 
 
@@ -66,7 +57,10 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 
     protected abstract T CreateDummyEntity();
     protected abstract Task<int> GetCountAsync(string? searchString);
-    protected abstract Task<List<T>> GetRangeAsync(string? searchString, int skip, int take, CancellationToken token);
+    protected abstract Task<List<T>> GetRangeAsync(string? searchString,
+                                                   int skip,
+                                                   int take,
+                                                   CancellationToken token);
 
     #endregion
 
@@ -78,40 +72,76 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         // trick per datagrid
         if (index != 0)
         {
-            //_logger?.LogDebug("timer: {Time} {Millisecond} index: {Index}",
-            //                  DateTime.Now.ToLongTimeString(),
-            //                  DateTime.Now.Millisecond.ToString(),
-            //                  index.ToString());
-
-            if (index < _indexToFetch || index >= _indexToFetch + take)
+            if (index < _indexToFetch || index >= _indexToFetch + _take || _indexToFetch == -1)
             {
                 _logger?.LogDebug("Indice non Fetchato: {Index}", index);
+
                 if (index < _range)
                     index = 0;
-                else if (index > count - _range)
-                    index = count - take;
+                else if (index > _count - _range)
+                    index = _count - _take;
                 else
                     index -= _range;
                 _indexToFetch = index;
-                //_logger?.LogDebug("timer: {Time} {Millisecond} skip: {Index}",
-                //                  DateTime.Now.ToLongTimeString(),
-                //                  DateTime.Now.Millisecond.ToString(),
-                //                  index.ToString());
 
                 UnSelectIndex?.Invoke();
 
                 try
                 {
                     var token = NewToken();
-                    Task.Run(async () => await FetchRange(index, token), token);
+                    Task.Run(async () =>
+                    {
+                        // pulisco la lista interna
+                        _items.Clear();
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        // ritardo inserito per velocizzare scrolling
+                        await Task.Delay(50, token);
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        // recupero i dati
+                        _logger?.LogDebug("FetchRange: {Skip} - {Take}", index, _take + index - 1);
+                        var models = await GetRangeAsync(_searchString, index, _take, token);
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        // Aggiorno lista interna
+                        for (var i = 0; i < models.Count; i++)
+                        {
+                            _items.Add(index + i, models[i]);
+                        }
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        await _dispatcher.InvokeAsync(() =>
+                        {
+                            foreach (var item in _items)
+                            {
+                                if (token.IsCancellationRequested)
+                                    token.ThrowIfCancellationRequested();
+                                var eventArgs = new NotifyCollectionChangedEventArgs(
+                                    NotifyCollectionChangedAction.Replace,
+                                    item.Value,
+                                    _dummy,
+                                    item.Key);
+                                CollectionChanged?.Invoke(this, eventArgs);
+                            }
+                        });
+                    }, token);
                 }
                 catch (TaskCanceledException tcex)
                 {
-                    _logger?.LogDebug("FetchRange: {Skip} - {Take} {Message} Id:{Id}", index, index + take - 1, tcex.Message, tcex.Task?.Id);
+                    _logger?.LogDebug("GetData: {Index} - {Message} Id:{Id}", index, tcex.Message, tcex.Task?.Id);
                 }
                 catch (OperationCanceledException ocex)
                 {
-                    _logger?.LogDebug(ocex.Message);
+                    _logger?.LogDebug("GetData: {Index} - {Message}", index, ocex.Message);
                 }
             }
             else
@@ -119,54 +149,13 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         }
     }
 
-    private async Task FetchRange(int index, CancellationToken token)
-    {
-        // pulisco la lista interna
-        items.Clear();
-        _logger?.LogDebug("clean list");
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // ritardo inserito per velocizzare scrolling
-        await Task.Delay(50, token);
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // recupero i dati
-        _logger?.LogDebug("FetchRange: {Skip} - {Take}", index, take + index - 1);
-        var models = await GetRangeAsync(_searchString, index, take, token);
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // Aggiorno lista interna
-        for (var i = 0; i < models.Count; i++)
-        {
-            items.Add(index + i, models[i]);
-        }
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        await dispatcher.InvokeAsync(() =>
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
-            CollectionChanged?.Invoke(
-                this,
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        });
-    }
-
     private CancellationToken NewToken()
     {
-        if (cancellationTokenSource.Token.CanBeCanceled)
-            cancellationTokenSource.Cancel();
-        cancellationTokenSource.Dispose();
-        cancellationTokenSource = new CancellationTokenSource();
-        return cancellationTokenSource.Token;
+        if (_tokenSource.Token.CanBeCanceled)
+            _tokenSource.Cancel();
+        _tokenSource.Dispose();
+        _tokenSource = new CancellationTokenSource();
+        return _tokenSource.Token;
     }
 
     #endregion
@@ -178,16 +167,16 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     {
         get
         {
-            if (items.TryGetValue(index, out T? item))
+            if (_items.TryGetValue(index, out T? item))
             {
-                _logger?.LogDebug("Indexer get real: {Index}", index);
+                //_logger?.LogDebug("Indexer get real: {Index}", index);
                 return item;
             }
             else
             {
-                _logger?.LogDebug("Indexer get dummy: {Index}", index);
+                //_logger?.LogDebug("Indexer get dummy: {Index}", index);
                 GetData(index);
-                return dummyObject;
+                return _dummy;
             }
         }
         set => throw new NotImplementedException();
@@ -199,7 +188,7 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
         set => throw new NotImplementedException();
     }
 
-    public int Count => count;
+    public int Count => _count;
 
     public bool IsReadOnly => true;
 
@@ -209,13 +198,13 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    IEnumerator<T> IEnumerable<T>.GetEnumerator() => items.Values.GetEnumerator();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => _items.Values.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)items.Values).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items.Values).GetEnumerator();
 
-    int IList.IndexOf(object? value) => ((IList)items.Values).IndexOf(value);
+    int IList.IndexOf(object? value) => ((IList)_items.Values).IndexOf(value);
 
-    bool IList.Contains(object? value) => ((IList)items.Values).Contains(value);
+    bool IList.Contains(object? value) => ((IList)_items.Values).Contains(value);
 
     public Action? ScrollToTop { private get; set; }
 

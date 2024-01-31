@@ -10,7 +10,8 @@
       d:DesignHeight="450"
       d:DesignWidth="800"
       Title="DatagridPage"
-      Background="White">
+      Background="White"
+      Loaded="OnPageLoaded">
 
     <Grid>
         <Border BorderThickness="1"

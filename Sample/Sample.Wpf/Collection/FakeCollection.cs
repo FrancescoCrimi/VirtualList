@@ -16,7 +16,7 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.Collection;
 public class FakeCollection : IVirtualCollection<Model>
 {
     private readonly ILogger logger;
-    private readonly Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+    private readonly Dispatcher dispatcher;
     private readonly List<Model> list;
     private List<Model> items;
     private const string CountString = "Count";
@@ -25,6 +25,7 @@ public class FakeCollection : IVirtualCollection<Model>
     public FakeCollection()
     {
         logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeCollection>();
+        dispatcher = System.Windows.Application.Current.Dispatcher;
         list = SampleDataService.ReadFromFile("SampleData.json");
         items = new List<Model>();
     }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.WinUi;
 
@@ -20,4 +21,6 @@ public interface IVirtualRangeCollection<T> : ICollection<T>,
 {
     new T this[int index] { get; set; }
     new int Count { get; }
+
+    Task LoadAsync(string? searchString);
 }
