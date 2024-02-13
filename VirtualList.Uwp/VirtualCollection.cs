@@ -28,8 +28,7 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         private readonly ILogger _logger;
         private readonly CoreDispatcher _dispatcher;
-        private readonly IDictionary<int, T> _items;
-        private readonly List<T> fakelist;
+        private readonly ConcurrentDictionary<int, T> _items;
         private readonly T _dummy;
         private readonly int _range;
         private readonly int _take;
@@ -44,15 +43,17 @@ namespace CiccioSoft.VirtualList.Uwp
         {
             _logger = logger;
             _dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
-            _tokenSource = new CancellationTokenSource();
             _items = new ConcurrentDictionary<int, T>();
-            fakelist = new List<T>();
             _dummy = CreateDummyEntity();
             _range = range;
             _take = range * 2;
+            _tokenSource = new CancellationTokenSource();
         }
 
-        public async Task LoadAsync(string searchString)
+
+        #region interface member implemented
+
+        public async Task LoadAsync(string searchString = "")
         {
             _searchString = searchString;
             _indexToFetch = -1;
@@ -66,123 +67,19 @@ namespace CiccioSoft.VirtualList.Uwp
             });
         }
 
-
-        #region abstract method
-
-        protected abstract T CreateDummyEntity();
-        protected abstract Task<int> GetCountAsync(string searchString);
-        protected abstract Task<List<T>> GetRangeAsync(string searchString,
-                                                       int skip,
-                                                       int take,
-                                                       CancellationToken token);
-
-        #endregion
-
-
-        #region private method
-
-        private void GetData(int index)
-        {
-            if (index < _indexToFetch || index >= _indexToFetch + _take || _indexToFetch == -1)
-            {
-                if (index < _range)
-                    index = 0;
-                else if (index > _count - _range)
-                    index = _count - _take;
-                else
-                    index -= _range;
-                _indexToFetch = index;
-
-                try
-                {
-                    var token = NewToken();
-                    Task.Run(async () =>
-                    {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        // pulisco la lista interna
-                        _items.Clear();
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        // ritardo inserito per velocizzare scrolling
-                        await Task.Delay(50, token);
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        // recupero i dati
-                        var models = await GetRangeAsync(_searchString, index, _take, token);
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        // Aggiorno lista interna
-                        for (var i = 0; i < models.Count; i++)
-                        {
-                            _items.Add(index + i, models[i]);
-                        }
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        // invoco CollectionChanged Replace per singolo item
-                        await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            foreach (var item in _items)
-                            {
-                                if (token.IsCancellationRequested)
-                                    token.ThrowIfCancellationRequested();
-                                var eventArgs = new NotifyCollectionChangedEventArgs(
-                                    NotifyCollectionChangedAction.Replace,
-                                    item.Value,
-                                    null,
-                                    item.Key);
-                                CollectionChanged?.Invoke(this, eventArgs);
-                            }
-                        });
-                    }, token);
-                }
-                catch (TaskCanceledException tcex)
-                {
-                    _logger.LogDebug("GetData: {0} - {1} Id:{2}", index, tcex.Message, tcex.Task.Id);
-                }
-                catch (OperationCanceledException ocex)
-                {
-                    _logger.LogDebug("GetData: {0} - {1}", index, ocex.Message);
-                }
-            }
-        }
-
-        private CancellationToken NewToken()
-        {
-            if (_tokenSource.Token.CanBeCanceled)
-                _tokenSource.Cancel();
-            _tokenSource.Dispose();
-            _tokenSource = new CancellationTokenSource();
-            return _tokenSource.Token;
-        }
-
-        #endregion
-
-
-        #region interface member implemented
-
         public T this[int index]
         {
             get
             {
                 if (_items.TryGetValue(index, out T item))
                 {
-                    _logger.LogDebug("Indexer get real: {0}", index);
+                    _logger.LogTrace("Indexer get real: {index}", index);
                     return item;
                 }
                 else
                 {
-                    _logger.LogDebug("Indexer get dummy: {0}", index);
-                    GetData(index);
+                    _logger.LogTrace("Indexer get dummy: {index}", index);
+                    FetchItems(index);
                     return _dummy;
                 }
             }
@@ -205,13 +102,13 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => _items.Values.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items.Values).GetEnumerator();
 
-        int IList<T>.IndexOf(T item) => -1;
+        int IList<T>.IndexOf(T item) => ((IList<T>)_items.Values).IndexOf(item);
 
-        int IList.IndexOf(object value) => -1;
+        int IList.IndexOf(object value) => ((IList)_items.Values).IndexOf(value);
 
         #endregion
 
@@ -234,6 +131,101 @@ namespace CiccioSoft.VirtualList.Uwp
         void IList.RemoveAt(int index) => throw new NotImplementedException();
         bool ICollection.IsSynchronized => throw new NotImplementedException();
         object ICollection.SyncRoot => throw new NotImplementedException();
+
+        #endregion
+
+
+        #region abstract method
+
+        protected abstract T CreateDummyEntity();
+        protected abstract Task<int> GetCountAsync(string searchString);
+        protected abstract Task<List<T>> GetRangeAsync(string searchString,
+                                                       int skip,
+                                                       int take,
+                                                       CancellationToken token);
+
+        #endregion
+
+
+        #region private method
+
+        private void FetchItems(int index)
+        {
+            if (index < _indexToFetch || index >= _indexToFetch + _take || _indexToFetch == -1)
+            {
+                _logger.LogTrace("No Fetched: {index}", index);
+
+                if (index < _range)
+                    index = 0;
+                else if (index > _count - _range)
+                    index = _count - _take;
+                else
+                    index -= _range;
+                _indexToFetch = index;
+
+                var token = NewToken();
+                Task.Run(async () =>
+                {
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+
+                    // pulisco la lista interna
+                    _items.Clear();
+
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+
+                    // recupero i dati
+                    _logger.LogTrace("FetchItems: {from} - {to}", index, _take + index - 1);
+                    var models = await GetRangeAsync(_searchString, index, _take, token);
+
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+
+                    // Aggiorno lista interna
+                    for (var i = 0; i < models.Count; i++)
+                    {
+                        _items.TryAdd(index + i, models[i]);
+                    }
+
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+
+                    // invoco CollectionChanged Replace per singolo item
+                    foreach (var item in _items)
+                    {
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+                        var eventArgs = new NotifyCollectionChangedEventArgs(
+                            NotifyCollectionChangedAction.Replace,
+                            item.Value,
+                            null,
+                            item.Key);
+                        await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            CollectionChanged?.Invoke(this, eventArgs);
+                        });
+                    }
+                }, token).ContinueWith(t =>
+                {
+                    if (t.IsCanceled)
+                        _logger?.LogDebug("Canceled: {from} - {to}", index, index + _take - 1);
+                });
+            }
+            else
+            {
+                _logger?.LogTrace("Already fetched: {index}", index);
+            }
+        }
+
+        private CancellationToken NewToken()
+        {
+            if (_tokenSource.Token.CanBeCanceled)
+                _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = new CancellationTokenSource();
+            return _tokenSource.Token;
+        }
 
         #endregion
     }

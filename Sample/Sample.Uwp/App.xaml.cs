@@ -88,10 +88,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
-                // MS LocalDB
-                case DbType.MsLocalDb:
-                    break;
-
                 // MS SqlServer
                 case DbType.SqlServer:
                     serviceCollection
@@ -128,6 +124,5 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
 
             Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
         }
-
     }
 }

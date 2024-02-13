@@ -1,5 +1,4 @@
-﻿using CiccioSoft.VirtualList.Sample.Database;
-using CiccioSoft.VirtualList.Sample.Domain;
+﻿using CiccioSoft.VirtualList.Sample.WinUi.Domain;
 using CiccioSoft.VirtualList.WinUi;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,42 +14,44 @@ namespace CiccioSoft.VirtualList.Sample.WinUi.Collection;
 
 public class FakeVirtualRangeCollection : IVirtualRangeCollection<Model>
 {
-    private readonly ILogger logger;
-    private List<Model> fakelist;
-    private int count = 0;
+    private readonly ILogger _logger;
+    private readonly List<Model> _list;
+    private List<Model> _items;
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
 
-    public FakeVirtualRangeCollection(int total = 1000000)
+    public FakeVirtualRangeCollection()
     {
-        logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeVirtualRangeCollection>();
-        fakelist = SampleDataService.Generate(total);
-        count = fakelist.Count;
-    }
-
-    private void OnNotifyCollectionReset()
-    {
-        //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
-        //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        logger.LogDebug("Evento Collection Reset");
-    }
-
-    public Task LoadAsync(string str = "")
-    {
-        OnNotifyCollectionReset();
-        return Task.CompletedTask;
+        _logger = Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<FakeVirtualRangeCollection>();
+        _list = DataService.ReadFromFile("SampleData.json");
+        _items = new List<Model>();
     }
 
 
     #region Implemented Method Interface
 
+    public Task LoadAsync(string? searchString)
+    {
+        searchString ??= string.Empty;
+        _items = _list!.FindAll(x => !string.IsNullOrEmpty(x.Name) && x.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        _logger.LogDebug("Collection Reset");
+        return Task.CompletedTask;
+    }
+
+    public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
+    {
+        _logger.LogDebug("RangeChange {first} - {last}", visibleRange.FirstIndex, visibleRange.LastIndex);
+    }
+
     public Model this[int index]
     {
         get
         {
-            var item = fakelist[index];
-            logger.LogDebug("Index: {0}", index);
+            var item = _items[index];
+            _logger.LogTrace("Index: {index} {time}", index, DateTime.Now.ToString("hh:mm:ss.fff"));
             return item;
         }
         set => throw new NotImplementedException();
@@ -62,7 +63,7 @@ public class FakeVirtualRangeCollection : IVirtualRangeCollection<Model>
         set => throw new NotImplementedException();
     }
 
-    public int Count => count;
+    public int Count => _items.Count;
 
     public bool IsReadOnly => true;
 
@@ -72,30 +73,21 @@ public class FakeVirtualRangeCollection : IVirtualRangeCollection<Model>
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => fakelist.GetEnumerator();
+    IEnumerator<Model> IEnumerable<Model>.GetEnumerator() => _items.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IList)_items).GetEnumerator();
 
-    int IList<Model>.IndexOf(Model item) => -1;
+    int IList<Model>.IndexOf(Model item) => _items.IndexOf(item);
 
-    int IList.IndexOf(object? value) => -1;
+    int IList.IndexOf(object? value) => ((IList)_items).IndexOf(value);
 
-    public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
-    {
-        logger.LogDebug("RangeChange {0} - {1}", visibleRange.FirstIndex, visibleRange.LastIndex);
-    }
-
-    public void Dispose()
-    {
-    }
+    public void Dispose() { }
 
     #endregion
 
 
     #region interface member not implemented
 
-    bool ICollection.IsSynchronized => throw new NotImplementedException();
-    object ICollection.SyncRoot => throw new NotImplementedException();
     void ICollection<Model>.Add(Model item) => throw new NotImplementedException();
     int IList.Add(object? value) => throw new NotImplementedException();
     void ICollection<Model>.Clear() => throw new NotImplementedException();
@@ -110,6 +102,8 @@ public class FakeVirtualRangeCollection : IVirtualRangeCollection<Model>
     void IList.Remove(object? value) => throw new NotImplementedException();
     void IList<Model>.RemoveAt(int index) => throw new NotImplementedException();
     void IList.RemoveAt(int index) => throw new NotImplementedException();
+    bool ICollection.IsSynchronized => throw new NotImplementedException();
+    object ICollection.SyncRoot => throw new NotImplementedException();
 
     #endregion
 }

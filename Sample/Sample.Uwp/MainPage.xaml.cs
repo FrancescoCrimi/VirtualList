@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp
 {
@@ -14,9 +13,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            await ViewModel.LoadAsync();
-        }
+        private async void OnPageLoaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+            => await ViewModel.LoadAsync();
     }
 }

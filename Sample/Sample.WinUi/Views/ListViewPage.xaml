@@ -8,6 +8,7 @@
       xmlns:viewmodels="using:CiccioSoft.VirtualList.Sample.WinUi.ViewModels"
       d:DataContext="{d:DesignInstance Type=viewmodels:ListViewViewModel}"
       mc:Ignorable="d"
+      Loaded="OnPageLoaded"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
@@ -28,16 +29,17 @@
                            Margin="3"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center" />
-                <TextBox Margin="3"
+                <TextBox x:Name="SearchTextBox"
+                         Margin="3"
                          Width="120"
                          VerticalAlignment="Center"
-                         HorizontalAlignment="Center"
-                         Text="{Binding SearchString, Mode=TwoWay}" />
+                         HorizontalAlignment="Center" />
                 <Button Margin="3"
                         Content="Search"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Command="{Binding SearchCommand, Mode=OneWay}" />
+                        Command="{Binding SearchCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
 
         </Border>

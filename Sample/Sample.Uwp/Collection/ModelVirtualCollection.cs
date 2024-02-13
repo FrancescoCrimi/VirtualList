@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Collection
 {
-    public class ModelVirtualCollection : VirtualRangeCollection<Model>
+    public class ModelVirtualCollection : VirtualCollection<Model>
     {
         public ModelVirtualCollection()
-            : base(Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
+            : base(20, Ioc.Default.GetRequiredService<ILoggerFactory>().CreateLogger<ModelVirtualCollection>())
         {
         }
 

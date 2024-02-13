@@ -119,10 +119,11 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Collection\FakeCollection.cs" />
+    <Compile Include="Collection\FakeVirtualCollection.cs" />
+    <Compile Include="Collection\FakeVirtualRangeCollection.cs" />
     <Compile Include="Collection\ModelVirtualCollection.cs" />
     <Compile Include="Database\AppDbContext.cs" />
-    <Compile Include="Database\SampleDataService.cs" />
+    <Compile Include="DataService.cs" />
     <Compile Include="Domain\Model.cs" />
     <Compile Include="Database\DbType.cs" />
     <Compile Include="MainPage.xaml.cs">

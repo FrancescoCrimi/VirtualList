@@ -21,6 +21,5 @@ public interface IVirtualRangeCollection<T> : ICollection<T>,
 {
     new T this[int index] { get; set; }
     new int Count { get; }
-
     Task LoadAsync(string? searchString);
 }

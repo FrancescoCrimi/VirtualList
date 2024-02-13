@@ -8,7 +8,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.System.Threading;
 
 namespace CiccioSoft.VirtualList.WinUi;
 
@@ -29,8 +28,7 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 {
     private readonly ILogger? _logger;
     private readonly DispatcherQueue _dispatcher;
-    private readonly IDictionary<int, T> _items;
-    private readonly List<T> fakelist;
+    private readonly ConcurrentDictionary<int, T> _items;
     private readonly T _dummy;
     private readonly int _range;
     private readonly int _take;
@@ -41,165 +39,47 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     private const string CountString = "Count";
     private const string IndexerName = "Item[]";
 
-    private readonly ConcurrentStack<int> indexStack;
-    private readonly ThreadPoolTimer timer;
-
     public VirtualCollection(int range = 20, ILogger? logger = null)
     {
         _logger = logger;
         _dispatcher = DispatcherQueue.GetForCurrentThread();
         _items = new ConcurrentDictionary<int, T>();
-        fakelist = new List<T>();
         _dummy = CreateDummyEntity();
         _range = range;
         _take = range * 2;
         _tokenSource = new CancellationTokenSource();
-        _indexToFetch = int.MaxValue;
-
-        indexStack = new ConcurrentStack<int>();
-        timer = ThreadPoolTimer.CreatePeriodicTimer(TimerHandler, TimeSpan.FromMilliseconds(50));
     }
-
-    public async Task LoadAsync(string? searchString)
-    {
-        await Task.Run(() =>
-        {
-            _dispatcher.TryEnqueue(async () =>
-            {
-                _count = await GetCountAsync();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            });
-        });
-    }
-
-
-    #region abstract method
-
-    protected abstract T CreateDummyEntity();
-    protected abstract Task<int> GetCountAsync();
-    protected abstract Task<List<T>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken);
-
-    #endregion
-
-
-    #region private method
-
-    private void TimerHandler(ThreadPoolTimer timer)
-    {
-        if (!indexStack.IsEmpty)
-        {
-            indexStack.TryPop(out var index);
-            indexStack.Clear();
-            if (index < _indexToFetch || index >= _indexToFetch + _take)
-            {
-                _logger?.LogDebug("Indice non Fetchato: {Index}", index);
-                if (index < _range)
-                    index = 0;
-                else if (index > _count - _range)
-                    index = _count - _take;
-                else
-                    index -= _range;
-                _indexToFetch = index;
-                var token = NewToken();
-                Task.Run(async () => await FetchRange(index, token), token);
-            }
-            else
-                _logger?.LogDebug("Indice già Fetchato: {Index}", index);
-        }
-    }
-
-    private async Task FetchRange(int skip, CancellationToken token)
-    {
-        try
-        {
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-
-            // ritardo inserito per velocizzare scrolling
-            await Task.Delay(50, token);
-
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-
-            // recupero i dati
-            _logger?.LogDebug("FetchRange: {Skip} - {Take}", skip, skip + _take - 1);
-            var models = await GetRangeAsync(skip, _take, token);
-
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-
-            // Aggiorno lista interna
-            _items.Clear();
-            for (var i = 0; i < models.Count; i++)
-            {
-                _items.Add(skip + i, models[i]);
-            }
-
-            if (token.IsCancellationRequested)
-                token.ThrowIfCancellationRequested();
-
-            // invoco CollectionChanged Replace per singolo item
-            _dispatcher.TryEnqueue(() =>
-            {
-                try
-                {
-                    foreach (var item in _items)
-                    {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                        var eventArgs = new NotifyCollectionChangedEventArgs(
-                            NotifyCollectionChangedAction.Replace,
-                            item.Value,
-                            null,
-                            item.Key);
-                        CollectionChanged?.Invoke(this, eventArgs);
-                    }
-                }
-                catch (OperationCanceledException ocex)
-                {
-                    _logger?.LogDebug("NotifyCollectionChanged Replace: {Skip} - {Take} {Message}", skip, skip + _take - 1, ocex.Message);
-                }
-            });
-        }
-        catch (TaskCanceledException tcex)
-        {
-            _logger?.LogDebug("FetchRange: {Skip} - {Take} {Message} Id:{Id}", skip, skip + _take - 1, tcex.Message, tcex.Task?.Id);
-        }
-        catch (OperationCanceledException ocex)
-        {
-            _logger?.LogDebug(ocex.Message);
-        }
-    }
-
-    private CancellationToken NewToken()
-    {
-        if (_tokenSource.Token.CanBeCanceled)
-            _tokenSource.Cancel();
-        _tokenSource.Dispose();
-        _tokenSource = new CancellationTokenSource();
-        return _tokenSource.Token;
-    }
-
-    #endregion
 
 
     #region interface member implemented 
+
+    public async Task LoadAsync(string? searchString)
+    {
+        _searchString = searchString;
+        _indexToFetch = -1;
+        _items.Clear();
+        _count = await GetCountAsync(searchString);
+        _dispatcher.TryEnqueue(() =>
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(CountString));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(IndexerName));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        });
+    }
 
     public T this[int index]
     {
         get
         {
-            if (_items.ContainsKey(index))
+            if (_items.TryGetValue(index, out T? item))
             {
-                //logger.LogDebug("Indexer get real: {Index}", index);
-                return _items[index];
+                _logger?.LogTrace("Indexer get real: {index}", index);
+                return item;
             }
             else
             {
-                //logger.LogDebug("Indexer get dummy: {Index}", index);
-                indexStack.Push(index);
+                _logger?.LogTrace("Indexer get dummy: {index}", index);
+                FetchItems(index);
                 return _dummy;
             }
         }
@@ -222,13 +102,13 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    IEnumerator<T> IEnumerable<T>.GetEnumerator() => fakelist.GetEnumerator();
+    IEnumerator<T> IEnumerable<T>.GetEnumerator() => _items.Values.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator() => ((IList)fakelist).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items.Values).GetEnumerator();
 
-    int IList<T>.IndexOf(T item) => -1;
+    int IList<T>.IndexOf(T item) => ((IList<T>)_items.Values).IndexOf(item);
 
-    int IList.IndexOf(object? value) => -1;
+    int IList.IndexOf(object? value) => ((IList)_items.Values).IndexOf(value);
 
     #endregion
 
@@ -251,6 +131,101 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
     void IList.RemoveAt(int index) => throw new NotImplementedException();
     bool ICollection.IsSynchronized => throw new NotImplementedException();
     object ICollection.SyncRoot => throw new NotImplementedException();
+
+    #endregion
+
+
+    #region abstract method
+
+    protected abstract T CreateDummyEntity();
+    protected abstract Task<int> GetCountAsync(string? searchString);
+    protected abstract Task<List<T>> GetRangeAsync(string? searchString,
+                                                   int skip,
+                                                   int take,
+                                                   CancellationToken token);
+
+    #endregion
+
+
+    #region private method
+
+    private void FetchItems(int index)
+    {
+        if (index < _indexToFetch || index >= _indexToFetch + _take || _indexToFetch == -1)
+        {
+            _logger?.LogTrace("No Fetched: {index}", index);
+
+            if (index < _range)
+                index = 0;
+            else if (index > _count - _range)
+                index = _count - _take;
+            else
+                index -= _range;
+            _indexToFetch = index;
+
+            var token = NewToken();
+            Task.Run(async () =>
+            {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // pulisco la lista interna
+                _items.Clear();
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // recupero i dati
+                _logger?.LogTrace("FetchItems: {from} - {to}", index, index + _take - 1);
+                var models = await GetRangeAsync(_searchString, index, _take, token);
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // Aggiorno lista interna
+                for (var i = 0; i < models.Count; i++)
+                {
+                    _items.TryAdd(index + i, models[i]);
+                }
+
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+
+                // invoco CollectionChanged Replace per singolo item
+                foreach (var item in _items)
+                {
+                    if (token.IsCancellationRequested)
+                        token.ThrowIfCancellationRequested();
+                    var eventArgs = new NotifyCollectionChangedEventArgs(
+                        NotifyCollectionChangedAction.Replace,
+                        item.Value,
+                        null,
+                        item.Key);
+                    _dispatcher.TryEnqueue(() =>
+                    {
+                        CollectionChanged?.Invoke(this, eventArgs);
+                    });
+                }
+            }, token).ContinueWith(t =>
+            {
+                if (t.IsCanceled)
+                    _logger?.LogDebug("Canceled: {from} - {to}", index, index + _take - 1);
+            });
+        }
+        else
+        {
+            _logger?.LogTrace("Already fetched: {index}", index);
+        }
+    }
+
+    private CancellationToken NewToken()
+    {
+        if (_tokenSource.Token.CanBeCanceled)
+            _tokenSource.Cancel();
+        _tokenSource.Dispose();
+        _tokenSource = new CancellationTokenSource();
+        return _tokenSource.Token;
+    }
 
     #endregion
 }

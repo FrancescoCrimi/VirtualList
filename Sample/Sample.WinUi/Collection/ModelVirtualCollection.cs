@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Repository;
+﻿using CiccioSoft.VirtualList.Sample.WinUi.Domain;
+using CiccioSoft.VirtualList.Sample.WinUi.Repository;
 using CiccioSoft.VirtualList.WinUi;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,20 +21,24 @@ public class ModelVirtualCollection : VirtualCollection<Model>
         return new Model(0, "null");
     }
 
-    protected async override Task<int> GetCountAsync()
+    protected async override Task<int> GetCountAsync(string? searchString)
     {
         using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
         {
-            var aaa = await repo.CountAsync();
+            var aaa = await repo.CountAsync(m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString!.ToUpper()));
             return aaa;
         }
     }
 
-    protected async override Task<List<Model>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
+    protected async override Task<List<Model>> GetRangeAsync(string? searchString,
+                                                             int skip,
+                                                             int take,
+                                                             CancellationToken token)
     {
         using (var repo = Ioc.Default.GetRequiredService<IModelRepository>())
         {
-            return await repo.GetRangeAsync(skip, take, cancellationToken);
+            searchString ??= "";
+            return await repo.GetRangeAsync(skip, take, m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString.ToUpper()), token);
         }
     }
 }

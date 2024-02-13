@@ -10,13 +10,19 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 {
-    internal class ModelRepository : IModelRepository
+    public class ModelRepository : IModelRepository
     {
         private readonly AppDbContext _dbContext;
 
         public ModelRepository(AppDbContext appDbContext)
         {
             _dbContext = appDbContext;
+        }
+
+        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
+                                    CancellationToken token = default)
+        {
+            return _dbContext.Models.AsQueryable().CountAsync(predicate, token);
         }
 
         public Task<List<Model>> GetRangeAsync(int skip,
@@ -30,13 +36,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
                 .Take(take)
                 .OrderBy(m => m.Id)
                 .ToListAsync(token);
-        }
-
-        public Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
-                                    CancellationToken token = default)
-        {
-            return _dbContext.Models.AsQueryable()
-                .CountAsync(predicate, token);
         }
 
         public void Dispose()

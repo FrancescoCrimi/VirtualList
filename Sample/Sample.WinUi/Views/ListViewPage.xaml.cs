@@ -1,15 +1,21 @@
 ﻿using CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace CiccioSoft.VirtualList.Sample.WinUi.Views;
 
 public sealed partial class ListViewPage : Page
 {
+    public ListViewViewModel ViewModel { get; }
+
     public ListViewPage()
     {
         InitializeComponent();
-        var mainViewModel = Ioc.Default.GetRequiredService<ListViewViewModel>();
-        DataContext = mainViewModel;
+        ViewModel = Ioc.Default.GetRequiredService<ListViewViewModel>();
+        DataContext = ViewModel;
     }
+
+    private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        => await ViewModel.LoadAsync();
 }

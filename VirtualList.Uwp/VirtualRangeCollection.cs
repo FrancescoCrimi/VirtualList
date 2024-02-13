@@ -29,17 +29,14 @@ namespace CiccioSoft.VirtualList.Uwp
     {
         private readonly ILogger _logger;
         private readonly CoreDispatcher _dispatcher;
-        private readonly IDictionary<int, T> _items;
-        private readonly List<T> _fakelist;
+        private readonly ConcurrentDictionary<int, T> _items;
         private readonly T _dummy;
-
         private CancellationTokenSource _tokenSource;
         private int _count = 0;
         private string _searchString = "";
         private int FirstIndex;
         private int LastIndex;
         private int Length;
-
         private const string CountString = "Count";
         private const string IndexerName = "Item[]";
 
@@ -48,13 +45,14 @@ namespace CiccioSoft.VirtualList.Uwp
             _logger = logger;
             _dispatcher = Windows.ApplicationModel.Core.CoreApplication.GetCurrentView().Dispatcher;
             _items = new ConcurrentDictionary<int, T>();
-            _fakelist = new List<T>();
             _dummy = CreateDummyEntity();
-
             _tokenSource = new CancellationTokenSource();
             FirstIndex = 0;
             LastIndex = 0;
         }
+
+
+        #region interface member implemented
 
         public async Task LoadAsync(string searchString)
         {
@@ -73,132 +71,71 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 var lengthToFetch = Length * 3;
                 FirstIndex = 0;
-                LastIndex = 0 + lengthToFetch - 1;
+                LastIndex = lengthToFetch - 1;
+
                 var token = NewToken();
-                await Task.Run(async () => await FetchRange(FirstIndex, lengthToFetch, token), token);
-            }
-        }
-
-
-        #region abstract method
-
-        protected abstract T CreateDummyEntity();
-        protected abstract Task<int> GetCountAsync(string searchString);
-        protected abstract Task<List<T>> GetRangeAsync(string searchString, int skip, int take, CancellationToken token);
-
-        #endregion
-
-
-        #region private method
-
-        private CancellationToken NewToken()
-        {
-            if (_tokenSource.Token.CanBeCanceled)
-                _tokenSource.Cancel();
-            _tokenSource.Dispose();
-            _tokenSource = new CancellationTokenSource();
-            return _tokenSource.Token;
-        }
-
-        private async Task FetchRange(int skip, int take, CancellationToken token)
-        {
-            try
-            {
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-
-                // ritardo inserito per velocizzare scrolling
-                await Task.Delay(50, token);
-
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-
-                // recupero i dati
-                _logger.LogDebug("FetchRange: {0} - {1}", skip, skip + take - 1);
-                var models = await GetRangeAsync(_searchString, skip, take, token);
-
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-
-                // Aggiorno lista interna
-                _items.Clear();
-                for (var i = 0; i < models.Count; i++)
-                {
-                    _items.Add(skip + i, models[i]);
-                }
-
-                if (token.IsCancellationRequested)
-                    token.ThrowIfCancellationRequested();
-
-                // invoco CollectionChanged Replace per singolo item
-                await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    foreach (var item in _items)
+                await Task.Run(async () => await FetchRange(FirstIndex, lengthToFetch, token), token)
+                    .ContinueWith(t =>
                     {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                        var eventArgs = new NotifyCollectionChangedEventArgs(
-                            NotifyCollectionChangedAction.Replace,
-                            item.Value,
-                            null,
-                            item.Key);
-                        CollectionChanged?.Invoke(this, eventArgs);
-                    }
-                });
-            }
-            catch (TaskCanceledException tcex)
-            {
-                _logger.LogDebug("FetchRange: {0} - {1} {2} Id:{3}", skip, skip + take - 1, tcex.Message, tcex.Task.Id);
-            }
-            catch (OperationCanceledException ocex)
-            {
-                _logger.LogDebug(ocex.Message);
+                        if (t.IsCanceled)
+                            _logger?.LogDebug("Canceled: {from} - {to}", FirstIndex, FirstIndex + lengthToFetch - 1);
+                    });
+
+                //try
+                //{
+                //    await FetchRange(FirstIndex, lengthToFetch, token);
+                //}
+                //catch (OperationCanceledException)
+                //{
+                //    _logger?.LogDebug("Canceled: {from} - {to}", FirstIndex, FirstIndex + lengthToFetch - 1);
+                //}
             }
         }
 
-        #endregion
-
-
-        #region interface member implemented
-
-        public void RangesChanged(ItemIndexRange visibleRange, IReadOnlyList<ItemIndexRange> trackedItems)
+        public void RangesChanged(ItemIndexRange visibleRange,
+                                  IReadOnlyList<ItemIndexRange> trackedItems)
         {
-            var firstVisible = visibleRange.FirstIndex;
-            var lastVisible = visibleRange.LastIndex;
-            var lengthVisible = (int)visibleRange.Length;
-            _logger.LogDebug("VisibleRange: {0} - {1}", firstVisible, lastVisible);
+            var visibleFirst = visibleRange.FirstIndex;
+            var visibleLast = visibleRange.LastIndex;
+            var visibleLength = (int)visibleRange.Length;
+            _logger.LogTrace("VisibleRange: {first} - {last}", visibleFirst, visibleLast);
 
             // se visibleRangeLength è minore di 2 esci
-            if (lengthVisible < 2) return;
+            if (visibleLength < 2) return;
 
             // verifico se il range visibile rientra nel range già fetchato
-            if (firstVisible < FirstIndex || lastVisible > LastIndex)
+            if (visibleFirst < FirstIndex || visibleLast > LastIndex)
             {
                 // trovo la lunghezza totale di righe da estrarre
-                var lengthToFetch = lengthVisible * 3;
+                var lengthToFetch = visibleLength * 3;
 
                 // prima riga da estrarre
                 int firstToFetch;
 
                 // il range si trova all'inizio
-                if (firstVisible < lengthVisible * 1)
+                if (visibleFirst < visibleLength * 1)
                     firstToFetch = 0;
 
                 // il range si trova alla fine
-                else if (firstVisible >= _count - lengthVisible * 2)
+                else if (visibleFirst >= _count - visibleLength * 2)
                     firstToFetch = _count - lengthToFetch;
 
                 // il range si trova nel mezzo
                 else
-                    firstToFetch = firstVisible - lengthVisible * 1;
+                    firstToFetch = visibleFirst - visibleLength * 1;
 
                 //valorizzo variabli globali firstindex e lastindex;
                 FirstIndex = firstToFetch;
                 LastIndex = firstToFetch + lengthToFetch - 1;
-                Length = lengthVisible;
+                Length = visibleLength;
 
                 var token = NewToken();
-                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, token), token);
+                Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, token), token)
+                    .ContinueWith(t =>
+                    {
+                        if (t.IsCanceled)
+                            _logger?.LogDebug("Canceled: {from} - {to}", firstToFetch, firstToFetch + lengthToFetch - 1);
+                    });
             }
         }
 
@@ -208,12 +145,12 @@ namespace CiccioSoft.VirtualList.Uwp
             {
                 if (_items.TryGetValue(index, out T item))
                 {
-                    //_logger.LogDebug("Indexer get real: {0}", index);
+                    _logger.LogTrace("Indexer get real: {index}", index);
                     return item;
                 }
                 else
                 {
-                    //_logger.LogDebug("Indexer get dummy: {0}", index);
+                    _logger.LogTrace("Indexer get dummy: {index}", index);
                     return _dummy;
                 }
             }
@@ -236,13 +173,13 @@ namespace CiccioSoft.VirtualList.Uwp
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => _fakelist.GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => _items.Values.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IList)_fakelist).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items.Values).GetEnumerator();
 
-        int IList<T>.IndexOf(T item) => -1;
+        int IList<T>.IndexOf(T item) => ((IList<T>)_items.Values).IndexOf(item);
 
-        int IList.IndexOf(object value) => -1;
+        int IList.IndexOf(object value) => ((IList)_items.Values).IndexOf(value);
 
         public void Dispose()
         {
@@ -272,6 +209,77 @@ namespace CiccioSoft.VirtualList.Uwp
         void IList.RemoveAt(int index) => throw new NotImplementedException();
         bool ICollection.IsSynchronized => throw new NotImplementedException();
         object ICollection.SyncRoot => throw new NotImplementedException();
+
+        #endregion
+
+
+        #region abstract method
+
+        protected abstract T CreateDummyEntity();
+        protected abstract Task<int> GetCountAsync(string searchString);
+        protected abstract Task<List<T>> GetRangeAsync(string searchString,
+                                                       int skip,
+                                                       int take,
+                                                       CancellationToken token);
+
+        #endregion
+
+
+        #region private method
+
+        private async Task FetchRange(int skip, int take, CancellationToken token)
+        {
+            //if (token.IsCancellationRequested)
+            //    token.ThrowIfCancellationRequested();
+
+            //// ritardo inserito per velocizzare scrolling
+            //await Task.Delay(50, token);
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // recupero i dati
+            _logger.LogDebug("FetchRange: {from} - {to}", skip, skip + take - 1);
+            var models = await GetRangeAsync(_searchString, skip, take, token);
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // Aggiorno lista interna
+            _items.Clear();
+            for (var i = 0; i < models.Count; i++)
+            {
+                _items.TryAdd(skip + i, models[i]);
+            }
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // invoco CollectionChanged Replace per singolo item
+            foreach (var item in _items)
+            {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                var eventArgs = new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Replace,
+                    item.Value,
+                    null,
+                    item.Key);
+                await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    CollectionChanged?.Invoke(this, eventArgs);
+                });
+            }
+        }
+
+        private CancellationToken NewToken()
+        {
+            if (_tokenSource.Token.CanBeCanceled)
+                _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = new CancellationTokenSource();
+            return _tokenSource.Token;
+        }
 
         #endregion
     }

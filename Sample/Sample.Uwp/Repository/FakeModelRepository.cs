@@ -1,5 +1,4 @@
-﻿using CiccioSoft.VirtualList.Sample.Uwp.Database;
-using CiccioSoft.VirtualList.Sample.Uwp.Domain;
+﻿using CiccioSoft.VirtualList.Sample.Uwp.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +14,17 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
 
         public FakeModelRepository()
         {
-            models = SampleDataService.ReadFromFile("SampleData.json");
+            models = DataService.ReadFromFile("SampleData.json");
         }
 
         public async Task<int> CountAsync(Expression<Func<Model, bool>> predicate,
                                           CancellationToken token = default)
         {
-            await Task.Delay(3000, token);
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+            await Task.Delay(1000, token);
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
             return await Task.FromResult(models.Count(predicate.Compile()));
         }
 
@@ -30,7 +33,11 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Repository
                                                      Expression<Func<Model, bool>> predicate,
                                                      CancellationToken token = default)
         {
-            await Task.Delay(3000, token);
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+            await Task.Delay(1000, token);
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
             return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());
         }
 

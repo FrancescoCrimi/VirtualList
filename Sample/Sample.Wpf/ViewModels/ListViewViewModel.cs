@@ -9,9 +9,9 @@ namespace CiccioSoft.VirtualList.Sample.Wpf.ViewModels;
 public partial class ListViewViewModel : ObservableObject
 {
     public ListViewViewModel()
-        => Items = new ModelVirtualCollection();
+        => Items = new FakeVirtualCollection();
 
-    public ModelVirtualCollection Items { get; }
+    public FakeVirtualCollection Items { get; }
     public Action? ScrollToTop { set => Items.ScrollToTop = value; }
     public Action? UnSelectIndex { set => Items.UnSelectIndex = value; }
 

@@ -8,6 +8,7 @@
       xmlns:viewmodels="using:CiccioSoft.VirtualList.Sample.WinUi.ViewModels"
       d:DataContext="{d:DesignInstance Type=viewmodels:ItemsViewViewModel}"
       mc:Ignorable="d"
+      Loaded="OnPageLoaded"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
@@ -28,16 +29,17 @@
                            Margin="3"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center" />
-                <TextBox Margin="3"
+                <TextBox x:Name="SearchTextBox"
+                         Margin="3"
                          Width="120"
                          VerticalAlignment="Center"
-                         HorizontalAlignment="Center"
-                         Text="{x:Bind ViewModel.SearchString, Mode=TwoWay}" />
+                         HorizontalAlignment="Center" />
                 <Button Margin="3"
                         Content="Search"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}" />
+                        Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
         </Border>
@@ -58,9 +60,12 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding Id}" />
-                                <TextBlock Grid.Column="1" Text="{Binding Numero}" />
-                                <TextBlock Grid.Column="2" Text="{Binding Name}" />
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Id}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Numero}" />
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding Name}" />
                             </Grid>
                         </ItemContainer>
                     </DataTemplate>

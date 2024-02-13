@@ -1,0 +1,21 @@
+﻿Aggiungi classe ad DI da file appsetting.json
+
+serve
+    microsoft.extensions.configuration
+
+Codice
+    serviceCollection.Configure<MyAppOptions>(configuration.GetSection("MyAppOptions"));
+
+Classe
+    public class MyAppOptions
+    {
+        public DbType DbType { get; set; }
+    }
+
+file appsetting.json
+
+  "MyAppOptions": {
+    "DbType": "MsLocalDb"
+  },
+
+

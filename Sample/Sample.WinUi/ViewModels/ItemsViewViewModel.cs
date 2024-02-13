@@ -7,18 +7,15 @@ namespace CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
 
 public partial class ItemsViewViewModel : ObservableRecipient
 {
-    [ObservableProperty]
-    private string? _searchString;
-
     public ItemsViewViewModel()
-    {
-        Items = new FakeVirtualCollection();
-        Task.Run(async () => await Items.LoadAsync());
-    }
+        => Items = new ModelVirtualCollection();
 
-    public FakeVirtualCollection Items { get; }
+    public ModelVirtualCollection Items { get; }
+
+    internal Task LoadAsync()
+        => Items.LoadAsync("");
 
     [RelayCommand]
-    private async Task OnSearch()
-        => await Items.LoadAsync();
+    private Task OnSearch(string searchString)
+        => Items.LoadAsync(searchString);
 }

@@ -1,5 +1,5 @@
-﻿using CiccioSoft.VirtualList.Sample.Domain;
-using CiccioSoft.VirtualList.Sample.Repository;
+﻿using CiccioSoft.VirtualList.Sample.Wpf.Domain;
+using CiccioSoft.VirtualList.Sample.Wpf.Repository;
 using CiccioSoft.VirtualList.Wpf;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,9 +16,6 @@ public class ModelVirtualCollection : VirtualCollection<Model>
     {
     }
 
-
-    #region protected override method
-
     protected override Model CreateDummyEntity()
     {
         return new Model(0, "null");
@@ -32,13 +29,14 @@ public class ModelVirtualCollection : VirtualCollection<Model>
         return count;
     }
 
-    protected async override Task<List<Model>> GetRangeAsync(string? searchString, int skip, int take, CancellationToken cancellationToken)
+    protected async override Task<List<Model>> GetRangeAsync(string? searchString,
+                                                             int skip,
+                                                             int take,
+                                                             CancellationToken token)
     {
         searchString ??= string.Empty;
         using var repo = Ioc.Default.GetRequiredService<IModelRepository>();
-        var list = await repo.GetRangeAsync(skip, take, m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString.ToUpper()), cancellationToken);
+        var list = await repo.GetRangeAsync(skip, take, m => !string.IsNullOrEmpty(m.Name) && m.Name.Contains(searchString.ToUpper()), token);
         return list;
     }
-
-    #endregion
 }

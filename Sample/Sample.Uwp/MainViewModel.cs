@@ -10,14 +10,12 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
         private AsyncRelayCommand<string> searchCommand;
 
         public MainViewModel()
-        {
-            Items = new ModelVirtualCollection();
-        }
+            => Items = new ModelVirtualCollection();
 
-        public async Task LoadAsync()
-            => await Items.LoadAsync("");
+        public ModelVirtualCollection Items { get; }
 
-        public ModelVirtualCollection Items { get; private set; }
+        public Task LoadAsync()
+            => Items.LoadAsync("");
 
         public IAsyncRelayCommand<string> SearchCommand
             => searchCommand ?? (searchCommand = new AsyncRelayCommand<string>(async (searchString)
