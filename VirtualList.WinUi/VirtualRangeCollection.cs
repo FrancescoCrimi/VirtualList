@@ -57,8 +57,8 @@ public abstract class VirtualRangeCollection<T> : IVirtualRangeCollection<T> whe
     public async Task LoadAsync(string? searchString)
     {
         _searchString = searchString;
-        _count = await GetCountAsync(searchString);
         _items.Clear();
+        _count = await GetCountAsync(searchString);
 
         _dispatcher.TryEnqueue(() =>
         {
@@ -74,21 +74,7 @@ public abstract class VirtualRangeCollection<T> : IVirtualRangeCollection<T> whe
             LastIndex = lengthToFetch - 1;
 
             var token = NewToken();
-            await Task.Run(async () => await FetchRange(FirstIndex, lengthToFetch, token), token)
-                .ContinueWith(t =>
-                {
-                    if (t.IsCanceled)
-                        _logger?.LogDebug("Canceled: {from} - {to}", FirstIndex, FirstIndex + lengthToFetch - 1);
-                });
-
-            //try
-            //{
-            //    await FetchRange(FirstIndex, lengthToFetch, token);
-            //}
-            //catch (OperationCanceledException)
-            //{
-            //    _logger?.LogDebug("Canceled: {from} - {to}", FirstIndex, FirstIndex + lengthToFetch - 1);
-            //}
+            _ = FetchRange(FirstIndex, lengthToFetch, token);
         }
     }
 
@@ -130,12 +116,7 @@ public abstract class VirtualRangeCollection<T> : IVirtualRangeCollection<T> whe
             Length = visibleLength;
 
             var token = NewToken();
-            Task.Run(async () => await FetchRange(firstToFetch, lengthToFetch, token), token)
-                .ContinueWith(t =>
-                {
-                    if (t.IsCanceled)
-                        _logger?.LogDebug("Canceled: {from} - {to}", firstToFetch, firstToFetch + lengthToFetch - 1);
-                });
+            _ = FetchRange(firstToFetch, lengthToFetch, token);
         }
     }
 
@@ -229,46 +210,56 @@ public abstract class VirtualRangeCollection<T> : IVirtualRangeCollection<T> whe
 
     private async Task FetchRange(int skip, int take, CancellationToken token)
     {
-        //if (token.IsCancellationRequested)
-        //    token.ThrowIfCancellationRequested();
-
-        //// ritardo inserito per velocizzare scrolling
-        //await Task.Delay(50, token);
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // recupero i dati
-        _logger?.LogDebug("FetchRange: {from} - {to}", skip, skip + take - 1);
-        var models = await GetRangeAsync(_searchString, skip, take, token);
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // Aggiorno lista interna
-        _items.Clear();
-        for (var i = 0; i < models.Count; i++)
-        {
-            _items.TryAdd(skip + i, models[i]);
-        }
-
-        if (token.IsCancellationRequested)
-            token.ThrowIfCancellationRequested();
-
-        // invoco CollectionChanged Replace per singolo item
-        foreach (var item in _items)
+        try
         {
             if (token.IsCancellationRequested)
                 token.ThrowIfCancellationRequested();
-            var eventArgs = new NotifyCollectionChangedEventArgs(
-                NotifyCollectionChangedAction.Replace,
-                item.Value,
-                null,
-                item.Key);
-            _dispatcher.TryEnqueue(() =>
+
+            // pulisco la lista interna
+            _items.Clear();
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // recupero i dati
+            _logger?.LogDebug("FetchRange: {from} - {to}", skip, skip + take - 1);
+            var models = await GetRangeAsync(_searchString, skip, take, token);
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // Aggiorno lista interna
+            for (var i = 0; i < models.Count; i++)
             {
-                CollectionChanged?.Invoke(this, eventArgs);
-            });
+                _items.TryAdd(skip + i, models[i]);
+            }
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // invoco CollectionChanged Replace per singolo item
+            foreach (var item in _items)
+            {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                var eventArgs = new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Replace,
+                    item.Value,
+                    null,
+                    item.Key);
+                _dispatcher.TryEnqueue(() =>
+                {
+                    CollectionChanged?.Invoke(this, eventArgs);
+                });
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _logger?.LogDebug("TaskCanceled: {from} - {to}", skip, skip + take - 1);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger?.LogDebug("OperationCanceled: {from} - {to}", skip, skip + take - 1);
         }
     }
 

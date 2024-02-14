@@ -35,7 +35,7 @@ public class FakeModelRepository : IModelRepository
     {
         if (token.IsCancellationRequested)
             token.ThrowIfCancellationRequested();
-        await Task.Delay(1000, token);
+        await Task.Delay(3000, token);
         if (token.IsCancellationRequested)
             token.ThrowIfCancellationRequested();
         return await Task.FromResult(models.Where(predicate.Compile()).Skip(skip).Take(take).ToList());

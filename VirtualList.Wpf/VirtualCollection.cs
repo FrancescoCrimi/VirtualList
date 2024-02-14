@@ -163,58 +163,67 @@ public abstract class VirtualCollection<T> : IVirtualCollection<T> where T : cla
                 UnSelectIndex?.Invoke();
 
                 var token = NewToken();
-                Task.Run(async () =>
-                {
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    // pulisco la lista interna
-                    _items.Clear();
-
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    // recupero i dati
-                    _logger?.LogTrace("FetchItems: {from} - {to}", index, index + _take - 1);
-                    var models = await GetRangeAsync(_searchString, index, _take, token);
-
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    // Aggiorno lista interna
-                    for (var i = 0; i < models.Count; i++)
-                    {
-                        _items.TryAdd(index + i, models[i]);
-                    }
-
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    // invoco CollectionChanged Replace per singolo item
-                    foreach (var item in _items)
-                    {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                        var eventArgs = new NotifyCollectionChangedEventArgs(
-                            NotifyCollectionChangedAction.Replace,
-                            item.Value,
-                            _dummy,
-                            item.Key);
-                        await _dispatcher.InvokeAsync(() =>
-                        {
-                            CollectionChanged?.Invoke(this, eventArgs);
-                        });
-                    }
-                }, token).ContinueWith(t =>
-                {
-                    if (t.IsCanceled)
-                        _logger?.LogDebug("Canceled: {from} - {to}", index, index + _take - 1);
-                });
+                _ = FetchRange(index, _take, token);
             }
             else
             {
                 _logger?.LogTrace("Already fetched: {index}", index);
             }
+        }
+    }
+
+    private async Task FetchRange(int skip, int take, CancellationToken token)
+    {
+        try
+        {
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // pulisco la lista interna
+            _items.Clear();
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // recupero i dati
+            _logger?.LogDebug("FetchRange: {from} - {to}", skip, skip + take - 1);
+            var models = await GetRangeAsync(_searchString, skip, take, token);
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // Aggiorno lista interna
+            for (var i = 0; i < models.Count; i++)
+            {
+                _items.TryAdd(skip + i, models[i]);
+            }
+
+            if (token.IsCancellationRequested)
+                token.ThrowIfCancellationRequested();
+
+            // invoco CollectionChanged Replace per singolo item
+            foreach (var item in _items)
+            {
+                if (token.IsCancellationRequested)
+                    token.ThrowIfCancellationRequested();
+                var eventArgs = new NotifyCollectionChangedEventArgs(
+                    NotifyCollectionChangedAction.Replace,
+                    item.Value,
+                    _dummy,
+                    item.Key);
+                await _dispatcher.InvokeAsync(() =>
+                {
+                    CollectionChanged?.Invoke(this, eventArgs);
+                });
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _logger?.LogDebug("TaskCanceled: {from} - {to}", skip, skip + take - 1);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger?.LogDebug("OperationCanceled: {from} - {to}", skip, skip + take - 1);
         }
     }
 
