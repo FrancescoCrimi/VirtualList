@@ -1,4 +1,10 @@
-﻿using CiccioSoft.VirtualList.Sample.Wpf.Database;
+﻿// Copyright (c) 2024 Francesco Crimi francrim@gmail.com
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+
+using CiccioSoft.VirtualList.Sample.Wpf.Database;
 using CiccioSoft.VirtualList.Sample.Wpf.Repository;
 using CiccioSoft.VirtualList.Sample.Wpf.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
