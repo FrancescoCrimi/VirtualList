@@ -25,17 +25,6 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
         {
             InitializeComponent();
             ConfigureServiceProvider();
-            //using(var dbContext = Ioc.Default.GetRequiredService<AppDbContext>())
-            //{
-            //    dbContext.Database.EnsureDeleted();
-            //    dbContext.Database.EnsureCreated();
-            //    var list = Ioc.Default.GetRequiredService<SampleDataService>().Generate(1000000);
-            //    foreach (var item in list)
-            //    {
-            //        dbContext.Add(item);
-            //    }
-            //    dbContext.SaveChanges();
-            //}
         }
 
         protected override void OnLaunched(LaunchActivatedEventArgs e)
@@ -59,23 +48,17 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
 
         private void ConfigureServiceProvider()
         {
-            // Crea IConfiguration
-            ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            IConfiguration configuration = builder.Build();
+            // Configuration
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
 
             var serviceCollection = new ServiceCollection()
 
-            // Aggiungi Configurazione
-            .AddSingleton(configuration)
-
-            // Aggiungi Configurazione Logger
-            .AddLogging(loggingBuilder =>
-            {
-                loggingBuilder
-                    .AddConfiguration(configuration.GetSection("Logging"))
-                    .AddDebug();
-            });
+            // Logging
+            .AddLogging(builder => builder
+                .AddConfiguration(configuration.GetSection("Logging"))
+                .AddDebug());
 
             var section = configuration.GetSection("MyDbType");
             DbType dbt = (DbType)Enum.Parse(typeof(DbType), section.Value);
@@ -128,6 +111,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             serviceCollection
                 .AddTransient<MainViewModel>();
 
+            // Ioc.Default
             Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
         }
     }

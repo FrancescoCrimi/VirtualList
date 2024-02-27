@@ -21,28 +21,30 @@ public partial class App : Application
 {
     public App()
     {
-        // Crea Configurazione
-        var builder = new ConfigurationBuilder();
-        builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-        IConfiguration configuration = builder.Build();
+        ConfigureServices();
+    }
 
-
-
-        var serviceCollection = new ServiceCollection()
-
-        //// Aggiungi Configurazione
-        //.AddSingleton(configuration)
-
-        // Aggiungi Configurazione Logger
-        .AddLogging(loggingBuilder =>
+    private async void OnStartup(object sender, StartupEventArgs e)
+    {
+        await Application.Current.Dispatcher.InvokeAsync(() =>
         {
-            loggingBuilder
-                .AddConfiguration(configuration.GetSection("Logging"))
-                //.AddNLog()
-                .AddDebug();
+            new MainView().Show();
         });
+    }
 
-        //.AddData(configuration)
+    private void ConfigureServices()
+    {
+        // Crea Configurazione
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Logging
+        serviceCollection.AddLogging(builder => builder
+            .AddConfiguration(configuration.GetSection("Logging"))
+            .AddDebug());
 
         var section = configuration.GetSection("MyDbType");
         DbType dbt = Enum.Parse<DbType>(section.Value!);
@@ -108,28 +110,7 @@ public partial class App : Application
                 break;
         }
 
-        //.AddTransient<MainViewModel>()
-        //.AddTransient<MainView>()
-
-        // Configura il ServiceProvider di Ioc.Default
-        Ioc.Default.ConfigureServices(serviceCollection
-            .BuildServiceProvider());
-    }
-
-    private async void OnStartup(object sender, StartupEventArgs e)
-    {
-        await Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            //Ioc.Default.GetRequiredService<MainView>().Show();
-            new MainView().Show();
-        });
-
-        //await Application.Current.Dispatcher.InvokeAsync(async () =>
-        //{
-        //    AppDbContext dbContext = Ioc.Default.GetRequiredService<AppDbContext>();
-        //    var items = await dbContext.Models.ToListAsync();
-        //    dbContext.Dispose();
-        //    Application.Current.Shutdown();
-        //});
+        // Ioc.Default
+        Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
     }
 }

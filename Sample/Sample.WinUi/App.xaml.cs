@@ -23,19 +23,31 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+        ConfigureServices();
+    }
 
-        // Crea Configurazione           
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        Window m_window = new MainView();
+        m_window.Activate();
+
+        //Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(10000);
+    }
+
+    private void ConfigureServices()
+    {
+        // Configuration           
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
-        var serviceCollection = new ServiceCollection()
+        var serviceCollection = new ServiceCollection();
 
-            .AddLogging(loggingBuilder => loggingBuilder
-                .AddConfiguration(configuration.GetSection("Logging"))
-                //.AddNLog()
-                .AddDebug());
+        // Logging
+        serviceCollection.AddLogging(builder => builder
+            .AddConfiguration(configuration.GetSection("Logging"))
+            .AddDebug());
 
         var section = configuration.GetSection("MyDbType");
         DbType dbt = Enum.Parse<DbType>(section.Value!);
@@ -106,17 +118,7 @@ public partial class App : Application
             .AddTransient<ListViewViewModel>()
             .AddTransient<ListViewPage>();
 
+        // Ioc.Default
         Ioc.Default.ConfigureServices(serviceCollection.BuildServiceProvider());
-    }
-
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        Window m_window = new MainView
-        {
-            //Content = new ListViewPage()
-        };
-        m_window.Activate();
-
-        //Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(10000);
     }
 }
