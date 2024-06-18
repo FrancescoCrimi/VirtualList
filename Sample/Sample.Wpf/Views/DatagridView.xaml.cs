@@ -11,14 +11,14 @@ using System.Windows.Media;
 
 namespace CiccioSoft.VirtualList.Sample.Wpf.Views;
 
-public partial class DatagridView : Page
+public partial class DataGridView : Page
 {
-    private readonly DatagridViewModel _viewModel;
+    private readonly DataGridViewModel _viewModel;
 
-    public DatagridView()
+    public DataGridView()
     {
         InitializeComponent();
-        _viewModel = new DatagridViewModel
+        _viewModel = new DataGridViewModel
         {
             ScrollToTop = ScrollToTop,
             UnSelectIndex = UnSelectIndex

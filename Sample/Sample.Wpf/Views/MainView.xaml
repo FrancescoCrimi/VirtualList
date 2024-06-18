@@ -7,9 +7,10 @@
         xmlns:viewmodels="clr-namespace:CiccioSoft.VirtualList.Sample.Wpf.ViewModels"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
-        Title="MainWindow"
-        Height="450"
-        Width="500">
+        Title="{Binding Content.Title, ElementName=shellFrame}"
+        Height="350"
+        Width="350">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,15 +18,17 @@
         </Grid.RowDefinitions>
 
         <Menu>
-            <MenuItem Header="DataGrid"
-                      Command="{Binding OpenDataGridCommand, Mode=OneWay}" />
             <MenuItem Header="ListView"
                       Command="{Binding OpenListViewCommand, Mode=OneWay}" />
+            <MenuItem Header="DataGrid"
+                      Command="{Binding OpenDataGridCommand, Mode=OneWay}" />
         </Menu>
 
         <Frame Grid.Row="1"
                x:Name="shellFrame"
-               NavigationUIVisibility="Hidden" />
+               NavigationUIVisibility="Hidden"
+               Source="/Views/ListViewView.xaml" />
 
     </Grid>
+
 </Window>

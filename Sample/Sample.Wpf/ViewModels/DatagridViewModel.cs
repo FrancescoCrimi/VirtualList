@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace CiccioSoft.VirtualList.Sample.Wpf.ViewModels;
 
-public partial class DatagridViewModel : ObservableObject
+public partial class DataGridViewModel : ObservableObject
 {
-    public DatagridViewModel()
+    public DataGridViewModel()
         => Items = new ModelVirtualCollection();
 
     public ModelVirtualCollection Items { get; }

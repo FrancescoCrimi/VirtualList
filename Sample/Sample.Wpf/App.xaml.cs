@@ -6,7 +6,6 @@
 
 using CiccioSoft.VirtualList.Sample.Wpf.Database;
 using CiccioSoft.VirtualList.Sample.Wpf.Repository;
-using CiccioSoft.VirtualList.Sample.Wpf.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,18 +18,7 @@ namespace CiccioSoft.VirtualList.Sample.Wpf;
 
 public partial class App : Application
 {
-    public App()
-    {
-        ConfigureServices();
-    }
-
-    private async void OnStartup(object sender, StartupEventArgs e)
-    {
-        await Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            new MainView().Show();
-        });
-    }
+    public App() => ConfigureServices();
 
     private void ConfigureServices()
     {

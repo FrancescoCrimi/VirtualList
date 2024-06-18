@@ -30,8 +30,6 @@ public partial class App : Application
     {
         Window m_window = new MainView();
         m_window.Activate();
-
-        //Ioc.Default.GetRequiredService<DatabaseSerice>().LoadSample(10000);
     }
 
     private void ConfigureServices()
