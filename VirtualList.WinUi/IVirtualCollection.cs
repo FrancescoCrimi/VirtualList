@@ -10,20 +10,24 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace CiccioSoft.VirtualList.WinUi;
-
-public interface IVirtualCollection<T> : ICollection<T>,
-                                         IEnumerable<T>,
-                                         IEnumerable,
-                                         IList<T>,
-                                         IReadOnlyCollection<T>,
-                                         IReadOnlyList<T>,
-                                         ICollection,
-                                         IList,
-                                         INotifyCollectionChanged,
-                                         INotifyPropertyChanged where T : class
+namespace CiccioSoft.VirtualList.WinUi
 {
-    new T this[int index] { get; set; }
-    new int Count { get; }
-    Task LoadAsync(string? searchString);
+    public interface IVirtualCollection<T> : ICollection<T>,
+                                             IEnumerable<T>,
+                                             IEnumerable,
+                                             IList<T>,
+                                             IReadOnlyCollection<T>,
+                                             IReadOnlyList<T>,
+                                             ICollection,
+                                             IList,
+                                             INotifyCollectionChanged,
+                                             INotifyPropertyChanged where T : class
+    {
+        Task LoadAsync(string? searchString);
+
+        // The ‘new’ modifiers unify the duplicated Count and indexer 
+        // members inherited from both generic and non-generic interfaces.
+        new T this[int index] { get; set; }
+        new int Count { get; }
+    }
 }

@@ -31,19 +31,14 @@
                         CornerRadius="5"
                         Margin="3,3,3,0"
                         BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}">
-                    <Grid HorizontalAlignment="Center"
-                          VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
                         <Label Margin="3"
                                Content="Search"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                         <TextBox x:Name="SearchTextBox"
-                                 Grid.Column="1"
                                  Margin="3"
                                  Width="100"
                                  VerticalAlignment="Center"
@@ -55,14 +50,13 @@
                             </TextBox.InputBindings>
                         </TextBox>
                         <Button x:Name="SearchButton"
-                                Grid.Column="2"
                                 Margin="3"
                                 Content="Search"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Command="{Binding SearchCommand}"
                                 CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </Grid>
+                    </StackPanel>
                 </Border>
 
                 <Border Grid.Row="1"
@@ -102,23 +96,19 @@
                         CornerRadius="5"
                         Margin="3,3,3,3"
                         BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}">
-                    <Grid HorizontalAlignment="Center"
-                          VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
                         <Label Content="Count"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Margin="3" />
-                        <TextBox Grid.Column="1"
-                                 HorizontalAlignment="Center"
+                        <TextBox HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
                                  Width="100"
                                  Margin="3"
                                  Text="{Binding Items.Count, Mode=OneWay}" />
-                    </Grid>
+                    </StackPanel>
                 </Border>
 
             </Grid>

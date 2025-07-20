@@ -12,7 +12,9 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Database
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
         public DbSet<Model> Models
         {
@@ -37,6 +39,7 @@ namespace CiccioSoft.VirtualList.Sample.Uwp.Database
             //    object model = GetRandomModel(i);
             //    modelBuilder.Entity<Model>().HasData(model);
             //}
+        
         }
     }
 }

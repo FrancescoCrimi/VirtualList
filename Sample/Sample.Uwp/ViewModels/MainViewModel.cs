@@ -20,11 +20,17 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
 
         public ModelVirtualCollection Items { get; }
 
-        public Task LoadAsync()
-            => Items.LoadAsync("");
+        public Task LoadAsync(string searchString = "")
+        {
+            var _searchString = searchString ?? string.Empty;
+            return Items.LoadAsync(_searchString);
+        }
 
-        public IAsyncRelayCommand<string> SearchCommand
-            => searchCommand ?? (searchCommand = new AsyncRelayCommand<string>(async (searchString)
-                => await Items.LoadAsync(searchString)));
+        public IAsyncRelayCommand<string> SearchCommand =>       
+            searchCommand ?? (searchCommand = new AsyncRelayCommand<string>(async (searchString) =>
+            {
+                var _searchString = searchString ?? string.Empty;
+                await Items.LoadAsync(searchString);
+            }));
     }
 }

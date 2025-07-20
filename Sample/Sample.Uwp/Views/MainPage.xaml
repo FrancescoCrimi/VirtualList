@@ -3,8 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:CiccioSoft.VirtualList.Sample.Uwp"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
-      xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:b="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
@@ -16,7 +15,7 @@
         <Border BorderThickness="1"
                 CornerRadius="5"
                 BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-                Margin="3,0,3,3">
+                Margin="3,3,3,3">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -40,17 +39,18 @@
                                  Width="120"
                                  VerticalAlignment="Center"
                                  HorizontalAlignment="Center">
-                            <!--<TextBox.KeyboardAccelerators>
+                            <TextBox.KeyboardAccelerators>
                                 <KeyboardAccelerator Key="Enter"
+                                                     Invoked="KeyboardAccelerator_Invoked"
                                                      Modifiers="None">
-                                    <i:Interaction.Behaviors>
-                                        <ic:EventTriggerBehavior EventName="Invoked">
-                                            <ic:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}"
-                                                                    CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                        </ic:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
+                                    <!--<i:Interaction.Behaviors>
+                                        <i:EventTriggerBehavior EventName="Invoked">
+                                            <i:InvokeCommandAction Command="{x:Bind ViewModel.SearchCommand, Mode=OneWay}"
+                                                                   CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </i:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>-->
                                 </KeyboardAccelerator>
-                            </TextBox.KeyboardAccelerators>-->
+                            </TextBox.KeyboardAccelerators>
                         </TextBox>
                         <Button x:Name="SearchButton"
                                 Margin="3"
@@ -70,13 +70,9 @@
                     <ListView ItemsSource="{x:Bind ViewModel.Items}"
                               ScrollViewer.IsDeferredScrollingEnabled="False"
                               ShowsScrollingPlaceholders="False">
-
-                        <i:Interaction.Behaviors>
-                            <b:StickyHeaderBehavior />
-                        </i:Interaction.Behaviors>
-
                         <ListView.Header>
-                            <Grid>
+                            <Grid Height="40"
+                                  Padding="16,0,12,0">
                                 <Grid.Background>
                                     <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}" />
                                 </Grid.Background>
@@ -85,14 +81,19 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
+
+                                <i:Interaction.Behaviors>
+                                    <behaviors:StickyHeaderBehavior />
+                                </i:Interaction.Behaviors>
+
                                 <TextBlock Text="Id"
-                                           TextAlignment="Center" />
+                                           VerticalAlignment="Center" />
                                 <TextBlock Text="Numero"
                                            Grid.Column="1"
-                                           TextAlignment="Center" />
+                                           VerticalAlignment="Center" />
                                 <TextBlock Text="Name"
                                            Grid.Column="2"
-                                           TextAlignment="Center" />
+                                           VerticalAlignment="Center" />
                             </Grid>
                         </ListView.Header>
 

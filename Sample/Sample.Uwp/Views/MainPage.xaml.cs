@@ -5,7 +5,9 @@
 // https://opensource.org/licenses/MIT.
 
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 namespace CiccioSoft.VirtualList.Sample.Uwp
 {
@@ -19,7 +21,13 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
             ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
         }
 
-        private async void OnPageLoaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-            => await ViewModel.LoadAsync();
+        private async void OnPageLoaded(object sender, RoutedEventArgs e) =>
+            await ViewModel.LoadAsync();
+
+        private async void KeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            var searchString = SearchTextBox.Text ?? string.Empty;
+            await ViewModel.LoadAsync(searchString);
+        }
     }
 }

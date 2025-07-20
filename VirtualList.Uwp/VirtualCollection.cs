@@ -59,9 +59,9 @@ namespace CiccioSoft.VirtualList.Uwp
 
         #region interface member implemented
 
-        public async Task LoadAsync(string searchString = "")
+        public async Task LoadAsync(string searchString)
         {
-            _searchString = searchString;
+            _searchString = searchString ?? string.Empty;
             _indexToFetch = -1;
             _items.Clear();
             _count = await GetCountAsync(searchString);

@@ -77,18 +77,18 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
 
-                // MS SqlServer
-                case DbType.SqlServer:
-                    serviceCollection
-                        .AddDbContext<AppDbContext>(options =>
-                        {
-                            options
-                                //.UseLazyLoadingProxies()
-                                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
-                                .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
-                        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
-                        .AddTransient<IModelRepository, ModelRepository>();
-                    break;
+                //// MS SqlServer
+                //case DbType.SqlServer:
+                //    serviceCollection
+                //        .AddDbContext<AppDbContext>(options =>
+                //        {
+                //            options
+                //                //.UseLazyLoadingProxies()
+                //                .ConfigureWarnings(w => w.Ignore(CoreEventId.RowLimitingOperationWithoutOrderByWarning))
+                //                .UseSqlServer(configuration.GetConnectionString("SqlServerConnection"));
+                //        }, ServiceLifetime.Transient, ServiceLifetime.Transient)
+                //        .AddTransient<IModelRepository, ModelRepository>();
+                //    break;
 
                 // MySql
                 case DbType.MySql:
@@ -96,7 +96,8 @@ namespace CiccioSoft.VirtualList.Sample.Uwp
                         .AddDbContext<AppDbContext>(options =>
                         {
                             options
-                                .UseMySql(configuration.GetConnectionString("MySqlConnection"));
+                                .UseMySql(configuration.GetConnectionString("MySqlConnection"))
+                                .EnableSensitiveDataLogging();
                         }, ServiceLifetime.Transient, ServiceLifetime.Transient)
                         .AddTransient<IModelRepository, ModelRepository>();
                     break;
