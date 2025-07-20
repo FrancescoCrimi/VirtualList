@@ -9,9 +9,9 @@ using System.Windows;
 
 namespace CiccioSoft.VirtualList.Sample.Wpf.Views;
 
-public partial class MainView : Window
+public partial class MainWindow : Window
 {
-    public MainView()
+    public MainWindow()
     {
         InitializeComponent();
         var mainViewModel = new MainViewModel(shellFrame);

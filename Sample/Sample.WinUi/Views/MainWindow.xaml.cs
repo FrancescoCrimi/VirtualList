@@ -5,14 +5,14 @@
 // https://opensource.org/licenses/MIT.
 
 using CiccioSoft.VirtualList.Sample.WinUi.ViewModels;
-using Microsoft.UI.Xaml;
+using WinUIEx;
 
 namespace CiccioSoft.VirtualList.Sample.WinUi.Views;
 
-public sealed partial class MainView : Window
+public sealed partial class MainWindow : WindowEx
 {
     public MainViewModel ViewModel { get; }
-    public MainView()
+    public MainWindow()
     {
         InitializeComponent();
         ViewModel = new MainViewModel(shellFrame);
