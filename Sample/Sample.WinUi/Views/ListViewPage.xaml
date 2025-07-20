@@ -5,6 +5,8 @@
       xmlns:local="using:CiccioSoft.VirtualList.Sample.WinUi.Views"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
       xmlns:viewmodels="using:CiccioSoft.VirtualList.Sample.WinUi.ViewModels"
       d:DataContext="{d:DesignInstance Type=viewmodels:ListViewViewModel}"
       mc:Ignorable="d"
@@ -12,119 +14,132 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
         <Border BorderThickness="1"
                 CornerRadius="5"
                 BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
                 Margin="3,3,3,3">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-                <TextBlock Text="Search"
-                           Margin="3"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center" />
-                <TextBox x:Name="SearchTextBox"
-                         Margin="3"
-                         Width="120"
-                         VerticalAlignment="Center"
-                         HorizontalAlignment="Center" />
-                <Button Margin="3"
-                        Content="Search"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Command="{Binding SearchCommand, Mode=OneWay}"
-                        CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,3,3,3">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Search"
+                                   Margin="3"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                        <TextBox x:Name="SearchTextBox"
+                                 Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center" />
+                        <Button Margin="3"
+                                Content="Search"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Command="{Binding SearchCommand, Mode=OneWay}"
+                                CommandParameter="{Binding Text, ElementName=SearchTextBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                </Border>
+
+                <Border Grid.Row="1"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,0,3,3">
+                    <ListView ItemsSource="{Binding Items}"
+                              ScrollViewer.IsDeferredScrollingEnabled="False"
+                              ShowsScrollingPlaceholders="False">
+
+                        <ListView.Header>
+                            <Grid Height="40"
+                                  Padding="16,0,12,0">
+                                <Grid.Background>
+                                    <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}" />
+                                </Grid.Background>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <i:Interaction.Behaviors>
+                                    <behaviors:StickyHeaderBehavior />
+                                </i:Interaction.Behaviors>
+                                <TextBlock Text="Id"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="Numero"
+                                           Grid.Column="1"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="Name"
+                                           Grid.Column="2"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </ListView.Header>
+
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- default CacheLength value is 4.0 -->
+                                <!--<ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>-->
+                                <ItemsStackPanel Orientation="Vertical"
+                                                 CacheLength="0.0" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Id}" />
+                                    <TextBlock Text="{Binding Numero}"
+                                               Grid.Column="1" />
+                                    <TextBlock Text="{Binding Name}"
+                                               Grid.Column="2" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                    </ListView>
+                </Border>
+
+                <Border Grid.Row="2"
+                        BorderThickness="1"
+                        CornerRadius="5"
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                        Margin="3,0,3,3">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Count"
+                                   Margin="3"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        <TextBox Margin="3"
+                                 Width="120"
+                                 VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 IsReadOnly="True"
+                                 Text="{Binding Items.Count, Mode=OneWay}" />
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
 
         </Border>
-
-        <Border Grid.Row="1"
-                BorderThickness="1"
-                CornerRadius="5"
-                BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-                Margin="3,0,3,3">
-            <ListView ItemsSource="{Binding Items}"
-                      ScrollViewer.IsDeferredScrollingEnabled="False"
-                      ShowsScrollingPlaceholders="False">
-
-                <ListView.Header>
-                    <Grid>
-                        <Grid.Background>
-                            <SolidColorBrush Color="{ThemeResource SystemAccentColorLight1}" />
-                        </Grid.Background>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Id"
-                                   TextAlignment="Center" />
-                        <TextBlock Text="Numero"
-                                   Grid.Column="1"
-                                   TextAlignment="Center" />
-                        <TextBlock Text="Name"
-                                   Grid.Column="2"
-                                   TextAlignment="Center" />
-                    </Grid>
-                </ListView.Header>
-
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <!-- default CacheLength value is 4.0 -->
-                        <!--<ItemsStackPanel Orientation="Vertical" CacheLength="0.0"/>-->
-                        <ItemsStackPanel Orientation="Vertical"
-                                         CacheLength="0.0" />
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding Id}" />
-                            <TextBlock Text="{Binding Numero}"
-                                       Grid.Column="1" />
-                            <TextBlock Text="{Binding Name}"
-                                       Grid.Column="2" />
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-
-            </ListView>
-        </Border>
-
-        <Border Grid.Row="2"
-                BorderThickness="1"
-                CornerRadius="5"
-                BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-                Margin="3,0,3,3">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-                <TextBlock Text="Count"
-                           Margin="3"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-                <TextBox Margin="3"
-                         Width="120"
-                         VerticalAlignment="Center"
-                         HorizontalAlignment="Center"
-                         IsReadOnly="True"
-                         Text="{Binding Items.Count, Mode=OneWay}" />
-            </StackPanel>
-
-        </Border>
-
     </Grid>
 
 </Page>
